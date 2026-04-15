@@ -8,7 +8,9 @@ public class UpdateStudentRequestDtoValidator : AbstractValidator<UpdateStudentR
     public UpdateStudentRequestDtoValidator()
     {
         RuleFor(x => x.FullName)
+            .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("FullName is required.")
+            .Must(name => !string.IsNullOrWhiteSpace(name)).WithMessage("FullName is required.")
             .MaximumLength(255).WithMessage("FullName must not exceed 255 characters.");
 
         RuleFor(x => x.Phone)
