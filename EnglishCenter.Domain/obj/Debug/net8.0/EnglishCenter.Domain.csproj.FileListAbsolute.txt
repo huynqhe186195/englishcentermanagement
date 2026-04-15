@@ -1,0 +1,11 @@
+D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Domain\bin\Debug\net8.0\EnglishCenter.Domain.deps.json
+D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Domain\bin\Debug\net8.0\EnglishCenter.Domain.dll
+D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Domain\bin\Debug\net8.0\EnglishCenter.Domain.pdb
+D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Domain\obj\Debug\net8.0\EnglishCenter.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Domain\obj\Debug\net8.0\EnglishCenter.Domain.AssemblyInfoInputs.cache
+D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Domain\obj\Debug\net8.0\EnglishCenter.Domain.AssemblyInfo.cs
+D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Domain\obj\Debug\net8.0\EnglishCenter.Domain.csproj.CoreCompileInputs.cache
+D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Domain\obj\Debug\net8.0\EnglishCenter.Domain.dll
+D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Domain\obj\Debug\net8.0\refint\EnglishCenter.Domain.dll
+D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Domain\obj\Debug\net8.0\EnglishCenter.Domain.pdb
+D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Domain\obj\Debug\net8.0\ref\EnglishCenter.Domain.dll

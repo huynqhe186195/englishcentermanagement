@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="EnglishCenter.Api/EnglishCenter.Api.csproj" />
+    <Project Path="EnglishCenter.Application/EnglishCenter.Application.csproj" />
+    <Project Path="EnglishCenter.Domain/EnglishCenter.Domain.csproj" />
+    <Project Path="EnglishCenter.Infrastructure/EnglishCenter.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>
