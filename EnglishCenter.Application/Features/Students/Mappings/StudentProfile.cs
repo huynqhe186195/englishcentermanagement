@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using EnglishCenter.Application.Features.Students.Dtos;
-using EnglishCenter.Domain.Models;
+using EnglishCenter.Infrastructure.Persistence.Models;
 
 namespace EnglishCenter.Application.Features.Students.Mappings;
 

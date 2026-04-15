@@ -17,3 +17,4 @@ D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Infrastructur
 D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Infrastructure\obj\Debug\net8.0\EnglishCenter.Infrastructure.pdb
 D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Infrastructure\obj\Debug\net8.0\EnglishCenter.Infrastructure.genruntimeconfig.cache
 D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Infrastructure\obj\Debug\net8.0\ref\EnglishCenter.Infrastructure.dll
+D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Infrastructure\obj\Debug\net8.0\EnglishCenter.Infrastructure.sourcelink.json

@@ -9,3 +9,4 @@ D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Domain\obj\De
 D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Domain\obj\Debug\net8.0\refint\EnglishCenter.Domain.dll
 D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Domain\obj\Debug\net8.0\EnglishCenter.Domain.pdb
 D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Domain\obj\Debug\net8.0\ref\EnglishCenter.Domain.dll
+D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Domain\obj\Debug\net8.0\EnglishCenter.Domain.sourcelink.json

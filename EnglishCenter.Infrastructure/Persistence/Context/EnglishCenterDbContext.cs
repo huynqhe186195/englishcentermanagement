@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using EnglishCenter.Infrastructure.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
-using EnglishCenter.Domain.Models;
 
 namespace EnglishCenter.Infrastructure.Persistence.Context;
 
