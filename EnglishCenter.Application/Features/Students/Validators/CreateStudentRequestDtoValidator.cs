@@ -8,11 +8,16 @@ public class CreateStudentRequestDtoValidator : AbstractValidator<CreateStudentR
     public CreateStudentRequestDtoValidator()
     {
         RuleFor(x => x.StudentCode)
+            .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("StudentCode is required.")
+            .Must(code => !string.IsNullOrWhiteSpace(code)).WithMessage("StudentCode is required.")
+            .MinimumLength(3).WithMessage("StudentCode must be at least 3 characters.")
             .MaximumLength(50).WithMessage("StudentCode must not exceed 50 characters.");
 
         RuleFor(x => x.FullName)
+            .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("FullName is required.")
+            .Must(name => !string.IsNullOrWhiteSpace(name)).WithMessage("FullName is required.")
             .MaximumLength(255).WithMessage("FullName must not exceed 255 characters.");
 
         RuleFor(x => x.Phone)
