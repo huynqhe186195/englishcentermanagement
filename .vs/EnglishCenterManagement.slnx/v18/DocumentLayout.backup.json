@@ -3,8 +3,80 @@
   "WorkspaceRootPath": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{38CD26E5-7144-A088-2D80-8931E228E807}|EnglishCenter.Infrastructure\\EnglishCenter.Infrastructure.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.infrastructure\\persistence\\context\\englishcenterdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{38CD26E5-7144-A088-2D80-8931E228E807}|EnglishCenter.Infrastructure\\EnglishCenter.Infrastructure.csproj|solutionrelative:englishcenter.infrastructure\\persistence\\context\\englishcenterdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\invoice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\invoice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\exam.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\exam.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\enrollment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\enrollment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\course.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\course.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\classteacher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\classteacher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\classsession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\classsession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\classschedule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\classschedule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\campus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\campus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\auditlog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\auditlog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\attendancerecord.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\attendancerecord.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\assignmentsubmission.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\assignmentsubmission.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\assignment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\assignment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\student.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\student.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\class.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\class.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{8597FA28-AEC5-1341-C933-4BDB158695A4}|EnglishCenter.Application\\EnglishCenter.Application.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.application\\features\\students\\mappings\\studentprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8597FA28-AEC5-1341-C933-4BDB158695A4}|EnglishCenter.Application\\EnglishCenter.Application.csproj|solutionrelative:englishcenter.application\\features\\students\\mappings\\studentprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\vwstudentbillingsummary.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\vwstudentbillingsummary.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|d:\\fulearning\\prn232\\project\\englishcentermanagement\\englishcenter.domain\\models\\studentparent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFE28B60-7E58-9BD1-45EC-71A3722BE23D}|EnglishCenter.Domain\\EnglishCenter.Domain.csproj|solutionrelative:englishcenter.domain\\models\\studentparent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,17 +86,251 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 8,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Invoice.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\Invoice.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\Invoice.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\Invoice.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\Invoice.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:37:34.788Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Exam.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\Exam.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\Exam.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\Exam.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\Exam.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:37:33.762Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Enrollment.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\Enrollment.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\Enrollment.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\Enrollment.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\Enrollment.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:37:32.553Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ClassSession.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\ClassSession.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\ClassSession.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\ClassSession.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\ClassSession.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:37:28.779Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ClassSchedule.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\ClassSchedule.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\ClassSchedule.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\ClassSchedule.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\ClassSchedule.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:37:27.648Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Campus.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\Campus.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\Campus.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\Campus.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\Campus.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:37:26.8Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "AuditLog.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\AuditLog.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\AuditLog.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\AuditLog.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\AuditLog.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:37:25.294Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "AttendanceRecord.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\AttendanceRecord.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\AttendanceRecord.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\AttendanceRecord.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\AttendanceRecord.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:37:23.876Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "EnglishCenterDbContext.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Infrastructure\\Persistence\\Context\\EnglishCenterDbContext.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Infrastructure\\Persistence\\Context\\EnglishCenterDbContext.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Infrastructure\\Persistence\\Context\\EnglishCenterDbContext.cs",
+              "RelativeToolTip": "EnglishCenter.Infrastructure\\Persistence\\Context\\EnglishCenterDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:35:30.893Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "AssignmentSubmission.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\AssignmentSubmission.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\AssignmentSubmission.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\AssignmentSubmission.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\AssignmentSubmission.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:37:22.91Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Assignment.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\Assignment.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\Assignment.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\Assignment.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\Assignment.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:37:20.214Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ClassTeacher.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\ClassTeacher.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\ClassTeacher.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\ClassTeacher.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\ClassTeacher.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:32:29.52Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Course.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\Course.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\Course.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\Course.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\Course.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:34:28.416Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "User.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\User.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\User.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\User.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\User.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:34:48.8Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "Class.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\Class.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\Class.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\Class.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\Class.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAA5wAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:34:31.713Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "VwStudentBillingSummary.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\VwStudentBillingSummary.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\VwStudentBillingSummary.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\VwStudentBillingSummary.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\VwStudentBillingSummary.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:34:19.305Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "StudentParent.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\StudentParent.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\StudentParent.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\StudentParent.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\StudentParent.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:34:11.068Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Student.cs",
+              "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\Student.cs",
+              "RelativeDocumentMoniker": "EnglishCenter.Domain\\Models\\Student.cs",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Domain\\Models\\Student.cs",
+              "RelativeToolTip": "EnglishCenter.Domain\\Models\\Student.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAmwDEAAABnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-15T16:31:12.8Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
               "Title": "StudentProfile.cs",
               "DocumentMoniker": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Application\\Features\\Students\\Mappings\\StudentProfile.cs",
               "RelativeDocumentMoniker": "EnglishCenter.Application\\Features\\Students\\Mappings\\StudentProfile.cs",
-              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Application\\Features\\Students\\Mappings\\StudentProfile.cs*",
-              "RelativeToolTip": "EnglishCenter.Application\\Features\\Students\\Mappings\\StudentProfile.cs*",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAwAAAAAAAAAA==",
+              "ToolTip": "D:\\FuLearning\\PRN232\\Project\\EnglishCenterManagement\\EnglishCenter.Application\\Features\\Students\\Mappings\\StudentProfile.cs",
+              "RelativeToolTip": "EnglishCenter.Application\\Features\\Students\\Mappings\\StudentProfile.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-15T16:05:54.347Z",
               "EditorCaption": ""

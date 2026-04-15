@@ -1,0 +1,20 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build results
+bin/
+obj/
+
+# Debug / Release files
+*.pdb
+*.exe
+*.dll
+
+# Cache
+*.cache
+
+# Rider / VSCode (nếu có)
+.idea/
+.vscode/

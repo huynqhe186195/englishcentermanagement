@@ -13,3 +13,4 @@ D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Application\o
 D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Application\obj\Debug\net8.0\refint\EnglishCenter.Application.dll
 D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Application\obj\Debug\net8.0\EnglishCenter.Application.pdb
 D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Application\obj\Debug\net8.0\ref\EnglishCenter.Application.dll
+D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Application\obj\Debug\net8.0\EnglishCenter.Application.sourcelink.json
