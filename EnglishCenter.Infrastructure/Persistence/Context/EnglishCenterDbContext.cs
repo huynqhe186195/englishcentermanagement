@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using EnglishCenter.Domain.Models;
+using EnglishCenter.Application.Common.Interfaces;
 
 namespace EnglishCenter.Infrastructure.Persistence.Context;
 
-public partial class EnglishCenterDbContext : DbContext
+public partial class EnglishCenterDbContext : DbContext, IApplicationDbContext
 {
     public EnglishCenterDbContext(DbContextOptions<EnglishCenterDbContext> options)
         : base(options)
