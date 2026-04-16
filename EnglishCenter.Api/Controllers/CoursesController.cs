@@ -21,34 +21,34 @@ public class CoursesController : ControllerBase
     public async Task<IActionResult> GetPaged([FromQuery] GetCoursesPagingRequestDto request)
     {
         var result = await _courseService.GetPagedAsync(request);
-        return Ok(ApiResponse<PagedResult<CourseDto>>.SuccessResponse(result, "Get courses successfully"));
+        return Ok();
     }
 
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(long id)
     {
         var result = await _courseService.GetByIdAsync(id);
-        return Ok(ApiResponse<CourseDetailDto>.SuccessResponse(result, "Get course successfully"));
+        return Ok();
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateCourseRequestDto request)
     {
         var id = await _courseService.CreateAsync(request);
-        return Ok(ApiResponse<object>.SuccessResponse(new { Id = id }, "Course created successfully"));
+        return Ok(new {Id = id});
     }
 
     [HttpPut("{id:long}")]
     public async Task<IActionResult> Update(long id, [FromBody] UpdateCourseRequestDto request)
     {
         await _courseService.UpdateAsync(id, request);
-        return Ok(ApiResponse<object>.SuccessResponse(null, "Course updated successfully"));
+        return Ok();
     }
 
     [HttpDelete("{id:long}")]
     public async Task<IActionResult> Delete(long id)
     {
         await _courseService.DeleteAsync(id);
-        return Ok(ApiResponse<object>.SuccessResponse(null, "Course deleted successfully"));
+        return Ok();
     }
 }
