@@ -5,8 +5,14 @@ using EnglishCenter.Infrastructure;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using System.Reflection;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration.ReadFrom.Configuration(context.Configuration);
+});
 
 builder.Services.AddControllers(options =>
 {
@@ -22,6 +28,7 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(Assembly.Load("EnglishCenter.Application"));
 
 var app = builder.Build();
+app.UseSerilogRequestLogging();
 app.UseMiddleware<ExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
