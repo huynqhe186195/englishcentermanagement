@@ -1,4 +1,6 @@
-﻿using EnglishCenter.Application.Features.Students;
+﻿using EnglishCenter.Application.Common.Models;
+using EnglishCenter.Application.Commons.Models.Response;
+using EnglishCenter.Application.Features.Students;
 using EnglishCenter.Application.Features.Students.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,49 +18,37 @@ public class StudentsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetPaged([FromQuery] GetStudentsPagingRequestDto request)
     {
-        var result = await _studentService.GetAllAsync();
-        return Ok(result);
+        var result = await _studentService.GetPagedAsync(request);
+        return Ok(ApiResponse<PagedResult<StudentDto>>.SuccessResponse(result, "Get students successfully"));
     }
 
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(long id)
     {
         var result = await _studentService.GetByIdAsync(id);
-
-        if (result == null)
-            return NotFound(new { message = "Student not found" });
-
-        return Ok(result);
+        return Ok(ApiResponse<StudentDetailDto>.SuccessResponse(result, "Get student successfully"));
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateStudentRequestDto request)
     {
         var id = await _studentService.CreateAsync(request);
-        return Ok(new { message = "Student created successfully", id });
+        return Ok(ApiResponse<object>.SuccessResponse(new { Id = id }, "Student created successfully"));
     }
 
     [HttpPut("{id:long}")]
     public async Task<IActionResult> Update(long id, [FromBody] UpdateStudentRequestDto request)
     {
-        var updated = await _studentService.UpdateAsync(id, request);
-
-        if (!updated)
-            return NotFound(new { message = "Student not found" });
-
-        return Ok(new { message = "Student updated successfully" });
+        await _studentService.UpdateAsync(id, request);
+        return Ok(ApiResponse<string>.SuccessResponse(null!, "Student updated successfully"));
     }
 
     [HttpDelete("{id:long}")]
     public async Task<IActionResult> Delete(long id)
     {
-        var deleted = await _studentService.DeleteAsync(id);
-
-        if (!deleted)
-            return NotFound(new { message = "Student not found" });
-
-        return Ok(new { message = "Student deleted successfully" });
+        await _studentService.DeleteAsync(id);
+        return Ok(ApiResponse<string>.SuccessResponse(null!, "Student deleted successfully"));
     }
 }
