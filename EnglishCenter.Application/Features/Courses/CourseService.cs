@@ -6,6 +6,7 @@ using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Application.Features.Courses.Dtos;
 using EnglishCenter.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using EnglishCenter.Application.Common.Extensions;
 
 namespace EnglishCenter.Application.Features.Courses;
 
@@ -42,10 +43,27 @@ public class CourseService
             query = query.Where(x => x.Status == request.Status.Value);
         }
 
+        var sortMappings = new Dictionary<string, System.Linq.Expressions.Expression<Func<Course, object>>>
+    {
+        { "Id", x => x.Id },
+        { "CourseCode", x => x.CourseCode },
+        { "Name", x => x.Name },
+        { "Level", x => x.Level! },
+        { "TotalSessions", x => x.TotalSessions },
+        { "DefaultFee", x => x.DefaultFee },
+        { "Status", x => x.Status },
+        { "CreatedAt", x => x.CreatedAt }
+    };
+
+        query = query.ApplySorting(
+            request.SortBy,
+            request.SortDirection,
+            sortMappings,
+            x => x.Id);
+
         var totalRecords = await query.CountAsync();
 
         var items = await query
-            .OrderBy(x => x.Id)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .ProjectTo<CourseDto>(_mapper.ConfigurationProvider)
