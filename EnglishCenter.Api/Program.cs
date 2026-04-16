@@ -1,3 +1,4 @@
+using EnglishCenter.Api.Filters;
 using EnglishCenter.Api.Middlewares;
 using EnglishCenter.Application;
 using EnglishCenter.Infrastructure;
@@ -7,7 +8,10 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ApiResponseWrapperFilter>();
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

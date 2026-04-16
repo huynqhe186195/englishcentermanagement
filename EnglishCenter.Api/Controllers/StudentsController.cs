@@ -21,7 +21,7 @@ public class StudentsController : ControllerBase
     public async Task<IActionResult> GetPaged([FromQuery] GetStudentsPagingRequestDto request)
     {
         var result = await _studentService.GetPagedAsync(request);
-        return Ok(ApiResponse<PagedResult<StudentDto>>.SuccessResponse(result, "Get students successfully"));
+        return Ok(result);
     }
 
     [HttpGet("{id:long}")]

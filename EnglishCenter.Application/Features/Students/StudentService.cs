@@ -6,6 +6,7 @@ using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Application.Features.Students.Dtos;
 using EnglishCenter.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using EnglishCenter.Application.Common.Extensions;
 
 namespace EnglishCenter.Application.Features.Students;
 
@@ -31,9 +32,6 @@ public class StudentService
 
     public async Task<PagedResult<StudentDto>> GetPagedAsync(GetStudentsPagingRequestDto request)
     {
-        var pageNumber = request.PageNumber < 1 ? 1 : request.PageNumber;
-        var pageSize = request.PageSize < 1 ? 10 : request.PageSize;
-
         var query = _context.Students
             .AsNoTracking()
             .Where(x => !x.IsDeleted)
@@ -55,22 +53,38 @@ public class StudentService
             query = query.Where(x => x.Status == request.Status.Value);
         }
 
+        var sortMappings = new Dictionary<string, System.Linq.Expressions.Expression<Func<Student, object>>>
+    {
+        { "Id", x => x.Id },
+        { "StudentCode", x => x.StudentCode },
+        { "FullName", x => x.FullName },
+        { "Email", x => x.Email! },
+        { "Phone", x => x.Phone! },
+        { "Status", x => x.Status },
+        { "CreatedAt", x => x.CreatedAt }
+    };
+
+        query = query.ApplySorting(
+            request.SortBy,
+            request.SortDirection,
+            sortMappings,
+            x => x.Id);
+
         var totalRecords = await query.CountAsync();
 
         var items = await query
-            .OrderBy(x => x.Id)
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
+            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Take(request.PageSize)
             .ProjectTo<StudentDto>(_mapper.ConfigurationProvider)
             .ToListAsync();
 
         return new PagedResult<StudentDto>
         {
             Items = items,
-            PageNumber = pageNumber,
-            PageSize = pageSize,
+            PageNumber = request.PageNumber,
+            PageSize = request.PageSize,
             TotalRecords = totalRecords,
-            TotalPages = (int)Math.Ceiling((double)totalRecords / pageSize)
+            TotalPages = (int)Math.Ceiling((double)totalRecords / request.PageSize)
         };
     }
 
