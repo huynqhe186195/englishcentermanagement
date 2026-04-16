@@ -1,7 +1,14 @@
-﻿using EnglishCenter.Application.Features.Classes;
+﻿using EnglishCenter.Application.Features.Assignments;
+using EnglishCenter.Application.Features.Campus;
+using EnglishCenter.Application.Features.Classes;
 using EnglishCenter.Application.Features.Courses;
 using EnglishCenter.Application.Features.Enrollments;
+using EnglishCenter.Application.Features.Exams;
+using EnglishCenter.Application.Features.Notifications;
+using EnglishCenter.Application.Features.Roles;
+using EnglishCenter.Application.Features.Scores;
 using EnglishCenter.Application.Features.Students;
+using EnglishCenter.Application.Features.Users;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -18,6 +25,13 @@ public static class DependencyInjection
         services.AddScoped<ClassService>();
         services.AddScoped<CourseService>();
         services.AddScoped<EnrollmentService>();
+        services.AddScoped<RoleService>();
+        services.AddScoped<AssignmentService>();
+        services.AddScoped<CampusService>();
+        services.AddScoped<ExamService>();
+        services.AddScoped<NotificationService>();
+        services.AddScoped<ScoreService>();
+        services.AddScoped<UserService>();
         return services;
     }
 }

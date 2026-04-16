@@ -91,16 +91,29 @@ public class EnrollmentService
 
     public async Task<long> CreateAsync(CreateEnrollmentRequestDto request)
     {
+        // Business rules checks
+        var student = await _context.Students.FirstOrDefaultAsync(s => s.Id == request.StudentId && !s.IsDeleted);
+        if (student == null) throw new NotFoundException("Student not found.");
+
+        var cls = await _context.Classes.FirstOrDefaultAsync(c => c.Id == request.ClassId && !c.IsDeleted);
+        if (cls == null) throw new NotFoundException("Class not found.");
+
+        // Check student not already enrolled
         var exists = await _context.Enrollments
             .AnyAsync(x => x.StudentId == request.StudentId && x.ClassId == request.ClassId && !x.IsDeleted);
+        if (exists) throw new BusinessException("Student is already enrolled in this class.");
 
-        if (exists)
-        {
-            throw new BusinessException("Enrollment already exists for this student and class.");
-        }
+        // Check class open for registration (assume Status == 1 means open)
+        if (cls.Status != 1)
+            throw new BusinessException("Class is not open for enrollment.");
+
+        // Check capacity
+        var enrolledCount = await _context.Enrollments
+            .CountAsync(e => e.ClassId == request.ClassId && !e.IsDeleted);
+        if (enrolledCount >= cls.MaxStudents)
+            throw new BusinessException("Class has reached maximum number of students.");
 
         var entity = _mapper.Map<Enrollment>(request);
-
         entity.CreatedAt = DateTime.UtcNow;
         entity.UpdatedAt = null;
         entity.IsDeleted = false;
