@@ -20,8 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Classes\" />
-    <Folder Include="Features\Enrollments\" />
     <Folder Include="Features\Invoices\" />
     <Folder Include="Features\Payments\" />
     <Folder Include="Features\Students\Commands\" />
