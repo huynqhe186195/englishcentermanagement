@@ -21,7 +21,8 @@ public class JwtTokenService : IJwtTokenService
         long userId,
         string userName,
         string fullName,
-        IEnumerable<string> roles)
+        IEnumerable<string> roles,
+        IEnumerable<string> permissions)
     {
         var claims = new List<Claim>
         {
@@ -32,14 +33,18 @@ public class JwtTokenService : IJwtTokenService
             new(ClaimTypes.Name, userName)
         };
 
-        foreach (var role in roles)
+        foreach (var role in roles.Distinct())
         {
             claims.Add(new Claim(ClaimTypes.Role, role));
         }
 
+        foreach (var permission in permissions.Distinct())
+        {
+            claims.Add(new Claim("permission", permission));
+        }
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
         var expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes);
 
         var token = new JwtSecurityToken(

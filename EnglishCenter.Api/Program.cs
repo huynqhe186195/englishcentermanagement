@@ -1,5 +1,6 @@
 using EnglishCenter.Api.Filters;
 using EnglishCenter.Api.Middlewares;
+using EnglishCenter.Api.Security;
 using EnglishCenter.Application;
 using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Domain.Constants;
@@ -7,6 +8,7 @@ using EnglishCenter.Infrastructure;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -81,6 +83,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtSettings = jwtSection.Get<JwtSettings>()!;
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -118,6 +121,8 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy("RequireStudent", policy =>
         policy.RequireRole(RoleConstants.Student));
+
+    options.AddPermissionPolicies();
 });
 
 var app = builder.Build();
