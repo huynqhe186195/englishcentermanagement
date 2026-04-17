@@ -1,6 +1,7 @@
 ﻿using EnglishCenter.Application.Features.Assignments;
 using EnglishCenter.Application.Features.Campus;
 using EnglishCenter.Application.Features.Classes;
+using EnglishCenter.Application.Features.ClassSchedules;
 using EnglishCenter.Application.Features.Courses;
 using EnglishCenter.Application.Features.Enrollments;
 using EnglishCenter.Application.Features.Exams;
@@ -32,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<NotificationService>();
         services.AddScoped<ScoreService>();
         services.AddScoped<UserService>();
+        services.AddScoped<ClassScheduleService>();
         return services;
     }
 }

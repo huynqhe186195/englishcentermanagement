@@ -17,5 +17,7 @@ public interface IApplicationDbContext
     DbSet<User> Users { get; }
     DbSet<Notification> Notifications { get; }
     DbSet<Discount> Discounts { get; }
+    DbSet<ClassSchedule> ClassSchedules { get; }
+    DbSet<Room> Rooms { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
