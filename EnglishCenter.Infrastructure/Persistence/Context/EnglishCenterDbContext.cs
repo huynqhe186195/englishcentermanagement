@@ -1,20 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using EnglishCenter.Application.Common.Interfaces;
+﻿using EnglishCenter.Application.Common.Interfaces;
 using EnglishCenter.Domain.Models;
+using EnglishCenter.Infrastructure.Persistence.Auditing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System;
+using System.Collections.Generic;
+using System.Text.Json;
 
 namespace EnglishCenter.Infrastructure.Persistence.Context;
 
 public partial class EnglishCenterDbContext : DbContext, IApplicationDbContext
 {
+    private readonly ICurrentUserService? _currentUserService;
+
     public EnglishCenterDbContext()
     {
     }
 
-    public EnglishCenterDbContext(DbContextOptions<EnglishCenterDbContext> options)
+    public EnglishCenterDbContext(
+        DbContextOptions<EnglishCenterDbContext> options,
+        ICurrentUserService? currentUserService = null)
         : base(options)
     {
+        _currentUserService = currentUserService;
     }
 
     public virtual DbSet<Assignment> Assignments { get; set; }
@@ -87,6 +95,167 @@ public partial class EnglishCenterDbContext : DbContext, IApplicationDbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("Name=ConnectionStrings:MyCnn");
+
+    //======================================== Auditing Logic ========================================
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var auditEntries = OnBeforeSaveChanges();
+
+        var result = await base.SaveChangesAsync(cancellationToken);
+
+        if (auditEntries.Count > 0)
+        {
+            await OnAfterSaveChangesAsync(auditEntries, cancellationToken);
+        }
+
+        return result;
+    }
+
+    private List<AuditEntry> OnBeforeSaveChanges()
+    {
+        ChangeTracker.DetectChanges();
+
+        var auditEntries = new List<AuditEntry>();
+
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            if (entry.Entity is AuditLog ||
+                entry.State == EntityState.Detached ||
+                entry.State == EntityState.Unchanged)
+            {
+                continue;
+            }
+
+            var auditEntry = new AuditEntry
+            {
+                Entry = entry,
+                EntityName = entry.Metadata.GetTableName() ?? entry.Entity.GetType().Name
+            };
+
+            auditEntries.Add(auditEntry);
+
+            foreach (var property in entry.Properties)
+            {
+                var propertyName = property.Metadata.Name;
+
+                if (property.Metadata.IsPrimaryKey())
+                {
+                    if (property.IsTemporary)
+                    {
+                        auditEntry.HasTemporaryProperties = true;
+                        auditEntry.TemporaryProperties.Add(property);
+                    }
+                    else
+                    {
+                        auditEntry.KeyValues[propertyName] = property.CurrentValue;
+                    }
+
+                    continue;
+                }
+
+                if (property.IsTemporary)
+                {
+                    auditEntry.HasTemporaryProperties = true;
+                    auditEntry.TemporaryProperties.Add(property);
+                    continue;
+                }
+
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        auditEntry.Action = "Create";
+                        auditEntry.NewValues[propertyName] = property.CurrentValue;
+                        break;
+
+                    case EntityState.Deleted:
+                        auditEntry.Action = "Delete";
+                        auditEntry.OldValues[propertyName] = property.OriginalValue;
+                        break;
+
+                    case EntityState.Modified:
+                        if (property.IsModified)
+                        {
+                            auditEntry.Action = IsSoftDelete(entry, propertyName, property)
+                                ? "SoftDelete"
+                                : "Update";
+
+                            auditEntry.OldValues[propertyName] = property.OriginalValue;
+                            auditEntry.NewValues[propertyName] = property.CurrentValue;
+                        }
+                        break;
+                }
+            }
+        }
+
+        var readyAuditLogs = auditEntries
+            .Where(x => !x.HasTemporaryProperties)
+            .Select(ToAuditLog)
+            .ToList();
+
+        if (readyAuditLogs.Count > 0)
+        {
+            AuditLogs.AddRange(readyAuditLogs);
+        }
+
+        return auditEntries.Where(x => x.HasTemporaryProperties).ToList();
+    }
+
+    private async Task OnAfterSaveChangesAsync(List<AuditEntry> auditEntries, CancellationToken cancellationToken = default)
+    {
+        if (auditEntries.Count == 0)
+            return;
+
+        foreach (var auditEntry in auditEntries)
+        {
+            foreach (var property in auditEntry.TemporaryProperties)
+            {
+                if (property.Metadata.IsPrimaryKey())
+                {
+                    auditEntry.KeyValues[property.Metadata.Name] = property.CurrentValue;
+                }
+                else
+                {
+                    auditEntry.NewValues[property.Metadata.Name] = property.CurrentValue;
+                }
+            }
+        }
+
+        var auditLogs = auditEntries.Select(ToAuditLog).ToList();
+
+        AuditLogs.AddRange(auditLogs);
+        await base.SaveChangesAsync(cancellationToken);
+    }
+
+    private AuditLog ToAuditLog(AuditEntry auditEntry)
+    {
+        return new AuditLog
+        {
+            UserId = _currentUserService?.UserId,
+            Action = auditEntry.Action,
+            EntityName = auditEntry.EntityName,
+            EntityId = auditEntry.KeyValues.Count > 0
+                ? string.Join(",", auditEntry.KeyValues.Values.Select(x => x?.ToString()))
+                : null,
+            OldValues = auditEntry.OldValues.Count == 0
+                ? null
+                : JsonSerializer.Serialize(auditEntry.OldValues),
+            NewValues = auditEntry.NewValues.Count == 0
+                ? null
+                : JsonSerializer.Serialize(auditEntry.NewValues),
+            IpAddress = _currentUserService?.IpAddress,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
+
+    private static bool IsSoftDelete(EntityEntry entry, string propertyName, PropertyEntry property)
+    {
+        return entry.State == EntityState.Modified
+            && propertyName == "IsDeleted"
+            && property.CurrentValue is bool currentValue
+            && currentValue;
+    }
+    //==============================================================================================================
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

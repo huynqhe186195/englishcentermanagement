@@ -4,7 +4,6 @@ using EnglishCenter.Application.Features.AuditLogs;
 using EnglishCenter.Application.Features.AuditLogs.Dtos;
 using EnglishCenter.Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace EnglishCenter.Api.Controllers;
 

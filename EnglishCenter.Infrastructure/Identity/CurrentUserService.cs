@@ -30,6 +30,9 @@ public class CurrentUserService : ICurrentUserService
     public string? UserName =>
         _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Name)?.Value;
 
+    public string? IpAddress =>
+        _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
+
     public List<string> Roles =>
         _httpContextAccessor.HttpContext?.User?.FindAll(ClaimTypes.Role).Select(x => x.Value).ToList()
         ?? [];

@@ -1,5 +1,6 @@
 ﻿using EnglishCenter.Application.Features.Assignments;
 using EnglishCenter.Application.Features.Attendance;
+using EnglishCenter.Application.Features.AuditLogs;
 using EnglishCenter.Application.Features.Auth;
 using EnglishCenter.Application.Features.Campus;
 using EnglishCenter.Application.Features.Classes;
@@ -48,6 +49,7 @@ public static class DependencyInjection
         services.AddScoped<AuthService>();
         services.AddScoped<UserRoleService>();
         services.AddScoped<RolePermissionService>();
+        services.AddScoped<AuditLogService>();
         return services;
     }
 }
