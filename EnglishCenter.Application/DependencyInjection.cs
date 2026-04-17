@@ -11,6 +11,8 @@ using EnglishCenter.Application.Features.Roles;
 using EnglishCenter.Application.Features.Scores;
 using EnglishCenter.Application.Features.Students;
 using EnglishCenter.Application.Features.Users;
+using EnglishCenter.Application.Features.Teachers;
+using EnglishCenter.Application.Features.Rooms;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -34,6 +36,8 @@ public static class DependencyInjection
         services.AddScoped<NotificationService>();
         services.AddScoped<ScoreService>();
         services.AddScoped<UserService>();
+        services.AddScoped<TeacherService>();
+        services.AddScoped<RoomService>();
         services.AddScoped<ClassScheduleService>();
         services.AddScoped<ClassSessionService>();
         return services;
