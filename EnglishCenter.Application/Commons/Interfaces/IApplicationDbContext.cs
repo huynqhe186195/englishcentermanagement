@@ -19,5 +19,7 @@ public interface IApplicationDbContext
     DbSet<Discount> Discounts { get; }
     DbSet<ClassSchedule> ClassSchedules { get; }
     DbSet<Room> Rooms { get; }
+    DbSet<ClassSession> ClassSessions { get; }
+    DbSet<Teacher> Teachers { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

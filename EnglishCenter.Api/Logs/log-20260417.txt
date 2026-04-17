@@ -1,2 +1,6 @@
 2026-04-17 14:36:44.106 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 64.0328 ms
 2026-04-17 14:36:44.992 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 12.8221 ms
+2026-04-17 15:29:59.130 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 223.7989 ms
+2026-04-17 15:29:59.472 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 105.6699 ms
+2026-04-17 15:32:55.612 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 262.6736 ms
+2026-04-17 15:32:56.050 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 102.2832 ms
