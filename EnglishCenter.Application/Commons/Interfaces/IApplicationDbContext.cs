@@ -8,6 +8,14 @@ public interface IApplicationDbContext
     DbSet<Course> Courses { get; }
     DbSet<Class> Classes { get; }
     DbSet<Enrollment> Enrollments { get; }
+    DbSet<Campus> Campuses { get; }
+    DbSet<Exam> Exams { get; }
+    DbSet<Assignment> Assignments { get; }
+    DbSet<Score> Scores { get; }
     DbSet<Student> Students { get; }
+    DbSet<Role> Roles { get; }
+    DbSet<User> Users { get; }
+    DbSet<Notification> Notifications { get; }
+    DbSet<Discount> Discounts { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
