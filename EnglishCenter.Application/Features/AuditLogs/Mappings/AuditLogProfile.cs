@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AutoMapper;
+using EnglishCenter.Application.Features.AuditLogs.Dtos;
+using EnglishCenter.Domain.Models;
 
-namespace EnglishCenter.Application.Features.AuditLogs.Mappings
+namespace EnglishCenter.Application.Features.AuditLogs.Mappings;
+
+public class AuditLogProfile : Profile
 {
-    internal class AuditLogProfile
+    public AuditLogProfile()
     {
+        CreateMap<AuditLog, AuditLogDto>();
     }
 }

@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EnglishCenter.Application.Common.Models;
 
-namespace EnglishCenter.Application.Features.AuditLogs.Dtos
+namespace EnglishCenter.Application.Features.AuditLogs.Dtos;
+
+public class GetAuditLogsPagingRequestDto : SortablePaginationRequest
 {
-    internal class GetAuditLogsPagingRequestDto
-    {
-    }
+    public string? EntityName { get; set; }
+    public string? Action { get; set; }
+    public long? UserId { get; set; }
 }
