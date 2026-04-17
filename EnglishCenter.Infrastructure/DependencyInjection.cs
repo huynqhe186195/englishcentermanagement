@@ -2,6 +2,7 @@
 using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Infrastructure.Identity;
 using EnglishCenter.Infrastructure.Persistence.Context;
+using EnglishCenter.Infrastructure.Persistence.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +29,11 @@ public static class DependencyInjection
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         services.AddScoped<IPasswordHasherService, PasswordHasherService>();
+
+        services.AddMemoryCache();
+        services.AddScoped<IPermissionCacheService, PermissionCacheService>();
+
+        services.AddScoped<IdentitySeeder>();
         return services;
     }
 }

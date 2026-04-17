@@ -9,11 +9,13 @@ using EnglishCenter.Application.Features.Courses;
 using EnglishCenter.Application.Features.Enrollments;
 using EnglishCenter.Application.Features.Exams;
 using EnglishCenter.Application.Features.Notifications;
+using EnglishCenter.Application.Features.RolePermissions;
 using EnglishCenter.Application.Features.Roles;
 using EnglishCenter.Application.Features.Rooms;
 using EnglishCenter.Application.Features.Scores;
 using EnglishCenter.Application.Features.Students;
 using EnglishCenter.Application.Features.Teachers;
+using EnglishCenter.Application.Features.UserRoles;
 using EnglishCenter.Application.Features.Users;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,6 +46,8 @@ public static class DependencyInjection
         services.AddScoped<ClassSessionService>();
         services.AddScoped<AttendanceService>();
         services.AddScoped<AuthService>();
+        services.AddScoped<UserRoleService>();
+        services.AddScoped<RolePermissionService>();
         return services;
     }
 }

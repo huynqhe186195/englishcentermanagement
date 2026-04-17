@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EnglishCenter.Infrastructure.Persistence.Models;
+namespace EnglishCenter.Domain.Models;
 
 public partial class AssignmentSubmission
 {

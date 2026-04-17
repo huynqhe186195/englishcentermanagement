@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using EnglishCenter.Infrastructure.Persistence.Models;
+using EnglishCenter.Application.Common.Interfaces;
+using EnglishCenter.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace EnglishCenter.Infrastructure.Persistence.Context;
 
-public partial class EnglishCenterDbContext : DbContext
+public partial class EnglishCenterDbContext : DbContext, IApplicationDbContext
 {
     public EnglishCenterDbContext()
     {

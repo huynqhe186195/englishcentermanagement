@@ -1,7 +1,6 @@
 ﻿using EnglishCenter.Application.Common.Exceptions;
 using EnglishCenter.Application.Common.Interfaces;
 using EnglishCenter.Application.Common.Models;
-using EnglishCenter.Application.Common.Security;
 using EnglishCenter.Application.Features.Auth.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -16,19 +15,22 @@ public class AuthService
     private readonly IPasswordHasherService _passwordHasherService;
     private readonly JwtSettings _jwtSettings;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IPermissionCacheService _permissionCacheService;
 
     public AuthService(
         IApplicationDbContext context,
         IJwtTokenService jwtTokenService,
         IPasswordHasherService passwordHasherService,
         IOptions<JwtSettings> jwtSettings,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        IPermissionCacheService permissionCacheService)
     {
         _context = context;
         _jwtTokenService = jwtTokenService;
         _passwordHasherService = passwordHasherService;
         _jwtSettings = jwtSettings.Value;
         _currentUserService = currentUserService;
+        _permissionCacheService = permissionCacheService;
     }
 
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request, string? ipAddress = null)
@@ -57,7 +59,7 @@ public class AuthService
             select r.Code
         ).ToListAsync();
 
-        var permissions = RolePermissionMapping.GetPermissionsByRoles(roles);
+        var permissions = await _permissionCacheService.GetPermissionsAsync(user.Id);
 
         var (accessToken, expiresAtUtc) = _jwtTokenService.GenerateToken(
             user.Id,
@@ -128,7 +130,7 @@ public class AuthService
             select r.Code
         ).ToListAsync();
 
-        var permissions = RolePermissionMapping.GetPermissionsByRoles(roles);
+        var permissions = await _permissionCacheService.GetPermissionsAsync(user.Id);
 
         var (accessToken, expiresAtUtc) = _jwtTokenService.GenerateToken(
             user.Id,

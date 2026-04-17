@@ -5,6 +5,7 @@ using EnglishCenter.Application;
 using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Domain.Constants;
 using EnglishCenter.Infrastructure;
+using EnglishCenter.Infrastructure.Persistence.Seed;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -29,6 +30,8 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(Assembly.Load("EnglishCenter.Application"));
+
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -80,6 +83,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddMemoryCache();
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtSettings = jwtSection.Get<JwtSettings>()!;
@@ -126,6 +130,12 @@ builder.Services.AddAuthorization(options =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var seeder = scope.ServiceProvider.GetRequiredService<IdentitySeeder>();
+    await seeder.SeedAsync();
+}
 
 app.UseSerilogRequestLogging();
 app.UseMiddleware<ExceptionMiddleware>();

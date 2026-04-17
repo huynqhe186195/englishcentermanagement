@@ -39,5 +39,14 @@ public static class AuthorizationExtensions
 
         options.AddPolicy(PermissionConstants.ClassSessions.Generate,
             policy => policy.Requirements.Add(new PermissionRequirement(PermissionConstants.ClassSessions.Generate)));
+
+        options.AddPolicy(PermissionConstants.Users.ResetPassword,
+                    policy => policy.Requirements.Add(new PermissionRequirement(PermissionConstants.Users.ResetPassword)));
+
+        options.AddPolicy(PermissionConstants.Users.ManageRoles,
+            policy => policy.Requirements.Add(new PermissionRequirement(PermissionConstants.Users.ManageRoles)));
+
+        options.AddPolicy(PermissionConstants.Roles.ManagePermissions,
+            policy => policy.Requirements.Add(new PermissionRequirement(PermissionConstants.Roles.ManagePermissions)));
     }
 }

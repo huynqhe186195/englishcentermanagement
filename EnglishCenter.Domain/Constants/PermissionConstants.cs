@@ -13,6 +13,7 @@ public static class PermissionConstants
     public static class Users
     {
         public const string ResetPassword = "users.resetpassword";
+        public const string ManageRoles = "users.roles.manage";
     }
 
     public static class Courses
@@ -60,5 +61,10 @@ public static class PermissionConstants
         public const string Create = "classschedules.create";
         public const string Update = "classschedules.update";
         public const string Delete = "classschedules.delete";
+    }
+
+    public static class Roles
+    {
+        public const string ManagePermissions = "roles.permissions.manage";
     }
 }
