@@ -20,6 +20,8 @@ public interface IApplicationDbContext
     DbSet<Room> Rooms { get; }
     DbSet<ClassSession> ClassSessions { get; }
     DbSet<Teacher> Teachers { get; }
+    DbSet<AttendanceRecord> AttendanceRecords { get; }
     DbSet<ClassSchedule> ClassSchedules { get; }
+    DbSet<UserRole> UserRoles { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

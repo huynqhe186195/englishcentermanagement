@@ -3,6 +3,7 @@ using EnglishCenter.Application.Commons.Models.Response;
 using EnglishCenter.Application.Features.Students;
 using EnglishCenter.Application.Features.Students.Dtos;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EnglishCenter.Api.Controllers;
 
@@ -17,6 +18,7 @@ public class StudentsController : ControllerBase
         _studentService = studentService;
     }
 
+    [Authorize(Roles = "CENTER_ADMIN,STAFF")]
     [HttpGet]
     public async Task<IActionResult> GetPaged([FromQuery] GetStudentsPagingRequestDto request)
     {
@@ -31,6 +33,7 @@ public class StudentsController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "CENTER_ADMIN")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateStudentRequestDto request)
     {

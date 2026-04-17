@@ -1,4 +1,6 @@
 ﻿using EnglishCenter.Application.Common.Interfaces;
+using EnglishCenter.Application.Common.Models;
+using EnglishCenter.Infrastructure.Identity;
 using EnglishCenter.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +19,13 @@ public static class DependencyInjection
 
         services.AddScoped<IApplicationDbContext>(provider =>
             provider.GetRequiredService<EnglishCenterDbContext>());
+
+        services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
+
+        services.AddHttpContextAccessor();
+
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         return services;
     }

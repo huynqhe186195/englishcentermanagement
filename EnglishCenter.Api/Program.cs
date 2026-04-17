@@ -1,11 +1,17 @@
 using EnglishCenter.Api.Filters;
 using EnglishCenter.Api.Middlewares;
 using EnglishCenter.Application;
+using EnglishCenter.Application.Common.Models;
+using EnglishCenter.Domain.Constants;
 using EnglishCenter.Infrastructure;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Serilog;
+using System.Reflection;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,16 +24,104 @@ builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ApiResponseWrapperFilter>();
 });
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(Assembly.Load("EnglishCenter.Application"));
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "EnglishCenter API",
+        Version = "v1"
+    });
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter JWT token only"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+
+    options.MapType<DateOnly>(() => new OpenApiSchema
+    {
+        Type = "string",
+        Format = "date"
+    });
+
+    options.MapType<DateOnly?>(() => new OpenApiSchema
+    {
+        Type = "string",
+        Format = "date",
+        Nullable = true
+    });
+});
+
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var jwtSettings = jwtSection.Get<JwtSettings>()!;
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings.Issuer,
+            ValidAudience = jwtSettings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireSuperAdmin", policy =>
+        policy.RequireRole(RoleConstants.SuperAdmin));
+
+    options.AddPolicy("RequireCenterAdmin", policy =>
+        policy.RequireRole(RoleConstants.CenterAdmin));
+
+    options.AddPolicy("RequireStaff", policy =>
+        policy.RequireRole(RoleConstants.Staff));
+
+    options.AddPolicy("RequireTeacher", policy =>
+        policy.RequireRole(RoleConstants.Teacher));
+
+    options.AddPolicy("RequireParent", policy =>
+        policy.RequireRole(RoleConstants.Parent));
+
+    options.AddPolicy("RequireStudent", policy =>
+        policy.RequireRole(RoleConstants.Student));
+});
+
 var app = builder.Build();
+
 app.UseSerilogRequestLogging();
 app.UseMiddleware<ExceptionMiddleware>();
 
@@ -38,7 +132,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
