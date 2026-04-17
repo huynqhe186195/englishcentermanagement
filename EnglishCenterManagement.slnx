@@ -4,6 +4,7 @@
     <Project Path="EnglishCenter.Application/EnglishCenter.Application.csproj" />
     <Project Path="EnglishCenter.Domain/EnglishCenter.Domain.csproj" />
     <Project Path="EnglishCenter.Infrastructure/EnglishCenter.Infrastructure.csproj" />
+    <Project Path="EnglishCenter.Web/EnglishCenter.Web.csproj" Id="fe78da62-7060-473c-8b6f-ea9fa798b66b" />
   </Folder>
   <Folder Name="/tests/" />
 </Solution>
