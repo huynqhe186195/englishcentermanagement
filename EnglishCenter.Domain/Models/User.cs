@@ -45,6 +45,8 @@ public partial class User
 
     public virtual ICollection<ProgressReport> ProgressReports { get; set; } = new List<ProgressReport>();
 
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
     public virtual ICollection<Refund> Refunds { get; set; } = new List<Refund>();
 
     public virtual ICollection<Student> Students { get; set; } = new List<Student>();

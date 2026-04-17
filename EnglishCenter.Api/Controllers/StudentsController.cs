@@ -2,6 +2,8 @@
 using EnglishCenter.Application.Commons.Models.Response;
 using EnglishCenter.Application.Features.Students;
 using EnglishCenter.Application.Features.Students.Dtos;
+using EnglishCenter.Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EnglishCenter.Api.Controllers;
@@ -17,6 +19,7 @@ public class StudentsController : ControllerBase
         _studentService = studentService;
     }
 
+    [Authorize(Policy = PermissionConstants.Students.View)]
     [HttpGet]
     public async Task<IActionResult> GetPaged([FromQuery] GetStudentsPagingRequestDto request)
     {
@@ -31,13 +34,15 @@ public class StudentsController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Policy = PermissionConstants.Students.Create)]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateStudentRequestDto request)
     {
         var id = await _studentService.CreateAsync(request);
-        return Ok(new {Id = id});
+        return Ok(new { Id = id });
     }
 
+    [Authorize(Policy = PermissionConstants.Students.Update)]
     [HttpPut("{id:long}")]
     public async Task<IActionResult> Update(long id, [FromBody] UpdateStudentRequestDto request)
     {
@@ -45,6 +50,7 @@ public class StudentsController : ControllerBase
         return Ok();
     }
 
+    [Authorize(Policy = PermissionConstants.Students.Delete)]
     [HttpDelete("{id:long}")]
     public async Task<IActionResult> Delete(long id)
     {
