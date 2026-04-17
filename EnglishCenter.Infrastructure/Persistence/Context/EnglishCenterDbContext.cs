@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using EnglishCenter.Infrastructure.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
-using EnglishCenter.Domain.Models;
-using EnglishCenter.Application.Common.Interfaces;
 
 namespace EnglishCenter.Infrastructure.Persistence.Context;
 
-public partial class EnglishCenterDbContext : DbContext, IApplicationDbContext
+public partial class EnglishCenterDbContext : DbContext
 {
+    public EnglishCenterDbContext()
+    {
+    }
+
     public EnglishCenterDbContext(DbContextOptions<EnglishCenterDbContext> options)
         : base(options)
     {
@@ -49,11 +52,17 @@ public partial class EnglishCenterDbContext : DbContext, IApplicationDbContext
 
     public virtual DbSet<Payment> Payments { get; set; }
 
+    public virtual DbSet<Permission> Permissions { get; set; }
+
     public virtual DbSet<ProgressReport> ProgressReports { get; set; }
+
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
     public virtual DbSet<Refund> Refunds { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
+
+    public virtual DbSet<RolePermission> RolePermissions { get; set; }
 
     public virtual DbSet<Room> Rooms { get; set; }
 
@@ -74,6 +83,9 @@ public partial class EnglishCenterDbContext : DbContext, IApplicationDbContext
     public virtual DbSet<VwClassEnrollmentSummary> VwClassEnrollmentSummaries { get; set; }
 
     public virtual DbSet<VwStudentBillingSummary> VwStudentBillingSummaries { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlServer("Name=ConnectionStrings:MyCnn");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -428,6 +440,18 @@ public partial class EnglishCenterDbContext : DbContext, IApplicationDbContext
                 .HasConstraintName("FK_Payments_Users");
         });
 
+        modelBuilder.Entity<Permission>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Permissi__3214EC0791BA95EB");
+
+            entity.HasIndex(e => e.Code, "UQ__Permissi__A25C5AA7E99B7BC2").IsUnique();
+
+            entity.Property(e => e.Code).HasMaxLength(200);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.GroupName).HasMaxLength(100);
+            entity.Property(e => e.Name).HasMaxLength(255);
+        });
+
         modelBuilder.Entity<ProgressReport>(entity =>
         {
             entity.HasIndex(e => new { e.StudentId, e.ClassId }, "IX_ProgressReports_StudentId_ClassId");
@@ -456,6 +480,25 @@ public partial class EnglishCenterDbContext : DbContext, IApplicationDbContext
                 .HasForeignKey(d => d.StudentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ProgressReports_Students");
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__RefreshT__3214EC0734803975");
+
+            entity.HasIndex(e => e.Token, "IX_RefreshTokens_Token");
+
+            entity.HasIndex(e => e.UserId, "IX_RefreshTokens_UserId");
+
+            entity.Property(e => e.CreatedByIp).HasMaxLength(100);
+            entity.Property(e => e.ReplacedByToken).HasMaxLength(500);
+            entity.Property(e => e.RevokedByIp).HasMaxLength(100);
+            entity.Property(e => e.Token).HasMaxLength(500);
+
+            entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RefreshTokens_Users");
         });
 
         modelBuilder.Entity<Refund>(entity =>
@@ -488,6 +531,23 @@ public partial class EnglishCenterDbContext : DbContext, IApplicationDbContext
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<RolePermission>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__RolePerm__3214EC077773FFF2");
+
+            entity.HasIndex(e => new { e.RoleId, e.PermissionId }, "UQ_RolePermissions").IsUnique();
+
+            entity.HasOne(d => d.Permission).WithMany(p => p.RolePermissions)
+                .HasForeignKey(d => d.PermissionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RolePermissions_Permissions");
+
+            entity.HasOne(d => d.Role).WithMany(p => p.RolePermissions)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RolePermissions_Roles");
         });
 
         modelBuilder.Entity<Room>(entity =>

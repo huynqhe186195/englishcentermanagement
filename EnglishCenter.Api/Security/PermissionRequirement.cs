@@ -1,6 +1,13 @@
-﻿namespace EnglishCenter.Api.Security
+﻿using Microsoft.AspNetCore.Authorization;
+
+namespace EnglishCenter.Api.Security;
+
+public class PermissionRequirement : IAuthorizationRequirement
 {
-    public class PermissionRequirement
+    public string Permission { get; }
+
+    public PermissionRequirement(string permission)
     {
+        Permission = permission;
     }
 }

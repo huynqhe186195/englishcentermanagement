@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EnglishCenter.Domain.Models;
+namespace EnglishCenter.Infrastructure.Persistence.Models;
 
 public partial class ClassTeacher
 {

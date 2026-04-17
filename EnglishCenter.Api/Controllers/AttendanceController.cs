@@ -1,5 +1,7 @@
 ﻿using EnglishCenter.Application.Features.Attendance;
 using EnglishCenter.Application.Features.Attendance.Dtos;
+using EnglishCenter.Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EnglishCenter.Api.Controllers;
@@ -22,6 +24,7 @@ public class AttendanceController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Policy = PermissionConstants.Attendance.View)]
     [HttpGet("session/{sessionId:long}")]
     public async Task<IActionResult> GetBySessionId(long sessionId)
     {
@@ -43,6 +46,7 @@ public class AttendanceController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Policy = PermissionConstants.Attendance.Mark)]
     [HttpPost("mark")]
     public async Task<IActionResult> MarkAttendance([FromBody] MarkAttendanceRequestDto request)
     {

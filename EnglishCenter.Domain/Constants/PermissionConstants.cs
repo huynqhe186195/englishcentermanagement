@@ -10,6 +10,11 @@ public static class PermissionConstants
         public const string Delete = "students.delete";
     }
 
+    public static class Users
+    {
+        public const string ResetPassword = "users.resetpassword";
+    }
+
     public static class Courses
     {
         public const string View = "courses.view";

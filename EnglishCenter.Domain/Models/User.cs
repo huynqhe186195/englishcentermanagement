@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EnglishCenter.Domain.Models;
+namespace EnglishCenter.Infrastructure.Persistence.Models;
 
 public partial class User
 {
@@ -44,6 +44,8 @@ public partial class User
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
     public virtual ICollection<ProgressReport> ProgressReports { get; set; } = new List<ProgressReport>();
+
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
     public virtual ICollection<Refund> Refunds { get; set; } = new List<Refund>();
 

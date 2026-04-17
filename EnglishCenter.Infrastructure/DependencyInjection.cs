@@ -27,6 +27,7 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
+        services.AddScoped<IPasswordHasherService, PasswordHasherService>();
         return services;
     }
 }

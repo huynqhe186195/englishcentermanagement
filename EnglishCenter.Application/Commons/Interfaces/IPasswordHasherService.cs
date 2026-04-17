@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EnglishCenter.Application.Commons.Interfaces
+namespace EnglishCenter.Application.Common.Interfaces;
+public interface IPasswordHasherService
 {
-    internal class IPasswordHasherService
-    {
-    }
+    string HashPassword(string password);
+    bool VerifyPassword(string password, string passwordHash);
 }

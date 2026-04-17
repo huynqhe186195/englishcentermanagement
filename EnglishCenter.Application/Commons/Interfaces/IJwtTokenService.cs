@@ -12,5 +12,6 @@ public interface IJwtTokenService
         long userId,
         string userName,
         string fullName,
-        IEnumerable<string> roles);
+        IEnumerable<string> roles,
+        IEnumerable<string> permissions);
 }

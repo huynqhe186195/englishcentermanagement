@@ -33,4 +33,8 @@ public class CurrentUserService : ICurrentUserService
     public List<string> Roles =>
         _httpContextAccessor.HttpContext?.User?.FindAll(ClaimTypes.Role).Select(x => x.Value).ToList()
         ?? [];
+
+    public List<string> Permissions =>
+        _httpContextAccessor.HttpContext?.User?.FindAll("permission").Select(x => x.Value).ToList()
+        ?? [];
 }
