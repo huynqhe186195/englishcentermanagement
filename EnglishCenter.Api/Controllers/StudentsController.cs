@@ -22,6 +22,15 @@ public class StudentsController : ControllerBase
         _studentService = studentService;
         _timetableService = timetableService;
     }
+    // xem báo cáo điểm danh của học viên, bao gồm số buổi học đã tham gia, số buổi học vắng mặt, và các ghi chú liên quan.
+    [HttpGet("{studentId:long}/attendance-report")]
+    public async Task<IActionResult> GetAttendanceReport(
+    long studentId,
+    [FromQuery] GetStudentAttendanceReportRequestDto request)
+    {
+        var result = await _studentService.GetAttendanceReportAsync(studentId, request);
+        return Ok(result);
+    }
     // xem thông tin tổng quan của học viên
     [HttpGet("{studentId:long}/academic-summary")]
     public async Task<IActionResult> GetAcademicSummary(long studentId)

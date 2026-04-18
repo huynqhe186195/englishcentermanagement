@@ -4,6 +4,7 @@ using EnglishCenter.Application.Common.Exceptions;
 using EnglishCenter.Application.Common.Interfaces;
 using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Application.Features.Enrollments.Dtos;
+using EnglishCenter.Domain.Constants;
 using EnglishCenter.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,105 @@ public class EnrollmentService
         _context = context;
         _mapper = mapper;
     }
+    // Đánh giá chính sách điểm danh cho tất cả sinh viên trong một lớp học cụ thể,
+    // tính toán tỷ lệ vắng mặt của từng sinh viên dựa trên số buổi học đã lên lịch và số buổi vắng mặt,
+    // sau đó cập nhật trạng thái của bản ghi enrollment tương ứng (ví dụ: cảnh báo nếu vắng mặt trên 10%,
+    // đình chỉ nếu vắng mặt trên 20%) và trả về kết quả đánh giá cho từng sinh viên.
+    public async Task<List<EnrollmentAttendancePolicyResultDto>> EvaluateAttendancePolicyByClassAsync(long classId)
+    {
+        var classExists = await _context.Classes
+            .AnyAsync(x => x.Id == classId && !x.IsDeleted);
 
+        if (!classExists)
+        {
+            throw new NotFoundException("Class not found.");
+        }
+
+        var validSessionCount = await _context.ClassSessions.CountAsync(x =>
+            x.ClassId == classId &&
+            x.Status != ClassSessionStatusConstants.Cancelled);
+
+        if (validSessionCount == 0)
+        {
+            return [];
+        }
+
+        var enrollments = await (
+            from e in _context.Enrollments
+            join s in _context.Students on e.StudentId equals s.Id
+            where e.ClassId == classId
+                  && !e.IsDeleted
+                  && !s.IsDeleted
+                  && (e.Status == EnrollmentStatusConstants.Active
+                      || e.Status == EnrollmentStatusConstants.Suspended)
+            select new
+            {
+                Enrollment = e,
+                Student = s
+            }
+        ).ToListAsync();
+
+        var results = new List<EnrollmentAttendancePolicyResultDto>();
+
+        foreach (var item in enrollments)
+        {
+            var absentCount = await (
+                from a in _context.AttendanceRecords
+                join cs in _context.ClassSessions on a.SessionId equals cs.Id
+                where cs.ClassId == classId
+                      && cs.Status != ClassSessionStatusConstants.Cancelled
+                      && a.StudentId == item.Enrollment.StudentId
+                      && a.Status == AttendanceStatusConstants.Absent
+                select a.Id
+            ).CountAsync();
+
+            var absentRate = Math.Round((decimal)absentCount * 100 / validSessionCount, 2);
+
+            var isWarning = absentRate > 10 && absentRate <= 20;
+            var isSuspended = absentRate > 20;
+
+            var result = new EnrollmentAttendancePolicyResultDto
+            {
+                EnrollmentId = item.Enrollment.Id,
+                StudentId = item.Student.Id,
+                StudentCode = item.Student.StudentCode,
+                FullName = item.Student.FullName,
+                ValidSessionCount = validSessionCount,
+                AbsentCount = absentCount,
+                AbsentRate = absentRate,
+                IsWarning = isWarning,
+                IsSuspended = isSuspended,
+                Message = isSuspended
+                    ? "Student exceeded 20% absence rate and has been suspended."
+                    : isWarning
+                        ? "Student exceeded 10% absence rate and received a warning."
+                        : "Attendance is within allowed threshold."
+            };
+
+            if (item.Enrollment.Status == EnrollmentStatusConstants.Active)
+            {
+                if (isSuspended)
+                {
+                    item.Enrollment.Status = EnrollmentStatusConstants.Suspended;
+                    item.Enrollment.Note =
+                        $"Suspended بسبب vắng {absentCount}/{validSessionCount} buổi ({absentRate}%). Exceeded 20% absence threshold.";
+                    item.Enrollment.UpdatedAt = DateTime.UtcNow;
+                }
+                else if (isWarning)
+                {
+                    item.Enrollment.Note =
+                        $"Warning: student absent {absentCount}/{validSessionCount} buổi ({absentRate}%). Exceeded 10% absence threshold.";
+                    item.Enrollment.UpdatedAt = DateTime.UtcNow;
+                }
+            }
+
+            results.Add(result);
+        }
+
+        await _context.SaveChangesAsync();
+
+        return results;
+    }
     public async Task SuspendAsync(long enrollmentId, SuspendEnrollmentRequestDto request)
     {
         var entity = await _context.Enrollments

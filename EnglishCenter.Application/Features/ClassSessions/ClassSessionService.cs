@@ -5,6 +5,7 @@ using EnglishCenter.Application.Common.Extensions;
 using EnglishCenter.Application.Common.Interfaces;
 using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Application.Features.ClassSessions.Dtos;
+using EnglishCenter.Application.Features.Enrollments;
 using EnglishCenter.Domain.Constants;
 using EnglishCenter.Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -18,17 +19,20 @@ public class ClassSessionService
     private readonly IMapper _mapper;
     private readonly SessionConflictService _sessionConflictService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly EnrollmentService _enrollmentService;
 
     public ClassSessionService(
     IApplicationDbContext context,
     IMapper mapper,
     SessionConflictService sessionConflictService,
-    ICurrentUserService currentUserService)
+    ICurrentUserService currentUserService,
+    EnrollmentService enrollmentService)
     {
         _context = context;
         _mapper = mapper;
         _sessionConflictService = sessionConflictService;
         _currentUserService = currentUserService;
+        _enrollmentService = enrollmentService;
     }
     // Cho phép giáo viên lên lịch lại một buổi học cụ thể,
     public async Task RescheduleAsync(long sessionId, RescheduleClassSessionRequestDto request)
@@ -148,6 +152,8 @@ public class ClassSessionService
         session.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
+
+        await _enrollmentService.EvaluateAttendancePolicyByClassAsync(session.ClassId);
     }
     // Cho phép giáo viên quản lý buổi học (chỉ những buổi học mà họ được phân công giảng dạy),
     private async Task ValidateTeacherCanManageSessionAsync(ClassSession session)
