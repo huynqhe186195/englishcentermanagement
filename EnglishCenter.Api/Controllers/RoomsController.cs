@@ -2,6 +2,8 @@ using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Application.Commons.Models.Response;
 using EnglishCenter.Application.Features.Rooms;
 using EnglishCenter.Application.Features.Rooms.Dtos;
+using EnglishCenter.Application.Features.Timetables;
+using EnglishCenter.Application.Features.Timetables.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EnglishCenter.Api.Controllers;
@@ -11,10 +13,28 @@ namespace EnglishCenter.Api.Controllers;
 public class RoomsController : ControllerBase
 {
     private readonly RoomService _roomService;
+    private readonly TimetableService _timetableService;
 
-    public RoomsController(RoomService roomService)
+    public RoomsController(
+    RoomService roomService,
+    TimetableService timetableService)
     {
         _roomService = roomService;
+        _timetableService = timetableService;
+    }
+
+    [HttpGet("{roomId:long}/timetable")]
+    public async Task<IActionResult> GetTimetable(long roomId, [FromQuery] GetTimetableRequestDto request)
+    {
+        var result = await _timetableService.GetRoomTimetableAsync(roomId, request);
+        return Ok(result);
+    }
+    // xem thông tin tổng quan của phòng
+    [HttpGet("{roomId:long}/summary")]
+    public async Task<IActionResult> GetSummary(long roomId)
+    {
+        var result = await _roomService.GetSummaryAsync(roomId);
+        return Ok(result);
     }
 
     [HttpGet]

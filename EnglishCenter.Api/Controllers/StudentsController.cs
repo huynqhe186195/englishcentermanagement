@@ -2,6 +2,8 @@
 using EnglishCenter.Application.Commons.Models.Response;
 using EnglishCenter.Application.Features.Students;
 using EnglishCenter.Application.Features.Students.Dtos;
+using EnglishCenter.Application.Features.Timetables;
+using EnglishCenter.Application.Features.Timetables.Dtos;
 using EnglishCenter.Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,10 +15,27 @@ namespace EnglishCenter.Api.Controllers;
 public class StudentsController : ControllerBase
 {
     private readonly StudentService _studentService;
+    private readonly TimetableService _timetableService;
 
-    public StudentsController(StudentService studentService)
+    public StudentsController(StudentService studentService, TimetableService timetableService)
     {
         _studentService = studentService;
+        _timetableService = timetableService;
+    }
+    // xem thông tin tổng quan của học viên
+    [HttpGet("{studentId:long}/academic-summary")]
+    public async Task<IActionResult> GetAcademicSummary(long studentId)
+    {
+        var result = await _studentService.GetAcademicSummaryAsync(studentId);
+        return Ok(result);
+    }
+
+    //xem lich học của học viên theo cac enrollment con hieu luc của học viên đó
+    [HttpGet("{studentId:long}/timetable")]
+    public async Task<IActionResult> GetTimetable(long studentId, [FromQuery] GetTimetableRequestDto request)
+    {
+        var result = await _timetableService.GetStudentTimetableAsync(studentId, request);
+        return Ok(result);
     }
 
     [Authorize(Policy = PermissionConstants.Students.View)]

@@ -17,6 +17,28 @@ public class EnrollmentsController : ControllerBase
         _enrollmentService = enrollmentService;
     }
 
+    // đình chỉ học viên khỏi lớp học nếu có bất kỳ active nào không đúng trong quá trình đăng ký lớp học
+    [HttpPut("{enrollmentId:long}/suspend")]
+    public async Task<IActionResult> Suspend(long enrollmentId, [FromBody] SuspendEnrollmentRequestDto request)
+    {
+        await _enrollmentService.SuspendAsync(enrollmentId, request);
+        return Ok();
+    }
+    // hoàn thành lớp học nếu học viên đã hoàn thành tất cả các active trong quá trình đăng ký lớp học
+    [HttpPut("{enrollmentId:long}/complete")]
+    public async Task<IActionResult> Complete(long enrollmentId, [FromBody] CompleteEnrollmentRequestDto request)
+    {
+        await _enrollmentService.CompleteAsync(enrollmentId, request);
+        return Ok();
+    }
+    // chuyển lớp học nếu học viên muốn chuyển sang lớp học khác trong quá trình đăng ký lớp học
+    [HttpPost("{enrollmentId:long}/transfer")]
+    public async Task<IActionResult> Transfer(long enrollmentId, [FromBody] TransferEnrollmentRequestDto request)
+    {
+        var newEnrollmentId = await _enrollmentService.TransferAsync(enrollmentId, request);
+        return Ok(new { NewEnrollmentId = newEnrollmentId });
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetPaged([FromQuery] GetEnrollmentsPagingRequestDto request)
     {

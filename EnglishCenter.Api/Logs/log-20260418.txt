@@ -85,3 +85,13 @@ BCrypt.Net.SaltParseException: Invalid salt version
 2026-04-18 01:37:24.048 +07:00 [INF] HTTP POST /api/Auth/login responded 200 in 1268.2995 ms
 2026-04-18 01:37:54.182 +07:00 [INF] HTTP GET /api/UserRoles/2 responded 403 in 105.0918 ms
 2026-04-18 01:38:17.063 +07:00 [INF] HTTP POST /api/UserRoles/assign responded 403 in 8.8698 ms
+2026-04-18 13:37:26.519 +07:00 [INF] HTTP GET /swagger responded 301 in 5.2276 ms
+2026-04-18 13:37:26.618 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 53.2686 ms
+2026-04-18 13:37:26.644 +07:00 [INF] HTTP GET /swagger/swagger-ui-standalone-preset.js responded 200 in 18.0199 ms
+2026-04-18 13:37:26.644 +07:00 [INF] HTTP GET /swagger/swagger-ui.css responded 200 in 18.4770 ms
+2026-04-18 13:37:26.673 +07:00 [INF] HTTP GET /swagger/swagger-ui-bundle.js responded 200 in 47.4000 ms
+2026-04-18 13:37:26.794 +07:00 [INF] HTTP GET /swagger/favicon-32x32.png responded 200 in 0.1392 ms
+2026-04-18 13:37:26.801 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 21.6572 ms
+2026-04-18 13:38:29.426 +07:00 [INF] HTTP GET /api/Teachers/1/timetable responded 200 in 3267.4500 ms
+2026-04-18 14:48:51.233 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 50.8298 ms
+2026-04-18 14:48:51.406 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 21.7006 ms

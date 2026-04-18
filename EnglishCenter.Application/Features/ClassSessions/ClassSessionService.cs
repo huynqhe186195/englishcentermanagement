@@ -5,6 +5,7 @@ using EnglishCenter.Application.Common.Extensions;
 using EnglishCenter.Application.Common.Interfaces;
 using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Application.Features.ClassSessions.Dtos;
+using EnglishCenter.Domain.Constants;
 using EnglishCenter.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -15,11 +16,16 @@ public class ClassSessionService
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
+    private readonly SessionConflictService _sessionConflictService;
 
-    public ClassSessionService(IApplicationDbContext context, IMapper mapper)
+    public ClassSessionService(
+    IApplicationDbContext context,
+    IMapper mapper,
+    SessionConflictService sessionConflictService)
     {
         _context = context;
         _mapper = mapper;
+        _sessionConflictService = sessionConflictService;
     }
 
     public async Task<PagedResult<ClassSessionDto>> GetPagedAsync(GetClassSessionsPagingRequestDto request)
@@ -105,36 +111,10 @@ public class ClassSessionService
             .FirstOrDefaultAsync(x => x.Id == request.ClassId && !x.IsDeleted);
 
         if (@class == null)
-        {
             throw new NotFoundException("Class not found.");
-        }
 
         if (request.SessionDate < @class.StartDate || request.SessionDate > @class.EndDate)
-        {
             throw new BusinessException("SessionDate must be within the class date range.");
-        }
-
-        if (request.RoomId.HasValue)
-        {
-            var roomExists = await _context.Rooms
-                .AnyAsync(x => x.Id == request.RoomId.Value && !x.IsDeleted);
-
-            if (!roomExists)
-            {
-                throw new NotFoundException("Room not found.");
-            }
-        }
-
-        if (request.TeacherId.HasValue)
-        {
-            var teacherExists = await _context.Teachers
-                .AnyAsync(x => x.Id == request.TeacherId.Value && !x.IsDeleted);
-
-            if (!teacherExists)
-            {
-                throw new NotFoundException("Teacher not found.");
-            }
-        }
 
         var duplicate = await _context.ClassSessions.AnyAsync(x =>
             x.ClassId == request.ClassId &&
@@ -142,18 +122,21 @@ public class ClassSessionService
             x.StartTime == request.StartTime);
 
         if (duplicate)
-        {
             throw new BusinessException("This class session already exists.");
-        }
 
         var sessionNoExists = await _context.ClassSessions.AnyAsync(x =>
             x.ClassId == request.ClassId &&
             x.SessionNo == request.SessionNo);
 
         if (sessionNoExists)
-        {
             throw new BusinessException("SessionNo already exists in this class.");
-        }
+
+        await _sessionConflictService.ValidateSessionConflictsAsync(
+            request.TeacherId,
+            request.RoomId,
+            request.SessionDate,
+            request.StartTime,
+            request.EndTime);
 
         var entity = _mapper.Map<ClassSession>(request);
         entity.CreatedAt = DateTime.UtcNow;
@@ -171,44 +154,16 @@ public class ClassSessionService
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (entity == null)
-        {
             throw new NotFoundException("Class session not found.");
-        }
 
         var @class = await _context.Classes
             .FirstOrDefaultAsync(x => x.Id == entity.ClassId && !x.IsDeleted);
 
         if (@class == null)
-        {
             throw new NotFoundException("Class not found.");
-        }
 
         if (request.SessionDate < @class.StartDate || request.SessionDate > @class.EndDate)
-        {
             throw new BusinessException("SessionDate must be within the class date range.");
-        }
-
-        if (request.RoomId.HasValue)
-        {
-            var roomExists = await _context.Rooms
-                .AnyAsync(x => x.Id == request.RoomId.Value && !x.IsDeleted);
-
-            if (!roomExists)
-            {
-                throw new NotFoundException("Room not found.");
-            }
-        }
-
-        if (request.TeacherId.HasValue)
-        {
-            var teacherExists = await _context.Teachers
-                .AnyAsync(x => x.Id == request.TeacherId.Value && !x.IsDeleted);
-
-            if (!teacherExists)
-            {
-                throw new NotFoundException("Teacher not found.");
-            }
-        }
 
         var duplicate = await _context.ClassSessions.AnyAsync(x =>
             x.Id != id &&
@@ -217,9 +172,7 @@ public class ClassSessionService
             x.StartTime == request.StartTime);
 
         if (duplicate)
-        {
             throw new BusinessException("This class session already exists.");
-        }
 
         var sessionNoExists = await _context.ClassSessions.AnyAsync(x =>
             x.Id != id &&
@@ -227,9 +180,15 @@ public class ClassSessionService
             x.SessionNo == request.SessionNo);
 
         if (sessionNoExists)
-        {
             throw new BusinessException("SessionNo already exists in this class.");
-        }
+
+        await _sessionConflictService.ValidateSessionConflictsAsync(
+            request.TeacherId,
+            request.RoomId,
+            request.SessionDate,
+            request.StartTime,
+            request.EndTime,
+            id);
 
         _mapper.Map(request, entity);
         entity.UpdatedAt = DateTime.UtcNow;
@@ -305,6 +264,12 @@ public class ClassSessionService
                 if (existingSet.Contains(key))
                     continue;
 
+                await _sessionConflictService.ValidateRoomConflictAsync(
+                    schedule.RoomId,
+                    currentDate,
+                    schedule.StartTime,
+                    schedule.EndTime);
+
                 currentMaxSessionNo++;
 
                 createdSessions.Add(new ClassSession
@@ -318,7 +283,7 @@ public class ClassSessionService
                     TeacherId = null,
                     Topic = null,
                     Note = null,
-                    Status = 1,
+                    Status = ClassSessionStatusConstants.Planned,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = null
                 });

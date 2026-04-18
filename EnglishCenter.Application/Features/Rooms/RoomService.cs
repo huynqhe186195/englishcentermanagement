@@ -20,6 +20,52 @@ public class RoomService
         _mapper = mapper;
     }
 
+    public async Task<RoomSummaryDto> GetSummaryAsync(long roomId)
+    {
+        var room = await _context.Rooms
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == roomId && !x.IsDeleted);
+
+        if (room == null)
+        {
+            throw new NotFoundException("Room not found.");
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.Today);
+
+        var sessionQuery = _context.ClassSessions
+            .AsNoTracking()
+            .Where(x => x.RoomId == roomId);
+
+        var totalAssignedClasses = await sessionQuery
+            .Select(x => x.ClassId)
+            .Distinct()
+            .CountAsync();
+
+        var totalSessions = await sessionQuery.CountAsync();
+        var plannedSessions = await sessionQuery.CountAsync(x => x.Status == 1);
+        var completedSessions = await sessionQuery.CountAsync(x => x.Status == 2);
+        var cancelledSessions = await sessionQuery.CountAsync(x => x.Status == 3);
+        var upcomingSessions = await sessionQuery.CountAsync(x => x.SessionDate > today && x.Status == 1);
+        var todaySessions = await sessionQuery.CountAsync(x => x.SessionDate == today && x.Status != 3);
+
+        return new RoomSummaryDto
+        {
+            RoomId = room.Id,
+            RoomCode = room.RoomCode,
+            Name = room.Name,
+            Capacity = room.Capacity,
+            Status = room.Status,
+            TotalAssignedClasses = totalAssignedClasses,
+            TotalSessions = totalSessions,
+            PlannedSessions = plannedSessions,
+            CompletedSessions = completedSessions,
+            CancelledSessions = cancelledSessions,
+            UpcomingSessions = upcomingSessions,
+            TodaySessions = todaySessions
+        };
+    }
+
     public async Task<List<RoomDto>> GetAllAsync()
     {
         return await _context.Rooms

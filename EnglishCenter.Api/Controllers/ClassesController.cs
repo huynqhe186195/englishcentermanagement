@@ -2,6 +2,8 @@
 using EnglishCenter.Application.Commons.Models.Response;
 using EnglishCenter.Application.Features.Classes;
 using EnglishCenter.Application.Features.Classes.Dtos;
+using EnglishCenter.Application.Features.Timetables;
+using EnglishCenter.Application.Features.Timetables.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EnglishCenter.Api.Controllers;
@@ -11,10 +13,37 @@ namespace EnglishCenter.Api.Controllers;
 public class ClassesController : ControllerBase
 {
     private readonly ClassService _classService;
+    private readonly TimetableService _timetableService;
 
-    public ClassesController(ClassService classService)
+    public ClassesController(
+    ClassService classService,
+    TimetableService timetableService)
     {
         _classService = classService;
+        _timetableService = timetableService;
+    }
+
+    // xem thông tin tổng quan của lớp
+    [HttpGet("{classId:long}/summary")]
+    public async Task<IActionResult> GetSummary(long classId)
+    {
+        var result = await _classService.GetSummaryAsync(classId);
+        return Ok(result);
+    }
+
+    [HttpGet("{classId:long}/timetable")]
+    public async Task<IActionResult> GetTimetable(long classId, [FromQuery] GetTimetableRequestDto request)
+    {
+        var result = await _timetableService.GetClassTimetableAsync(classId, request);
+        return Ok(result);
+    }
+
+    // xem danh sach học sinh của lớp
+    [HttpGet("{classId:long}/roster")]
+    public async Task<IActionResult> GetRoster(long classId)
+    {
+        var result = await _classService.GetRosterAsync(classId);
+        return Ok(result);
     }
 
     [HttpGet]
