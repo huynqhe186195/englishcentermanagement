@@ -27,5 +27,7 @@ public class CreateClassRequestDtoValidator : AbstractValidator<CreateClassReque
         RuleFor(x => x)
             .Must(x => x.StartDate <= x.EndDate)
             .WithMessage("StartDate must be less than or equal to EndDate.");
+        RuleFor(x => x.MaxStudents)
+            .Equal(10).WithMessage("Each class can only have 10 students.");
     }
 }

@@ -5,6 +5,7 @@ using EnglishCenter.Application.Common.Extensions;
 using EnglishCenter.Application.Common.Interfaces;
 using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Application.Features.ClassSessions.Dtos;
+using EnglishCenter.Domain.Constants;
 using EnglishCenter.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -15,11 +16,157 @@ public class ClassSessionService
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
+    private readonly SessionConflictService _sessionConflictService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public ClassSessionService(IApplicationDbContext context, IMapper mapper)
+    public ClassSessionService(
+    IApplicationDbContext context,
+    IMapper mapper,
+    SessionConflictService sessionConflictService,
+    ICurrentUserService currentUserService)
     {
         _context = context;
         _mapper = mapper;
+        _sessionConflictService = sessionConflictService;
+        _currentUserService = currentUserService;
+    }
+    // Cho phép giáo viên lên lịch lại một buổi học cụ thể,
+    public async Task RescheduleAsync(long sessionId, RescheduleClassSessionRequestDto request)
+    {
+        var session = await _context.ClassSessions
+            .FirstOrDefaultAsync(x => x.Id == sessionId);
+
+        if (session == null)
+        {
+            throw new NotFoundException("Class session not found.");
+        }
+
+        await ValidateTeacherCanManageSessionAsync(session);
+
+        if (session.Status == ClassSessionStatusConstants.Completed)
+        {
+            throw new BusinessException("Completed session cannot be rescheduled.");
+        }
+
+        if (session.Status == ClassSessionStatusConstants.Cancelled)
+        {
+            throw new BusinessException("Cancelled session cannot be rescheduled.");
+        }
+
+        var @class = await _context.Classes
+            .FirstOrDefaultAsync(x => x.Id == session.ClassId && !x.IsDeleted);
+
+        if (@class == null)
+        {
+            throw new NotFoundException("Class not found.");
+        }
+
+        if (request.SessionDate < @class.StartDate || request.SessionDate > @class.EndDate)
+        {
+            throw new BusinessException("SessionDate must be within the class date range.");
+        }
+
+        await _sessionConflictService.ValidateSessionConflictsAsync(
+            request.TeacherId,
+            request.RoomId,
+            request.SessionDate,
+            request.StartTime,
+            request.EndTime,
+            sessionId);
+
+        session.SessionDate = request.SessionDate;
+        session.StartTime = request.StartTime;
+        session.EndTime = request.EndTime;
+        session.RoomId = request.RoomId;
+        session.TeacherId = request.TeacherId;
+        session.Note = request.Note;
+        session.Status = ClassSessionStatusConstants.Rescheduled;
+        session.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+    }
+    // Cho phép giáo viên hủy một buổi học cụ thể,
+    public async Task CancelAsync(long sessionId, CancelClassSessionRequestDto request)
+    {
+        var session = await _context.ClassSessions
+            .FirstOrDefaultAsync(x => x.Id == sessionId);
+
+        if (session == null)
+        {
+            throw new NotFoundException("Class session not found.");
+        }
+
+        await ValidateTeacherCanManageSessionAsync(session);
+
+        if (session.Status == ClassSessionStatusConstants.Completed)
+        {
+            throw new BusinessException("Completed session cannot be cancelled.");
+        }
+
+        if (session.Status == ClassSessionStatusConstants.Cancelled)
+        {
+            throw new BusinessException("Session is already cancelled.");
+        }
+
+        session.Status = ClassSessionStatusConstants.Cancelled;
+        session.Note = request.Reason.Trim();
+        session.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+    }
+    // Cho phép giáo viên hoàn thành một buổi học cụ thể,
+    // cập nhật trạng thái của buổi học thành "Completed" và lưu lại ghi chú nếu có.
+    public async Task CompleteAsync(long sessionId, CompleteClassSessionRequestDto request)
+    {
+        var session = await _context.ClassSessions
+            .FirstOrDefaultAsync(x => x.Id == sessionId);
+
+        if (session == null)
+        {
+            throw new NotFoundException("Class session not found.");
+        }
+
+        await ValidateTeacherCanManageSessionAsync(session);
+
+        if (session.Status == ClassSessionStatusConstants.Completed)
+        {
+            throw new BusinessException("Session is already completed.");
+        }
+
+        if (session.Status == ClassSessionStatusConstants.Cancelled)
+        {
+            throw new BusinessException("Cancelled session cannot be completed.");
+        }
+
+        session.Status = ClassSessionStatusConstants.Completed;
+
+        if (!string.IsNullOrWhiteSpace(request.Note))
+        {
+            session.Note = request.Note.Trim();
+        }
+
+        session.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+    }
+    // Cho phép giáo viên quản lý buổi học (chỉ những buổi học mà họ được phân công giảng dạy),
+    private async Task ValidateTeacherCanManageSessionAsync(ClassSession session)
+    {
+        if (!_currentUserService.IsInRole(RoleConstants.Teacher))
+            return;
+
+        if (!_currentUserService.UserId.HasValue)
+            throw new BusinessException("User is not authenticated.");
+
+        var teacher = await _context.Teachers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.UserId == _currentUserService.UserId.Value && !x.IsDeleted);
+
+        if (teacher == null)
+            throw new BusinessException("Teacher profile not found for current user.");
+
+        if (session.TeacherId != teacher.Id)
+            throw new BusinessException("You are not assigned to this session.");
     }
 
     public async Task<PagedResult<ClassSessionDto>> GetPagedAsync(GetClassSessionsPagingRequestDto request)
@@ -105,36 +252,10 @@ public class ClassSessionService
             .FirstOrDefaultAsync(x => x.Id == request.ClassId && !x.IsDeleted);
 
         if (@class == null)
-        {
             throw new NotFoundException("Class not found.");
-        }
 
         if (request.SessionDate < @class.StartDate || request.SessionDate > @class.EndDate)
-        {
             throw new BusinessException("SessionDate must be within the class date range.");
-        }
-
-        if (request.RoomId.HasValue)
-        {
-            var roomExists = await _context.Rooms
-                .AnyAsync(x => x.Id == request.RoomId.Value && !x.IsDeleted);
-
-            if (!roomExists)
-            {
-                throw new NotFoundException("Room not found.");
-            }
-        }
-
-        if (request.TeacherId.HasValue)
-        {
-            var teacherExists = await _context.Teachers
-                .AnyAsync(x => x.Id == request.TeacherId.Value && !x.IsDeleted);
-
-            if (!teacherExists)
-            {
-                throw new NotFoundException("Teacher not found.");
-            }
-        }
 
         var duplicate = await _context.ClassSessions.AnyAsync(x =>
             x.ClassId == request.ClassId &&
@@ -142,18 +263,21 @@ public class ClassSessionService
             x.StartTime == request.StartTime);
 
         if (duplicate)
-        {
             throw new BusinessException("This class session already exists.");
-        }
 
         var sessionNoExists = await _context.ClassSessions.AnyAsync(x =>
             x.ClassId == request.ClassId &&
             x.SessionNo == request.SessionNo);
 
         if (sessionNoExists)
-        {
             throw new BusinessException("SessionNo already exists in this class.");
-        }
+
+        await _sessionConflictService.ValidateSessionConflictsAsync(
+            request.TeacherId,
+            request.RoomId,
+            request.SessionDate,
+            request.StartTime,
+            request.EndTime);
 
         var entity = _mapper.Map<ClassSession>(request);
         entity.CreatedAt = DateTime.UtcNow;
@@ -171,44 +295,16 @@ public class ClassSessionService
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (entity == null)
-        {
             throw new NotFoundException("Class session not found.");
-        }
 
         var @class = await _context.Classes
             .FirstOrDefaultAsync(x => x.Id == entity.ClassId && !x.IsDeleted);
 
         if (@class == null)
-        {
             throw new NotFoundException("Class not found.");
-        }
 
         if (request.SessionDate < @class.StartDate || request.SessionDate > @class.EndDate)
-        {
             throw new BusinessException("SessionDate must be within the class date range.");
-        }
-
-        if (request.RoomId.HasValue)
-        {
-            var roomExists = await _context.Rooms
-                .AnyAsync(x => x.Id == request.RoomId.Value && !x.IsDeleted);
-
-            if (!roomExists)
-            {
-                throw new NotFoundException("Room not found.");
-            }
-        }
-
-        if (request.TeacherId.HasValue)
-        {
-            var teacherExists = await _context.Teachers
-                .AnyAsync(x => x.Id == request.TeacherId.Value && !x.IsDeleted);
-
-            if (!teacherExists)
-            {
-                throw new NotFoundException("Teacher not found.");
-            }
-        }
 
         var duplicate = await _context.ClassSessions.AnyAsync(x =>
             x.Id != id &&
@@ -217,9 +313,7 @@ public class ClassSessionService
             x.StartTime == request.StartTime);
 
         if (duplicate)
-        {
             throw new BusinessException("This class session already exists.");
-        }
 
         var sessionNoExists = await _context.ClassSessions.AnyAsync(x =>
             x.Id != id &&
@@ -227,9 +321,15 @@ public class ClassSessionService
             x.SessionNo == request.SessionNo);
 
         if (sessionNoExists)
-        {
             throw new BusinessException("SessionNo already exists in this class.");
-        }
+
+        await _sessionConflictService.ValidateSessionConflictsAsync(
+            request.TeacherId,
+            request.RoomId,
+            request.SessionDate,
+            request.StartTime,
+            request.EndTime,
+            id);
 
         _mapper.Map(request, entity);
         entity.UpdatedAt = DateTime.UtcNow;
@@ -305,6 +405,12 @@ public class ClassSessionService
                 if (existingSet.Contains(key))
                     continue;
 
+                await _sessionConflictService.ValidateRoomConflictAsync(
+                    schedule.RoomId,
+                    currentDate,
+                    schedule.StartTime,
+                    schedule.EndTime);
+
                 currentMaxSessionNo++;
 
                 createdSessions.Add(new ClassSession
@@ -318,7 +424,7 @@ public class ClassSessionService
                     TeacherId = null,
                     Topic = null,
                     Note = null,
-                    Status = 1,
+                    Status = ClassSessionStatusConstants.Planned,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = null
                 });

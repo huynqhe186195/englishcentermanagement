@@ -20,6 +20,90 @@ public class ClassService
         _mapper = mapper;
     }
 
+    public async Task<ClassSummaryDto> GetSummaryAsync(long classId)
+    {
+        var @class = await _context.Classes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == classId && !x.IsDeleted);
+
+        if (@class == null)
+        {
+            throw new NotFoundException("Class not found.");
+        }
+
+        var activeEnrollments = await _context.Enrollments.CountAsync(x => x.ClassId == classId && !x.IsDeleted && x.Status == 1);
+        var suspendedEnrollments = await _context.Enrollments.CountAsync(x => x.ClassId == classId && !x.IsDeleted && x.Status == 2);
+        var completedEnrollments = await _context.Enrollments.CountAsync(x => x.ClassId == classId && !x.IsDeleted && x.Status == 3);
+        var transferredEnrollments = await _context.Enrollments.CountAsync(x => x.ClassId == classId && !x.IsDeleted && x.Status == 4);
+        var cancelledEnrollments = await _context.Enrollments.CountAsync(x => x.ClassId == classId && !x.IsDeleted && x.Status == 5);
+
+        var totalSessions = await _context.ClassSessions.CountAsync(x => x.ClassId == classId);
+        var plannedSessions = await _context.ClassSessions.CountAsync(x => x.ClassId == classId && x.Status == 1);
+        var completedSessions = await _context.ClassSessions.CountAsync(x => x.ClassId == classId && x.Status == 2);
+        var cancelledSessions = await _context.ClassSessions.CountAsync(x => x.ClassId == classId && x.Status == 3);
+
+        var attendanceQuery = from a in _context.AttendanceRecords
+                              join cs in _context.ClassSessions on a.SessionId equals cs.Id
+                              where cs.ClassId == classId
+                              select a;
+
+        var totalAttendance = await attendanceQuery.CountAsync();
+        var presentAttendance = await attendanceQuery.CountAsync(x => x.Status == 1);
+
+        var attendanceRate = totalAttendance == 0
+            ? 0
+            : Math.Round((decimal)presentAttendance * 100 / totalAttendance, 2);
+
+        return new ClassSummaryDto
+        {
+            ClassId = @class.Id,
+            ClassCode = @class.ClassCode,
+            ClassName = @class.Name,
+            MaxStudents = @class.MaxStudents,
+            ActiveEnrollments = activeEnrollments,
+            SuspendedEnrollments = suspendedEnrollments,
+            CompletedEnrollments = completedEnrollments,
+            TransferredEnrollments = transferredEnrollments,
+            CancelledEnrollments = cancelledEnrollments,
+            TotalSessions = totalSessions,
+            PlannedSessions = plannedSessions,
+            CompletedSessions = completedSessions,
+            CancelledSessions = cancelledSessions,
+            AttendanceRate = attendanceRate
+        };
+    }
+
+    public async Task<List<ClassRosterItemDto>> GetRosterAsync(long classId)
+    {
+        var classExists = await _context.Classes
+            .AnyAsync(x => x.Id == classId && !x.IsDeleted);
+
+        if (!classExists)
+        {
+            throw new NotFoundException("Class not found.");
+        }
+
+        var result = await (
+            from e in _context.Enrollments
+            join s in _context.Students on e.StudentId equals s.Id
+            where e.ClassId == classId && !e.IsDeleted && !s.IsDeleted
+            orderby s.FullName
+            select new ClassRosterItemDto
+            {
+                EnrollmentId = e.Id,
+                StudentId = s.Id,
+                StudentCode = s.StudentCode,
+                FullName = s.FullName,
+                Phone = s.Phone,
+                Email = s.Email,
+                EnrollmentStatus = e.Status,
+                EnrollDate = e.EnrollDate
+            }
+        ).ToListAsync();
+
+        return result;
+    }
+
     public async Task<List<ClassDto>> GetAllAsync()
     {
         return await _context.Classes

@@ -53,4 +53,12 @@ public class AttendanceController : ControllerBase
         await _attendanceService.MarkAttendanceAsync(request);
         return Ok();
     }
+    // Lấy danh sách điểm danh của một buổi học cụ thể, bao gồm thông tin sinh viên, trạng thái điểm danh, và các ghi chú liên quan.
+    [Authorize(Policy = PermissionConstants.Attendance.View)]
+    [HttpGet("session/{sessionId:long}/roster")]
+    public async Task<IActionResult> GetSessionRoster(long sessionId)
+    {
+        var result = await _attendanceService.GetSessionAttendanceRosterAsync(sessionId);
+        return Ok(result);
+    }
 }

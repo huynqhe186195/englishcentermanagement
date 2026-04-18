@@ -14,6 +14,29 @@ public class ClassSessionsController : ControllerBase
     {
         _classSessionService = classSessionService;
     }
+    // Cho phép giáo viên thay đổi lịch trình của một buổi học đã lên lịch,
+    [HttpPut("{sessionId:long}/reschedule")]
+    public async Task<IActionResult> Reschedule(long sessionId, [FromBody] RescheduleClassSessionRequestDto request)
+    {
+        await _classSessionService.RescheduleAsync(sessionId, request);
+        return Ok();
+    }
+    // Cho phép giáo viên hủy một buổi học đã lên lịch,
+    // cập nhật trạng thái của buổi học và thực hiện các hành động liên quan như gửi thông báo đến sinh viên hoặc cập nhật điểm danh.
+    [HttpPut("{sessionId:long}/cancel")]
+    public async Task<IActionResult> Cancel(long sessionId, [FromBody] CancelClassSessionRequestDto request)
+    {
+        await _classSessionService.CancelAsync(sessionId, request);
+        return Ok();
+    }
+    // Cho phép giáo viên đánh dấu một buổi học là đã hoàn thành,
+    // cập nhật trạng thái của buổi học và thực hiện các hành động liên quan như gửi thông báo hoặc cập nhật điểm danh.
+    [HttpPut("{sessionId:long}/complete")]
+    public async Task<IActionResult> Complete(long sessionId, [FromBody] CompleteClassSessionRequestDto request)
+    {
+        await _classSessionService.CompleteAsync(sessionId, request);
+        return Ok();
+    }
 
     [HttpGet]
     public async Task<IActionResult> GetPaged([FromQuery] GetClassSessionsPagingRequestDto request)

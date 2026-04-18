@@ -40,4 +40,5 @@ public class CurrentUserService : ICurrentUserService
     public List<string> Permissions =>
         _httpContextAccessor.HttpContext?.User?.FindAll("permission").Select(x => x.Value).ToList()
         ?? [];
+    public bool IsInRole(string role) => Roles.Contains(role);
 }

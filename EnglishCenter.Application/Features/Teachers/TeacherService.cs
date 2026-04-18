@@ -20,6 +20,51 @@ public class TeacherService
         _mapper = mapper;
     }
 
+    public async Task<TeacherSummaryDto> GetSummaryAsync(long teacherId)
+    {
+        var teacher = await _context.Teachers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == teacherId && !x.IsDeleted);
+
+        if (teacher == null)
+        {
+            throw new NotFoundException("Teacher not found.");
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.Today);
+
+        var sessionQuery = _context.ClassSessions
+            .AsNoTracking()
+            .Where(x => x.TeacherId == teacherId);
+
+        var totalAssignedClasses = await sessionQuery
+            .Select(x => x.ClassId)
+            .Distinct()
+            .CountAsync();
+
+        var totalSessions = await sessionQuery.CountAsync();
+        var plannedSessions = await sessionQuery.CountAsync(x => x.Status == 1);
+        var completedSessions = await sessionQuery.CountAsync(x => x.Status == 2);
+        var cancelledSessions = await sessionQuery.CountAsync(x => x.Status == 3);
+        var upcomingSessions = await sessionQuery.CountAsync(x => x.SessionDate > today && x.Status == 1);
+        var todaySessions = await sessionQuery.CountAsync(x => x.SessionDate == today && x.Status != 3);
+
+        return new TeacherSummaryDto
+        {
+            TeacherId = teacher.Id,
+            TeacherCode = teacher.TeacherCode,
+            FullName = teacher.FullName,
+            Status = teacher.Status,
+            TotalAssignedClasses = totalAssignedClasses,
+            TotalSessions = totalSessions,
+            PlannedSessions = plannedSessions,
+            CompletedSessions = completedSessions,
+            CancelledSessions = cancelledSessions,
+            UpcomingSessions = upcomingSessions,
+            TodaySessions = todaySessions
+        };
+    }
+
     public async Task<List<TeacherDto>> GetAllAsync()
     {
         return await _context.Teachers
