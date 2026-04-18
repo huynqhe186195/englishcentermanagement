@@ -5,6 +5,7 @@ using EnglishCenter.Application.Common.Extensions;
 using EnglishCenter.Application.Common.Interfaces;
 using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Application.Features.Attendance.Dtos;
+using EnglishCenter.Domain.Constants;
 using EnglishCenter.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -15,11 +16,140 @@ public class AttendanceService
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
+    private readonly ICurrentUserService _currentUserService;
 
-    public AttendanceService(IApplicationDbContext context, IMapper mapper)
+    public AttendanceService(
+    IApplicationDbContext context,
+    IMapper mapper,
+    ICurrentUserService currentUserService)
     {
         _context = context;
         _mapper = mapper;
+        _currentUserService = currentUserService;
+    }
+    // Cho phép giáo viên điểm danh cho một buổi học cụ thể,
+    // cập nhật hoặc tạo mới bản ghi điểm danh cho từng sinh viên dựa trên thông tin được cung cấp.
+    public async Task MarkAttendanceAsync(MarkAttendanceRequestDto request, long? checkedByUserId = null)
+    {
+        var session = await _context.ClassSessions
+            .FirstOrDefaultAsync(x => x.Id == request.SessionId);
+
+        if (session == null)
+        {
+            throw new NotFoundException("Class session not found.");
+        }
+
+        await ValidateTeacherCanAccessSessionAsync(session);
+
+        if (session.Status == ClassSessionStatusConstants.Cancelled)
+        {
+            throw new BusinessException("Cannot mark attendance for a cancelled session.");
+        }
+
+        if (session.Status == ClassSessionStatusConstants.Completed)
+        {
+            throw new BusinessException("Cannot modify attendance because the session is already completed.");
+        }
+
+        foreach (var item in request.Items)
+        {
+            var isEnrolled = await _context.Enrollments.AnyAsync(x =>
+                x.StudentId == item.StudentId &&
+                x.ClassId == session.ClassId &&
+                !x.IsDeleted &&
+                x.Status == 1);
+
+            if (!isEnrolled)
+            {
+                throw new BusinessException($"Student {item.StudentId} is not actively enrolled in this class.");
+            }
+
+            var attendance = await _context.AttendanceRecords
+                .FirstOrDefaultAsync(x => x.SessionId == request.SessionId && x.StudentId == item.StudentId);
+
+            if (attendance == null)
+            {
+                attendance = new AttendanceRecord
+                {
+                    SessionId = request.SessionId,
+                    StudentId = item.StudentId,
+                    Status = item.Status,
+                    Note = item.Note,
+                    CheckedAt = DateTime.UtcNow,
+                    CheckedByUserId = checkedByUserId ?? _currentUserService.UserId
+                };
+
+                _context.AttendanceRecords.Add(attendance);
+            }
+            else
+            {
+                attendance.Status = item.Status;
+                attendance.Note = item.Note;
+                attendance.CheckedAt = DateTime.UtcNow;
+                attendance.CheckedByUserId = checkedByUserId ?? _currentUserService.UserId;
+            }
+        }
+
+        await _context.SaveChangesAsync();
+    }
+    // Truy xuất danh sách điểm danh cho một buổi học cụ thể, bao gồm thông tin sinh viên và tình trạng điểm danh của họ.
+    public async Task<List<SessionAttendanceRosterItemDto>> GetSessionAttendanceRosterAsync(long sessionId)
+    {
+        var session = await _context.ClassSessions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == sessionId);
+
+        if (session == null)
+        {
+            throw new NotFoundException("Class session not found.");
+        }
+
+        await ValidateTeacherCanAccessSessionAsync(session);
+
+        var result = await (
+            from e in _context.Enrollments
+            join s in _context.Students on e.StudentId equals s.Id
+            join a in _context.AttendanceRecords.Where(x => x.SessionId == sessionId)
+                on s.Id equals a.StudentId into attendanceGroup
+            from attendance in attendanceGroup.DefaultIfEmpty()
+            where e.ClassId == session.ClassId
+                  && !e.IsDeleted
+                  && e.Status == 1
+                  && !s.IsDeleted
+            orderby s.FullName
+            select new SessionAttendanceRosterItemDto
+            {
+                StudentId = s.Id,
+                StudentCode = s.StudentCode,
+                FullName = s.FullName,
+                EnrollmentId = e.Id,
+                EnrollmentStatus = e.Status,
+                AttendanceStatus = attendance != null ? attendance.Status : null,
+                Note = attendance != null ? attendance.Note : null,
+                CheckedAt = attendance != null ? attendance.CheckedAt : null
+            }
+        ).ToListAsync();
+
+        return result;
+    }
+    // Validates that the current teacher can access the specified class session.
+    private async Task ValidateTeacherCanAccessSessionAsync(ClassSession session)
+    {
+        if (!_currentUserService.IsInRole(RoleConstants.Teacher))
+            return;
+
+        if (!_currentUserService.UserId.HasValue)
+            throw new BusinessException("User is not authenticated.");
+
+        var teacher = await _context.Teachers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.UserId == _currentUserService.UserId.Value && !x.IsDeleted);
+
+        if (teacher == null)
+            throw new BusinessException("Teacher profile not found for current user.");
+
+        if (session.TeacherId != teacher.Id)
+            throw new BusinessException("You are not assigned to this session.");
     }
 
     public async Task<PagedResult<AttendanceRecordDto>> GetPagedAsync(GetAttendancePagingRequestDto request)
@@ -106,58 +236,6 @@ public class AttendanceService
             .OrderByDescending(x => x.CheckedAt)
             .ProjectTo<AttendanceRecordDto>(_mapper.ConfigurationProvider)
             .ToListAsync();
-    }
-
-    public async Task MarkAttendanceAsync(MarkAttendanceRequestDto request, long? checkedByUserId = null)
-    {
-        var session = await _context.ClassSessions
-            .FirstOrDefaultAsync(x => x.Id == request.SessionId);
-
-        if (session == null)
-        {
-            throw new NotFoundException("Class session not found.");
-        }
-
-        foreach (var item in request.Items)
-        {
-            var isEnrolled = await _context.Enrollments.AnyAsync(x =>
-                x.StudentId == item.StudentId &&
-                x.ClassId == session.ClassId &&
-                !x.IsDeleted &&
-                x.Status == 1);
-
-            if (!isEnrolled)
-            {
-                throw new BusinessException($"Student {item.StudentId} is not actively enrolled in this class.");
-            }
-
-            var attendance = await _context.AttendanceRecords
-                .FirstOrDefaultAsync(x => x.SessionId == request.SessionId && x.StudentId == item.StudentId);
-
-            if (attendance == null)
-            {
-                attendance = new AttendanceRecord
-                {
-                    SessionId = request.SessionId,
-                    StudentId = item.StudentId,
-                    Status = item.Status,
-                    Note = item.Note,
-                    CheckedAt = DateTime.UtcNow,
-                    CheckedByUserId = checkedByUserId
-                };
-
-                _context.AttendanceRecords.Add(attendance);
-            }
-            else
-            {
-                attendance.Status = item.Status;
-                attendance.Note = item.Note;
-                attendance.CheckedAt = DateTime.UtcNow;
-                attendance.CheckedByUserId = checkedByUserId;
-            }
-        }
-
-        await _context.SaveChangesAsync();
     }
 
     public async Task<AttendanceSummaryDto> GetStudentSummaryAsync(long studentId)

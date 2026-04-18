@@ -13,4 +13,5 @@ public interface ICurrentUserService
     string? IpAddress { get; }
     List<string> Roles { get; }
     List<string> Permissions { get; }
+    bool IsInRole(string role);
 }
