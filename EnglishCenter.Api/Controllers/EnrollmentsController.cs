@@ -47,14 +47,13 @@ public class EnrollmentsController : ControllerBase
         var newEnrollmentId = await _enrollmentService.TransferAsync(enrollmentId, request);
         return Ok(new { NewEnrollmentId = newEnrollmentId });
     }
-
     [HttpGet]
     public async Task<IActionResult> GetPaged([FromQuery] GetEnrollmentsPagingRequestDto request)
     {
         var result = await _enrollmentService.GetPagedAsync(request);
         return Ok(ApiResponse<PagedResult<EnrollmentDto>>.SuccessResponse(result, "Get enrollments successfully"));
     }
-
+   
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(long id)
     {

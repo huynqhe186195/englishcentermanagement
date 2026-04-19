@@ -7,6 +7,8 @@ using EnglishCenter.Application.Features.Enrollments.Dtos;
 using EnglishCenter.Domain.Constants;
 using EnglishCenter.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
+using EnglishCenter.Application.Commons.Helpers;
 
 namespace EnglishCenter.Application.Features.Enrollments;
 
@@ -14,11 +16,18 @@ public class EnrollmentService
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IEmailService _emailService;
+    private readonly HelperMethodEnrollments _helperMethodEnrollments;
 
-    public EnrollmentService(IApplicationDbContext context, IMapper mapper)
+    public EnrollmentService(
+    IApplicationDbContext context,
+    IMapper mapper,
+    IEmailService emailService, HelperMethodEnrollments helperMethodEnrollments)
     {
         _context = context;
         _mapper = mapper;
+        _emailService = emailService;
+        _helperMethodEnrollments = helperMethodEnrollments;
     }
     // Đánh giá chính sách điểm danh cho tất cả sinh viên trong một lớp học cụ thể,
     // tính toán tỷ lệ vắng mặt của từng sinh viên dựa trên số buổi học đã lên lịch và số buổi vắng mặt,
@@ -26,10 +35,11 @@ public class EnrollmentService
     // đình chỉ nếu vắng mặt trên 20%) và trả về kết quả đánh giá cho từng sinh viên.
     public async Task<List<EnrollmentAttendancePolicyResultDto>> EvaluateAttendancePolicyByClassAsync(long classId)
     {
-        var classExists = await _context.Classes
-            .AnyAsync(x => x.Id == classId && !x.IsDeleted);
+        var @class = await _context.Classes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == classId && !x.IsDeleted);
 
-        if (!classExists)
+        if (@class == null)
         {
             throw new NotFoundException("Class not found.");
         }
@@ -76,8 +86,63 @@ public class EnrollmentService
 
             var isWarning = absentRate > 10 && absentRate <= 20;
             var isSuspended = absentRate > 20;
+            var warningEmailSentNow = false;
 
-            var result = new EnrollmentAttendancePolicyResultDto
+            // Warning mail: chi gui 1 lan dau tien
+            if (absentRate > 10 &&
+                !_helperMethodEnrollments.HasAttendanceWarningSent(item.Enrollment.Note) &&
+                !string.IsNullOrWhiteSpace(item.Student.Email))
+            {
+                var subject = $"[Attendance Warning] {@class.Name}";
+                var body = _helperMethodEnrollments.BuildAttendanceWarningEmailBody(
+                    item.Student.FullName,
+                    @class.Name,
+                    @class.ClassCode,
+                    absentRate,
+                    absentCount,
+                    validSessionCount);
+
+                await _emailService.SendAsync(item.Student.Email!, subject, body);
+
+                item.Enrollment.Note = _helperMethodEnrollments.AppendAttendanceWarningMarker(item.Enrollment.Note);
+                item.Enrollment.UpdatedAt = DateTime.UtcNow;
+                warningEmailSentNow = true;
+            }
+
+            // Suspend neu > 20%
+            if (item.Enrollment.Status == EnrollmentStatusConstants.Active && isSuspended)
+            {
+                var baseNote = item.Enrollment.Note ?? string.Empty;
+
+                var suspendMessage =
+                    $"Suspended because absent {absentCount}/{validSessionCount} sessions ({absentRate}%). Exceeded 20% threshold.";
+
+                if (!baseNote.Contains("Suspended because absent", StringComparison.OrdinalIgnoreCase))
+                {
+                    item.Enrollment.Note = string.IsNullOrWhiteSpace(baseNote)
+                        ? suspendMessage
+                        : $"{baseNote} {suspendMessage}";
+                }
+
+                item.Enrollment.Status = EnrollmentStatusConstants.Suspended;
+                item.Enrollment.UpdatedAt = DateTime.UtcNow;
+            }
+            else if (item.Enrollment.Status == EnrollmentStatusConstants.Active && isWarning)
+            {
+                var baseNote = item.Enrollment.Note ?? string.Empty;
+                var warningMessage =
+                    $"Warning: absent {absentCount}/{validSessionCount} sessions ({absentRate}%). Exceeded 10% threshold.";
+
+                if (!baseNote.Contains("Warning: absent", StringComparison.OrdinalIgnoreCase))
+                {
+                    item.Enrollment.Note = string.IsNullOrWhiteSpace(baseNote)
+                        ? warningMessage
+                        : $"{baseNote} {warningMessage}";
+                    item.Enrollment.UpdatedAt = DateTime.UtcNow;
+                }
+            }
+
+            results.Add(new EnrollmentAttendancePolicyResultDto
             {
                 EnrollmentId = item.Enrollment.Id,
                 StudentId = item.Student.Id,
@@ -88,37 +153,22 @@ public class EnrollmentService
                 AbsentRate = absentRate,
                 IsWarning = isWarning,
                 IsSuspended = isSuspended,
+                WarningEmailSentNow = warningEmailSentNow,
                 Message = isSuspended
                     ? "Student exceeded 20% absence rate and has been suspended."
-                    : isWarning
-                        ? "Student exceeded 10% absence rate and received a warning."
+                    : absentRate > 10
+                        ? warningEmailSentNow
+                            ? "Student exceeded 10% absence rate and warning email was sent."
+                            : "Student exceeded 10% absence rate and warning email had already been sent before."
                         : "Attendance is within allowed threshold."
-            };
-
-            if (item.Enrollment.Status == EnrollmentStatusConstants.Active)
-            {
-                if (isSuspended)
-                {
-                    item.Enrollment.Status = EnrollmentStatusConstants.Suspended;
-                    item.Enrollment.Note =
-                        $"Suspended بسبب vắng {absentCount}/{validSessionCount} buổi ({absentRate}%). Exceeded 20% absence threshold.";
-                    item.Enrollment.UpdatedAt = DateTime.UtcNow;
-                }
-                else if (isWarning)
-                {
-                    item.Enrollment.Note =
-                        $"Warning: student absent {absentCount}/{validSessionCount} buổi ({absentRate}%). Exceeded 10% absence threshold.";
-                    item.Enrollment.UpdatedAt = DateTime.UtcNow;
-                }
-            }
-
-            results.Add(result);
+            });
         }
 
         await _context.SaveChangesAsync();
 
         return results;
     }
+
     public async Task SuspendAsync(long enrollmentId, SuspendEnrollmentRequestDto request)
     {
         var entity = await _context.Enrollments

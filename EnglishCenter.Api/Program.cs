@@ -2,10 +2,12 @@ using EnglishCenter.Api.Filters;
 using EnglishCenter.Api.Middlewares;
 using EnglishCenter.Api.Security;
 using EnglishCenter.Application;
+using EnglishCenter.Application.Common.Interfaces;
 using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Domain.Constants;
 using EnglishCenter.Infrastructure;
 using EnglishCenter.Infrastructure.Persistence.Seed;
+using EnglishCenter.Infrastructure.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -128,6 +130,11 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPermissionPolicies();
 });
+
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 
 var app = builder.Build();
 

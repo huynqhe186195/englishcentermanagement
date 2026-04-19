@@ -1,4 +1,5 @@
-﻿using EnglishCenter.Application.Features.Assignments;
+﻿using EnglishCenter.Application.Commons.Helpers;
+using EnglishCenter.Application.Features.Assignments;
 using EnglishCenter.Application.Features.Attendance;
 using EnglishCenter.Application.Features.AuditLogs;
 using EnglishCenter.Application.Features.Auth;
@@ -55,6 +56,7 @@ public static class DependencyInjection
         services.AddScoped<SessionConflictService>();
         services.AddScoped<TimetableService>();
         services.AddScoped<AcademicDashboardService>();
+        services.AddScoped<HelperMethodEnrollments>();
         return services;
     }
 }

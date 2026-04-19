@@ -16,7 +16,7 @@ public class EnrollmentAttendancePolicyResultDto
     public int ValidSessionCount { get; set; }
     public int AbsentCount { get; set; }
     public decimal AbsentRate { get; set; }
-
+    public bool WarningEmailSentNow { get; set; }
     public bool IsWarning { get; set; }
     public bool IsSuspended { get; set; }
     public string Message { get; set; } = string.Empty;
