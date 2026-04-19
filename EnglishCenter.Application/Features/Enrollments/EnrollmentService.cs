@@ -190,29 +190,6 @@ public class EnrollmentService
 
         await _context.SaveChangesAsync();
     }
-
-    public async Task CompleteAsync(long enrollmentId, CompleteEnrollmentRequestDto request)
-    {
-        var entity = await _context.Enrollments
-            .FirstOrDefaultAsync(x => x.Id == enrollmentId && !x.IsDeleted);
-
-        if (entity == null)
-        {
-            throw new NotFoundException("Enrollment not found.");
-        }
-
-        if (entity.Status != 1)
-        {
-            throw new BusinessException("Only active enrollment can be completed.");
-        }
-
-        entity.Status = 3;
-        entity.Note = request.Note;
-        entity.UpdatedAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-    }
-
     public async Task<long> TransferAsync(long enrollmentId, TransferEnrollmentRequestDto request)
     {
         var sourceEnrollment = await _context.Enrollments
@@ -284,28 +261,6 @@ public class EnrollmentService
         return newEnrollment.Id;
     }
 
-    public async Task SuspendAsync(long enrollmentId, SuspendEnrollmentRequestDto request)
-    {
-        var entity = await _context.Enrollments
-            .FirstOrDefaultAsync(x => x.Id == enrollmentId && !x.IsDeleted);
-
-        if (entity == null)
-        {
-            throw new NotFoundException("Enrollment not found.");
-        }
-
-        if (entity.Status != 1)
-        {
-            throw new BusinessException("Only active enrollment can be suspended.");
-        }
-
-        entity.Status = 2;
-        entity.Note = request.Reason.Trim();
-        entity.UpdatedAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-    }
-
     public async Task CompleteAsync(long enrollmentId, CompleteEnrollmentRequestDto request)
     {
         var entity = await _context.Enrollments
@@ -328,76 +283,7 @@ public class EnrollmentService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<long> TransferAsync(long enrollmentId, TransferEnrollmentRequestDto request)
-    {
-        var sourceEnrollment = await _context.Enrollments
-            .FirstOrDefaultAsync(x => x.Id == enrollmentId && !x.IsDeleted);
-
-        if (sourceEnrollment == null)
-        {
-            throw new NotFoundException("Enrollment not found.");
-        }
-
-        if (sourceEnrollment.Status != 1)
-        {
-            throw new BusinessException("Only active enrollment can be transferred.");
-        }
-
-        var targetClass = await _context.Classes
-            .FirstOrDefaultAsync(x => x.Id == request.TargetClassId && !x.IsDeleted);
-
-        if (targetClass == null)
-        {
-            throw new NotFoundException("Target class not found.");
-        }
-
-        if (sourceEnrollment.ClassId == request.TargetClassId)
-        {
-            throw new BusinessException("Target class must be different from current class.");
-        }
-
-        var alreadyExists = await _context.Enrollments.AnyAsync(x =>
-            x.StudentId == sourceEnrollment.StudentId &&
-            x.ClassId == request.TargetClassId &&
-            !x.IsDeleted &&
-            x.Status == 1);
-
-        if (alreadyExists)
-        {
-            throw new BusinessException("Student is already actively enrolled in target class.");
-        }
-
-        var activeCount = await _context.Enrollments.CountAsync(x =>
-                x.ClassId == request.TargetClassId &&
-                !x.IsDeleted &&
-                x.Status == 1);
-
-        if (activeCount >= 10)
-        {
-            throw new BusinessException("Target class already has the maximum of 10 students.");
-        }
-
-        sourceEnrollment.Status = 4;
-        sourceEnrollment.Note = request.Note;
-        sourceEnrollment.UpdatedAt = DateTime.UtcNow;
-
-        var newEnrollment = new Enrollment
-        {
-            StudentId = sourceEnrollment.StudentId,
-            ClassId = request.TargetClassId,
-            EnrollDate = DateOnly.FromDateTime(DateTime.Today),
-            Status = 1,
-            Note = $"Transferred from enrollment {sourceEnrollment.Id}. {request.Note}",
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = null,
-            IsDeleted = false
-        };
-
-        _context.Enrollments.Add(newEnrollment);
-        await _context.SaveChangesAsync();
-
-        return newEnrollment.Id;
-    }
+    
 
     public async Task<List<EnrollmentDto>> GetAllAsync()
     {

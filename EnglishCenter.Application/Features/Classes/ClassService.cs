@@ -192,6 +192,7 @@ public class ClassService
         entity.CreatedAt = DateTime.UtcNow;
         entity.UpdatedAt = null;
         entity.IsDeleted = false;
+        entity.MaxStudents = 10;
 
         _context.Classes.Add(entity);
         await _context.SaveChangesAsync();
@@ -210,6 +211,7 @@ public class ClassService
         }
 
         _mapper.Map(request, entity);
+        entity.MaxStudents = 10;
         entity.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
