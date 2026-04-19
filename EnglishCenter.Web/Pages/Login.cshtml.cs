@@ -70,7 +70,7 @@ public class LoginModel : PageModel
                 SetCookie("ecm_campus_id", Input.CampusId.Value.ToString(), payload.Data.ExpiresAtUtc.AddDays(7));
             }
 
-            return RedirectToPage("/Home", new { campusId = Input.CampusId });
+            return RedirectToPage("/Dashboard", new { selectedCampusId = Input.CampusId });
         }
         catch (Exception ex)
         {

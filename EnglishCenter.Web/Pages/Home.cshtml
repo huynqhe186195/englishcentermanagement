@@ -1,120 +1,71 @@
 @page "/home"
 @model HomeModel
 @{
-    ViewData["Title"] = "Home - Quản lý trung tâm";
+    ViewData["Title"] = "Home";
 }
 
-<section class="hero-section mb-4">
-    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
-        <div>
-            <h1 class="display-6 fw-bold mb-2">Home - English Center Management</h1>
-            <p class="text-muted mb-0">Dashboard tổng quan theo nhiều campus. Bạn có thể lọc dữ liệu theo từng cơ sở.</p>
+<section class="landing-hero mb-4">
+    <div>
+        <span class="hero-badge">English Center Platform</span>
+        <h1 class="hero-title">Quản lý đa campus trong một hệ thống</h1>
+        <p class="hero-subtitle">Trang Home là nơi chọn campus và đi nhanh đến các chức năng chính như Dashboard, Login, quản lý lớp học.</p>
+        <div class="hero-actions">
+            <a class="btn btn-primary" asp-page="/Dashboard" asp-route-selectedCampusId="@Model.SelectedCampus?.Id">Vào Dashboard</a>
+            <a class="btn btn-outline-primary" asp-page="/Login">Đăng nhập</a>
         </div>
-        <form method="get" class="campus-filter-form">
-            <label asp-for="SelectedCampusId" class="form-label fw-semibold">Campus</label>
-            <select asp-for="SelectedCampusId" asp-items="Model.CampusOptions" class="form-select" onchange="this.form.submit()"></select>
-        </form>
     </div>
 </section>
 
 @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
 {
-    <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
 }
 
-<div class="row g-3 mb-4">
-    <div class="col-md-6 col-xl-3">
-        <article class="summary-card">
-            <p class="summary-label">Campus đang xem</p>
-            <p class="summary-value summary-text">@Model.SelectedCampusName</p>
-        </article>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <article class="summary-card">
-            <p class="summary-label">Số lớp hiển thị</p>
-            <p class="summary-value">@Model.Stats.TotalClasses</p>
-        </article>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <article class="summary-card">
-            <p class="summary-label">Lớp đang hoạt động</p>
-            <p class="summary-value">@Model.Stats.ActiveClasses</p>
-        </article>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <article class="summary-card">
-            <p class="summary-label">Tỉ lệ điểm danh TB</p>
-            <p class="summary-value">@Model.Stats.AverageAttendanceRate.ToString("0.##")%</p>
-        </article>
-    </div>
-</div>
-
 <div class="row g-4">
-    <div class="col-xl-7">
-        <section class="dashboard-panel">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="h5 m-0">Hiệu suất lớp học theo campus</h2>
-                <small class="text-muted">/api/AcademicDashboard/class-dashboard</small>
-            </div>
-            <div class="table-responsive">
-                <table class="table align-middle table-hover">
-                    <thead>
-                        <tr>
-                            <th>Mã lớp</th>
-                            <th>Tên lớp</th>
-                            <th>HV hiện tại</th>
-                            <th>Buổi học</th>
-                            <th>Điểm danh</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @if (Model.ClassDashboards.Any())
-                    {
-                        foreach (var item in Model.ClassDashboards)
-                        {
-                            <tr>
-                                <td class="fw-semibold">@item.ClassCode</td>
-                                <td>@item.ClassName</td>
-                                <td>@item.ActiveEnrollments/@item.MaxStudents</td>
-                                <td>@item.UpcomingSessions/@item.TotalSessions</td>
-                                <td><span class="badge rounded-pill bg-success-subtle text-success-emphasis px-3 py-2">@item.AttendanceRate.ToString("0.##")%</span></td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr><td colspan="5" class="text-center text-muted py-4">Chưa có dữ liệu cho campus đã chọn.</td></tr>
-                    }
-                    </tbody>
-                </table>
-            </div>
+    <div class="col-xl-5">
+        <section class="glass-card h-100">
+            <h2 class="h5 mb-3">Campus đang chọn</h2>
+
+            @if (Model.SelectedCampus is not null)
+            {
+                <div class="campus-focus">
+                    <p class="campus-code mb-1">@Model.SelectedCampus.CampusCode</p>
+                    <h3 class="h4 mb-2">@Model.SelectedCampus.Name</h3>
+                    <p class="mb-1 text-muted">📍 @Model.SelectedCampus.Address</p>
+                    <p class="mb-3 text-muted">☎ @Model.SelectedCampus.Phone</p>
+                    <a class="btn btn-sm btn-primary" asp-page="/Dashboard" asp-route-selectedCampusId="@Model.SelectedCampus.Id">Xem thống kê campus này</a>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-0">Chưa có dữ liệu campus.</p>
+            }
         </section>
     </div>
 
-    <div class="col-xl-5">
-        <section class="dashboard-panel">
+    <div class="col-xl-7">
+        <section class="glass-card h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="h5 m-0">Lớp theo campus</h2>
-                <small class="text-muted">/api/Classes</small>
+                <h2 class="h5 m-0">Danh sách campus</h2>
+                <small class="text-muted">Nhấn vào campus để chọn nhanh</small>
             </div>
-            <div class="class-list">
-                @if (Model.Classes.Any())
+            <div class="campus-grid">
+                @if (Model.Campuses.Any())
                 {
-                    foreach (var item in Model.Classes)
+                    foreach (var campus in Model.Campuses)
                     {
-                        <article class="class-item">
-                            <div>
-                                <p class="class-code mb-1">@item.ClassCode</p>
-                                <p class="class-name mb-1">@item.Name</p>
-                                <p class="class-meta mb-0">Sĩ số tối đa: @item.MaxStudents · Học phí: @item.TuitionFee.ToString("N0") VNĐ</p>
-                            </div>
-                            <span class="status-dot @(item.Status == 1 ? "active" : "inactive")"></span>
-                        </article>
+                        var isActive = Model.SelectedCampus?.Id == campus.Id;
+                        <a class="campus-card @(isActive ? "active" : string.Empty)" asp-page="/Home" asp-route-campusId="@campus.Id">
+                            <p class="campus-code mb-1">@campus.CampusCode</p>
+                            <h3 class="h6 mb-1">@campus.Name</h3>
+                            <p class="campus-meta mb-1">@campus.Address</p>
+                            <p class="campus-meta mb-0">@campus.Phone</p>
+                        </a>
                     }
                 }
                 else
                 {
-                    <p class="text-muted mb-0">Không có lớp nào thuộc campus này.</p>
+                    <p class="text-muted mb-0">Không có campus để hiển thị.</p>
                 }
             </div>
         </section>
