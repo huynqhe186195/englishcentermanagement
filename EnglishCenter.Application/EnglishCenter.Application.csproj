@@ -28,9 +28,4 @@
     <ProjectReference Include="..\EnglishCenter.Domain\EnglishCenter.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Invoices\" />
-    <Folder Include="Features\Payments\" />
-  </ItemGroup>
-
 </Project>
