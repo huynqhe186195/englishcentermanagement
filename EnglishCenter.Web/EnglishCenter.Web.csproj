@@ -12,10 +12,8 @@
     <Folder Include="Models\Dtos\" />
     <Folder Include="Models\ViewModels\" />
     <Folder Include="Models\Requests\" />
-    <Folder Include="Pages\Account\" />
     <Folder Include="Pages\Dashboard\" />
     <Folder Include="Pages\Admins\" />
-    <Folder Include="Pages\Classes\" />
     <Folder Include="Pages\Rooms\" />
     <Folder Include="Pages\Parents\" />
     <Folder Include="Pages\Teachers\" />

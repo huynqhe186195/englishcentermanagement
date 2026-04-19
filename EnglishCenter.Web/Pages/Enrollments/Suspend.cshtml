@@ -1,0 +1,22 @@
+@page "{id:long}" 
+@model EnglishCenter.Web.Pages.Enrollments.SuspendModel
+@{
+    ViewData["Title"] = "Suspend Enrollment";
+}
+
+<h2>Suspend Enrollment</h2>
+
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">Reason</label>
+        <textarea asp-for="Input.Reason" class="form-control"></textarea>
+    </div>
+
+    <button class="btn btn-danger" type="submit">Suspend</button>
+    <a asp-page="/Classes/Roster" asp-route-id="@Model.ClassId" class="btn btn-secondary">Back to Roster</a>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger mt-3">@Model.ErrorMessage</div>
+    }
+</form>

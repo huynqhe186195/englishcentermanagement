@@ -1,0 +1,39 @@
+@page "{id:long}"
+@model EnglishCenter.Web.Pages.Enrollments.EditModel
+@{
+    ViewData["Title"] = "Edit Enrollment";
+}
+
+<h2>Edit Enrollment</h2>
+
+<form method="post">
+    <input type="hidden" asp-for="Input.StudentId" />
+    <div class="mb-3">
+        <label class="form-label">Student</label>
+        <select asp-for="Input.StudentId" class="form-select" asp-items="Model.Students">
+            <option value="">-- Select student --</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Class</label>
+        <select asp-for="Input.ClassId" class="form-select" asp-items="Model.Classes">
+            <option value="">-- Select class --</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Enroll Date</label>
+        <input asp-for="Input.EnrollDate" type="date" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Note</label>
+        <textarea asp-for="Input.Note" class="form-control"></textarea>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Save</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger mt-3">@Model.ErrorMessage</div>
+    }
+</form>

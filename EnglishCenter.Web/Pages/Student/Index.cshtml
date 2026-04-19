@@ -1,0 +1,40 @@
+@page
+@model EnglishCenter.Web.Pages.Student.IndexModel
+@{
+    ViewData["Title"] = "Student Dashboard";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>Welcome, @Model.FullName ?? @Model.UserName</h2>
+        <p class="text-muted">This is your student dashboard. Access your enrollments, timetable and academic summary.</p>
+
+        <div class="mt-4 d-flex gap-2">
+            <a class="btn btn-lg btn-primary" asp-page="/Enrollments/Index">My Enrollments</a>
+            <a class="btn btn-lg btn-outline-light text-primary" style="background:#f3f4f6;" asp-page="/Classes/Index">Browse Classes</a>
+            <a class="btn btn-lg btn-outline-secondary" asp-page="/Account/Logout">Logout</a>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card stat-card mb-3 shadow-sm">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Next Session</h6>
+                <h5 class="mt-2">--</h5>
+                <p class="text-muted small">Open your enrollments to see session details.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card stat-card mb-3 shadow-sm">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Attendance Rate</h6>
+                <h5 class="mt-2">--</h5>
+                <p class="text-muted small">Your overall attendance rate will appear here.</p>
+            </div>
+        </div>
+    </div>
+</div>

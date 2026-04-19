@@ -1,0 +1,20 @@
+@page "{id:long}"
+@model EnglishCenter.Web.Pages.Classes.DetailsModel
+@{
+    ViewData["Title"] = "Class Details";
+}
+
+<h2>Class Details</h2>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@Model.Item.Name (@Model.Item.ClassCode)</h5>
+        <p class="card-text">Start: @Model.Item.StartDate &nbsp; End: @Model.Item.EndDate</p>
+        <p class="card-text">Max Students: @Model.Item.MaxStudents</p>
+        <p class="card-text">Tuition: @Model.Item.TuitionFee.ToString("C")</p>
+        <p class="card-text">Status: @(Model.Item.Status==1?"Active":"Inactive")</p>
+
+        <a asp-page="Edit" asp-route-id="@Model.Item.Id" class="btn btn-primary">Edit</a>
+        <a asp-page="Index" class="btn btn-secondary">Back</a>
+    </div>
+</div>

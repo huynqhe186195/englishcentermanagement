@@ -1,0 +1,75 @@
+@page
+@model EnglishCenter.Web.Pages.Classes.IndexModel
+@{
+    ViewData["Title"] = "Classes";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Classes</h2>
+    <a class="btn btn-primary" asp-page="Create">Create Class</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <input class="form-control" name="Keyword" value="@Model.Keyword" placeholder="Search by code or name" />
+    </div>
+    <div class="col-auto">
+        <select class="form-select" name="Status">
+            <option value="">All</option>
+            <option value="1" selected="@((Model.Status==1).ToString())">Active</option>
+            <option value="0" selected="@((Model.Status==0).ToString())">Inactive</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-outline-primary" type="submit">Filter</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Max</th>
+            <th>Tuition</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.Items)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.ClassCode</td>
+            <td>@item.Name</td>
+            <td>@item.StartDate</td>
+            <td>@item.EndDate</td>
+            <td>@item.MaxStudents</td>
+            <td>@item.TuitionFee.ToString("C")</td>
+            <td>@(item.Status==1?"Active":"Inactive")</td>
+            <td>
+                <a class="btn btn-sm btn-outline-primary" asp-page="Details" asp-route-id="@item.Id">Details</a>
+                <a class="btn btn-sm btn-outline-secondary" asp-page="Edit" asp-route-id="@item.Id">Edit</a>
+                <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id" style="display:inline" onsubmit="return confirm('Delete this class?');">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<nav>
+    <ul class="pagination">
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i==Model.PageNumber?"active":"")">
+                <a class="page-link" href="?PageNumber=@i&PageSize=@Model.PageSize&Keyword=@Model.Keyword&Status=@Model.Status">@i</a>
+            </li>
+        }
+    </ul>
+</nav>

@@ -1,0 +1,55 @@
+@page "{id:long}"
+@model EnglishCenter.Web.Pages.Classes.RosterModel
+@{
+    ViewData["Title"] = "Class Roster";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Class Roster</h2>
+    <a class="btn btn-secondary" asp-page="Index">Back to Classes</a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (!Model.Items.Any())
+{
+    <div class="alert alert-info">No students enrolled in this class.</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Student Code</th>
+                <th>Full Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Enroll Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.StudentId</td>
+                    <td>@item.StudentCode</td>
+                    <td>@item.FullName</td>
+                    <td>@item.Phone</td>
+                    <td>@item.Email</td>
+                    <td>@item.EnrollDate</td>
+                <td>@(item.EnrollmentStatus==1?"Active": item.EnrollmentStatus==2?"Suspended": item.EnrollmentStatus==3?"Completed":"Other")</td>
+                <td>
+                    <a class="btn btn-sm btn-warning" asp-page="/Enrollments/Suspend" asp-route-id="@item.EnrollmentId">Suspend</a>
+                    <a class="btn btn-sm btn-success" asp-page="/Enrollments/Complete" asp-route-id="@item.EnrollmentId">Complete</a>
+                    <a class="btn btn-sm btn-info" asp-page="/Enrollments/Transfer" asp-route-id="@item.EnrollmentId">Transfer</a>
+                </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
