@@ -1,39 +1,17 @@
 @page "/home"
 @model HomeModel
 @{
-    ViewData["Title"] = "Home";
+    ViewData["Title"] = "English Center Courses";
 }
 
-<section class="landing-hero-v2 mb-4">
-    <div class="row align-items-center g-4">
-        <div class="col-lg-7">
-            <span class="hero-chip">English Center Management</span>
-            <h1 class="hero-heading">Nền tảng vận hành trung tâm tiếng Anh đa campus</h1>
-            <p class="hero-lead">
-                Quản lý học viên, lớp học, lịch học và hiệu suất giảng dạy theo từng cơ sở trong một giao diện trực quan,
-                tối ưu cho đội ngũ học vụ và vận hành.
-            </p>
-            <div class="d-flex flex-wrap gap-2 mt-3">
-                <a class="btn btn-light btn-lg" asp-page="/Dashboard" asp-route-selectedCampusId="@Model.SelectedCampus?.Id">Mở Dashboard</a>
-                <a class="btn btn-outline-light btn-lg" asp-page="/Login">Đăng nhập hệ thống</a>
-            </div>
-        </div>
-        <div class="col-lg-5">
-            <div class="hero-floating-card">
-                <p class="text-uppercase small text-muted mb-2">Campus hiện tại</p>
-                @if (Model.SelectedCampus is not null)
-                {
-                    <h2 class="h4 mb-2">@Model.SelectedCampus.Name</h2>
-                    <p class="text-muted mb-1">@Model.SelectedCampus.CampusCode</p>
-                    <p class="text-muted mb-1">📍 @Model.SelectedCampus.Address</p>
-                    <p class="text-muted mb-3">☎ @Model.SelectedCampus.Phone</p>
-                    <a class="btn btn-primary w-100" asp-page="/Dashboard" asp-route-selectedCampusId="@Model.SelectedCampus.Id">Xem phân tích campus này</a>
-                }
-                else
-                {
-                    <p class="mb-0 text-muted">Chưa có campus để hiển thị.</p>
-                }
-            </div>
+<section class="courses-landing mb-5">
+    <div class="hero-content text-center">
+        <span class="hero-pill">English Center • Khóa học khai giảng</span>
+        <h1>Chọn khóa học phù hợp cho từng mục tiêu tiếng Anh</h1>
+        <p>Danh sách khóa học đang mở từ hệ thống quản lý trung tâm. Theo dõi lịch khai giảng, học phí và sĩ số trực tiếp theo dữ liệu thật.</p>
+        <div class="hero-cta">
+            <a class="btn btn-light btn-lg" asp-page="/Login">Đăng nhập tư vấn viên</a>
+            <a class="btn btn-outline-light btn-lg" asp-page="/Dashboard">Xem Dashboard vận hành</a>
         </div>
     </div>
 </section>
@@ -43,47 +21,35 @@
     <div class="alert alert-danger">@Model.ErrorMessage</div>
 }
 
-<section class="mb-4">
+<section>
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="h4 mb-0">Danh sách campus</h2>
-        <span class="text-muted">Chọn campus để gán ngữ cảnh làm việc</span>
+        <h2 class="h3 mb-0">Danh sách khóa học</h2>
+        <span class="text-muted">@Model.Courses.Count khóa học</span>
     </div>
 
-    <div class="campus-grid-v2">
-        @if (Model.Campuses.Any())
+    <div class="course-grid">
+        @if (Model.Courses.Any())
         {
-            foreach (var campus in Model.Campuses)
+            foreach (var course in Model.Courses)
             {
-                var isActive = Model.SelectedCampus?.Id == campus.Id;
-                <a class="campus-card-v2 @(isActive ? "active" : string.Empty)" asp-page="/Home" asp-route-campusId="@campus.Id">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <span class="campus-badge">@campus.CampusCode</span>
-                        <span class="status-pill @(campus.Status == 1 ? "status-open" : "status-close")">@(campus.Status == 1 ? "Đang hoạt động" : "Tạm dừng")</span>
+                <article class="course-card">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="course-code">@course.ClassCode</span>
+                        <span class="status-pill @(course.Status == 1 ? "status-open" : "status-close")">@(course.Status == 1 ? "Đang tuyển sinh" : "Ngừng nhận")</span>
                     </div>
-                    <h3 class="h5 mt-3 mb-2">@campus.Name</h3>
-                    <p class="mb-1 text-muted">📍 @campus.Address</p>
-                    <p class="mb-0 text-muted">☎ @campus.Phone</p>
-                </a>
+
+                    <h3 class="h5 mb-2">@course.Title</h3>
+                    <p class="course-meta mb-1">🗓 @course.StartDate:dd/MM/yyyy - @course.EndDate:dd/MM/yyyy</p>
+                    <p class="course-meta mb-1">👥 Sĩ số tối đa: @course.MaxStudents học viên</p>
+                    <p class="course-fee mb-3">💳 Học phí: @course.TuitionFee.ToString("N0") VNĐ</p>
+
+                    <button type="button" class="btn btn-primary w-100" disabled>Đăng ký tư vấn</button>
+                </article>
             }
         }
         else
         {
-            <div class="empty-campus">Không có dữ liệu campus.</div>
+            <div class="empty-course">Hiện chưa có khóa học nào để hiển thị.</div>
         }
     </div>
-</section>
-
-<section class="feature-strip">
-    <article>
-        <h3>🎯 Đúng ngữ cảnh campus</h3>
-        <p>Mỗi thao tác quản lý được đặt trong đúng cơ sở để tránh nhầm dữ liệu.</p>
-    </article>
-    <article>
-        <h3>📊 Dashboard thời gian thực</h3>
-        <p>Theo dõi hiệu suất lớp học, điểm danh và tiến độ giảng dạy theo campus.</p>
-    </article>
-    <article>
-        <h3>🔐 Đăng nhập tập trung</h3>
-        <p>Đăng nhập một lần, chọn campus và đi thẳng đến màn hình vận hành.</p>
-    </article>
 </section>

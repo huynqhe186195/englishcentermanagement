@@ -1,6 +1,5 @@
 using System.Net.Http.Json;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace EnglishCenter.Web.Pages;
@@ -13,12 +12,8 @@ public class HomeModel : PageModel
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<HomeModel> _logger;
 
-    [BindProperty(SupportsGet = true)]
-    public long? CampusId { get; set; }
-
     public string? ErrorMessage { get; private set; }
-    public IReadOnlyList<CampusCardViewModel> Campuses { get; private set; } = Array.Empty<CampusCardViewModel>();
-    public CampusCardViewModel? SelectedCampus { get; private set; }
+    public IReadOnlyList<CourseCardViewModel> Courses { get; private set; } = Array.Empty<CourseCardViewModel>();
 
     public HomeModel(IHttpClientFactory httpClientFactory, ILogger<HomeModel> logger)
     {
@@ -28,34 +23,32 @@ public class HomeModel : PageModel
 
     public async Task OnGetAsync()
     {
-        if (!CampusId.HasValue &&
-            Request.Cookies.TryGetValue("ecm_campus_id", out var campusCookie) &&
-            long.TryParse(campusCookie, out var parsedCampusId))
-        {
-            CampusId = parsedCampusId;
-        }
-
         var client = _httpClientFactory.CreateClient(ApiClientName);
 
         try
         {
-            var campusesResult = await GetApiDataAsync<PagedResult<CampusCardViewModel>>(client, "/api/Campuses?pageNumber=1&pageSize=100");
-            Campuses = campusesResult?.Items ?? Array.Empty<CampusCardViewModel>();
+            var classesResult = await GetApiDataAsync<PagedResult<ClassItemViewModel>>(client, "/api/Classes?pageNumber=1&pageSize=12");
+            var classes = classesResult?.Items ?? Array.Empty<ClassItemViewModel>();
 
-            if (CampusId.HasValue)
-            {
-                SelectedCampus = Campuses.FirstOrDefault(x => x.Id == CampusId.Value);
-            }
-
-            if (SelectedCampus is null && Campuses.Count > 0)
-            {
-                SelectedCampus = Campuses[0];
-            }
+            Courses = classes
+                .OrderBy(x => x.StartDate)
+                .Select(x => new CourseCardViewModel
+                {
+                    Id = x.Id,
+                    ClassCode = x.ClassCode,
+                    Title = x.Name,
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate,
+                    TuitionFee = x.TuitionFee,
+                    MaxStudents = x.MaxStudents,
+                    Status = x.Status
+                })
+                .ToList();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Không thể tải trang Home.");
-            ErrorMessage = "Không thể tải danh sách campus. Vui lòng kiểm tra API.";
+            _logger.LogError(ex, "Không thể tải danh sách khóa học trang Home.");
+            ErrorMessage = "Không thể tải danh sách khóa học. Vui lòng kiểm tra API.";
         }
     }
 
@@ -83,13 +76,27 @@ public class HomeModel : PageModel
         public IReadOnlyList<T> Items { get; set; } = Array.Empty<T>();
     }
 
-    public sealed class CampusCardViewModel
+    public sealed class ClassItemViewModel
     {
         public long Id { get; set; }
-        public string CampusCode { get; set; } = string.Empty;
+        public string ClassCode { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
-        public string? Address { get; set; }
-        public string? Phone { get; set; }
+        public DateOnly StartDate { get; set; }
+        public DateOnly EndDate { get; set; }
+        public decimal TuitionFee { get; set; }
+        public int MaxStudents { get; set; }
+        public int Status { get; set; }
+    }
+
+    public sealed class CourseCardViewModel
+    {
+        public long Id { get; set; }
+        public string ClassCode { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public DateOnly StartDate { get; set; }
+        public DateOnly EndDate { get; set; }
+        public decimal TuitionFee { get; set; }
+        public int MaxStudents { get; set; }
         public int Status { get; set; }
     }
 }

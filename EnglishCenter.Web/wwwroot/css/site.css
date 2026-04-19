@@ -12,8 +12,8 @@ html { font-size: 15px; }
 body {
   margin: 0;
   color: var(--text-main);
-  background: radial-gradient(circle at 10% -10%, #dbeafe 0%, #ffffff 38%),
-              radial-gradient(circle at 100% -10%, #ede9fe 0%, #ffffff 40%);
+  background: radial-gradient(circle at 8% -10%, #dbeafe 0%, #ffffff 34%),
+              radial-gradient(circle at 100% -10%, #ede9fe 0%, #ffffff 38%);
 }
 
 .app-navbar {
@@ -28,80 +28,89 @@ body {
 
 .nav-link:hover { background: rgba(255, 255, 255, 0.16); }
 
-/* Home v2 */
-.landing-hero-v2 {
-  color: #fff;
-  border-radius: 22px;
-  padding: 2.2rem;
+/* Home courses landing */
+.courses-landing {
+  border-radius: 24px;
+  padding: 2.5rem 1.25rem;
   background: linear-gradient(125deg, #0b1220 0%, #1e3a8a 48%, #2563eb 100%);
-  box-shadow: 0 22px 40px rgba(15, 23, 42, 0.26);
+  box-shadow: 0 22px 40px rgba(15, 23, 42, 0.28);
+  color: #fff;
 }
 
-.hero-chip {
+.hero-content {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.hero-pill {
   display: inline-block;
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.42);
   border-radius: 999px;
-  padding: 0.28rem 0.75rem;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
+  padding: 0.28rem 0.8rem;
   margin-bottom: 1rem;
 }
 
-.hero-heading {
-  font-size: clamp(1.8rem, 4vw, 2.7rem);
+.courses-landing h1 {
+  font-size: clamp(1.9rem, 4vw, 2.8rem);
   font-weight: 800;
-  margin-bottom: 0.8rem;
-  line-height: 1.2;
+  margin-bottom: 0.85rem;
 }
 
-.hero-lead {
-  max-width: 760px;
-  color: rgba(255, 255, 255, 0.92);
+.courses-landing p {
+  color: rgba(255, 255, 255, 0.9);
   font-size: 1.05rem;
+  margin-bottom: 0;
 }
 
-.hero-floating-card {
-  background: rgba(255, 255, 255, 0.96);
-  color: var(--text-main);
-  border-radius: 16px;
-  padding: 1.15rem;
-  border: 1px solid #dbeafe;
-  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.16);
+.hero-cta {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
 }
 
-.campus-grid-v2 {
+.course-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1rem;
 }
 
-.campus-card-v2 {
-  text-decoration: none;
-  color: inherit;
-  border-radius: 14px;
-  border: 1px solid var(--card-border);
+.course-card {
   background: #fff;
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
   padding: 1rem;
-  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.06);
-  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
 }
 
-.campus-card-v2:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 24px rgba(30, 41, 59, 0.14);
-}
-
-.campus-card-v2.active {
-  border-color: #2563eb;
-  background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
-}
-
-.campus-badge {
+.course-code {
   background: #eff6ff;
   color: #1d4ed8;
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 700;
-  padding: 0.2rem 0.55rem;
+  padding: 0.2rem 0.6rem;
+}
+
+.course-meta {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.course-fee {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.empty-course {
+  grid-column: 1 / -1;
+  background: #fff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 1rem;
+  color: var(--text-muted);
 }
 
 .status-pill {
@@ -114,40 +123,7 @@ body {
 .status-open { background: #dcfce7; color: #166534; }
 .status-close { background: #fee2e2; color: #991b1b; }
 
-.empty-campus {
-  grid-column: 1 / -1;
-  border: 1px dashed #cbd5e1;
-  border-radius: 12px;
-  padding: 1rem;
-  background: #fff;
-  color: var(--text-muted);
-}
-
-.feature-strip {
-  margin-top: 1.25rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 0.9rem;
-}
-
-.feature-strip article {
-  background: #fff;
-  border: 1px solid var(--card-border);
-  border-radius: 14px;
-  padding: 1rem;
-}
-
-.feature-strip h3 {
-  font-size: 1.02rem;
-  margin-bottom: 0.4rem;
-}
-
-.feature-strip p {
-  color: var(--text-muted);
-  margin: 0;
-}
-
-/* Dashboard + shared */
+/* Dashboard + shared cards */
 .hero-section,
 .dashboard-panel,
 .summary-card,
@@ -210,7 +186,6 @@ body {
 .status-dot.active { background-color: #22c55e; }
 .status-dot.inactive { background-color: #f59e0b; }
 
-/* Login */
 .login-page {
   min-height: 72vh;
   display: grid;
