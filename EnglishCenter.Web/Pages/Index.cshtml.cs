@@ -6,6 +6,9 @@ namespace EnglishCenter.Web.Pages;
 
 public class IndexModel : PageModel
 {
+    private const string ApiClientName = "EnglishCenterApi";
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<IndexModel> _logger;
 
@@ -22,7 +25,7 @@ public class IndexModel : PageModel
 
     public async Task OnGetAsync()
     {
-        var client = _httpClientFactory.CreateClient("EnglishCenterApi");
+        var client = _httpClientFactory.CreateClient(ApiClientName);
 
         try
         {
@@ -36,46 +39,55 @@ public class IndexModel : PageModel
             var classesResult = await classesTask;
             var studentsAtRiskResult = await studentsAtRiskTask;
 
-            ClassDashboards = classDashboardResult?.Items?.ToList() ?? new List<ClassDashboardItemViewModel>();
-            Classes = classesResult?.Items?.ToList() ?? new List<ClassItemViewModel>();
+            ClassDashboards = classDashboardResult?.Items ?? Array.Empty<ClassDashboardItemViewModel>();
+            Classes = classesResult?.Items ?? Array.Empty<ClassItemViewModel>();
 
             Stats = new DashboardStatsViewModel
             {
                 TotalClasses = classesResult?.TotalRecords ?? 0,
-                ActiveClasses = Classes.Count(c => c.Status == 1),
-                AverageAttendanceRate = ClassDashboards.Count > 0 ? ClassDashboards.Average(x => x.AttendanceRate) : 0,
+                ActiveClasses = Classes.Count(static c => c.Status == 1),
+                AverageAttendanceRate = ClassDashboards.Count > 0
+                    ? Math.Round(ClassDashboards.Average(static x => x.AttendanceRate), 2)
+                    : 0,
                 StudentsAtRisk = studentsAtRiskResult?.TotalRecords ?? 0
             };
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Không thể tải dữ liệu dashboard từ API.");
-            ErrorMessage = "Không thể tải dữ liệu từ API. Vui lòng kiểm tra EnglishCenter.Api đã chạy ở cổng cấu hình chưa.";
+            ErrorMessage = "Không thể tải dữ liệu từ API. Vui lòng kiểm tra EnglishCenter.Api đã chạy đúng cổng cấu hình.";
         }
     }
 
     private static async Task<T?> GetApiDataAsync<T>(HttpClient client, string url)
     {
-        var response = await client.GetFromJsonAsync<ApiResponse<T>>(url, JsonSerializerOptions.Web);
-        return response?.Data;
+        var response = await client.GetAsync(url);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return default;
+        }
+
+        var payload = await response.Content.ReadFromJsonAsync<ApiResponse<T>>(JsonOptions);
+        return payload?.Success == true ? payload.Data : default;
     }
 
-    public class ApiResponse<T>
+    public sealed class ApiResponse<T>
     {
         public bool Success { get; set; }
         public string Message { get; set; } = string.Empty;
         public T? Data { get; set; }
     }
 
-    public class PagedResult<T>
+    public sealed class PagedResult<T>
     {
-        public IReadOnlyList<T>? Items { get; set; }
+        public IReadOnlyList<T> Items { get; set; } = Array.Empty<T>();
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
         public int TotalRecords { get; set; }
     }
 
-    public class ClassDashboardItemViewModel
+    public sealed class ClassDashboardItemViewModel
     {
         public long ClassId { get; set; }
         public string ClassCode { get; set; } = string.Empty;
@@ -87,24 +99,24 @@ public class IndexModel : PageModel
         public decimal AttendanceRate { get; set; }
     }
 
-    public class ClassItemViewModel
+    public sealed class ClassItemViewModel
     {
         public long Id { get; set; }
         public string ClassCode { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
-        public string StartDate { get; set; } = string.Empty;
-        public string EndDate { get; set; } = string.Empty;
+        public DateOnly StartDate { get; set; }
+        public DateOnly EndDate { get; set; }
         public decimal TuitionFee { get; set; }
         public int MaxStudents { get; set; }
         public int Status { get; set; }
     }
 
-    public class StudentAtRiskViewModel
+    public sealed class StudentAtRiskViewModel
     {
         public long StudentId { get; set; }
     }
 
-    public class DashboardStatsViewModel
+    public sealed class DashboardStatsViewModel
     {
         public int TotalClasses { get; set; }
         public int ActiveClasses { get; set; }
