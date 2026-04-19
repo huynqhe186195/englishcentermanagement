@@ -4,14 +4,36 @@
     ViewData["Title"] = "Home";
 }
 
-<section class="landing-hero mb-4">
-    <div>
-        <span class="hero-badge">English Center Platform</span>
-        <h1 class="hero-title">Quản lý đa campus trong một hệ thống</h1>
-        <p class="hero-subtitle">Trang Home là nơi chọn campus và đi nhanh đến các chức năng chính như Dashboard, Login, quản lý lớp học.</p>
-        <div class="hero-actions">
-            <a class="btn btn-primary" asp-page="/Dashboard" asp-route-selectedCampusId="@Model.SelectedCampus?.Id">Vào Dashboard</a>
-            <a class="btn btn-outline-primary" asp-page="/Login">Đăng nhập</a>
+<section class="landing-hero-v2 mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+            <span class="hero-chip">English Center Management</span>
+            <h1 class="hero-heading">Nền tảng vận hành trung tâm tiếng Anh đa campus</h1>
+            <p class="hero-lead">
+                Quản lý học viên, lớp học, lịch học và hiệu suất giảng dạy theo từng cơ sở trong một giao diện trực quan,
+                tối ưu cho đội ngũ học vụ và vận hành.
+            </p>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                <a class="btn btn-light btn-lg" asp-page="/Dashboard" asp-route-selectedCampusId="@Model.SelectedCampus?.Id">Mở Dashboard</a>
+                <a class="btn btn-outline-light btn-lg" asp-page="/Login">Đăng nhập hệ thống</a>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="hero-floating-card">
+                <p class="text-uppercase small text-muted mb-2">Campus hiện tại</p>
+                @if (Model.SelectedCampus is not null)
+                {
+                    <h2 class="h4 mb-2">@Model.SelectedCampus.Name</h2>
+                    <p class="text-muted mb-1">@Model.SelectedCampus.CampusCode</p>
+                    <p class="text-muted mb-1">📍 @Model.SelectedCampus.Address</p>
+                    <p class="text-muted mb-3">☎ @Model.SelectedCampus.Phone</p>
+                    <a class="btn btn-primary w-100" asp-page="/Dashboard" asp-route-selectedCampusId="@Model.SelectedCampus.Id">Xem phân tích campus này</a>
+                }
+                else
+                {
+                    <p class="mb-0 text-muted">Chưa có campus để hiển thị.</p>
+                }
+            </div>
         </div>
     </div>
 </section>
@@ -21,53 +43,47 @@
     <div class="alert alert-danger">@Model.ErrorMessage</div>
 }
 
-<div class="row g-4">
-    <div class="col-xl-5">
-        <section class="glass-card h-100">
-            <h2 class="h5 mb-3">Campus đang chọn</h2>
-
-            @if (Model.SelectedCampus is not null)
-            {
-                <div class="campus-focus">
-                    <p class="campus-code mb-1">@Model.SelectedCampus.CampusCode</p>
-                    <h3 class="h4 mb-2">@Model.SelectedCampus.Name</h3>
-                    <p class="mb-1 text-muted">📍 @Model.SelectedCampus.Address</p>
-                    <p class="mb-3 text-muted">☎ @Model.SelectedCampus.Phone</p>
-                    <a class="btn btn-sm btn-primary" asp-page="/Dashboard" asp-route-selectedCampusId="@Model.SelectedCampus.Id">Xem thống kê campus này</a>
-                </div>
-            }
-            else
-            {
-                <p class="text-muted mb-0">Chưa có dữ liệu campus.</p>
-            }
-        </section>
+<section class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 mb-0">Danh sách campus</h2>
+        <span class="text-muted">Chọn campus để gán ngữ cảnh làm việc</span>
     </div>
 
-    <div class="col-xl-7">
-        <section class="glass-card h-100">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="h5 m-0">Danh sách campus</h2>
-                <small class="text-muted">Nhấn vào campus để chọn nhanh</small>
-            </div>
-            <div class="campus-grid">
-                @if (Model.Campuses.Any())
-                {
-                    foreach (var campus in Model.Campuses)
-                    {
-                        var isActive = Model.SelectedCampus?.Id == campus.Id;
-                        <a class="campus-card @(isActive ? "active" : string.Empty)" asp-page="/Home" asp-route-campusId="@campus.Id">
-                            <p class="campus-code mb-1">@campus.CampusCode</p>
-                            <h3 class="h6 mb-1">@campus.Name</h3>
-                            <p class="campus-meta mb-1">@campus.Address</p>
-                            <p class="campus-meta mb-0">@campus.Phone</p>
-                        </a>
-                    }
-                }
-                else
-                {
-                    <p class="text-muted mb-0">Không có campus để hiển thị.</p>
-                }
-            </div>
-        </section>
+    <div class="campus-grid-v2">
+        @if (Model.Campuses.Any())
+        {
+            foreach (var campus in Model.Campuses)
+            {
+                var isActive = Model.SelectedCampus?.Id == campus.Id;
+                <a class="campus-card-v2 @(isActive ? "active" : string.Empty)" asp-page="/Home" asp-route-campusId="@campus.Id">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <span class="campus-badge">@campus.CampusCode</span>
+                        <span class="status-pill @(campus.Status == 1 ? "status-open" : "status-close")">@(campus.Status == 1 ? "Đang hoạt động" : "Tạm dừng")</span>
+                    </div>
+                    <h3 class="h5 mt-3 mb-2">@campus.Name</h3>
+                    <p class="mb-1 text-muted">📍 @campus.Address</p>
+                    <p class="mb-0 text-muted">☎ @campus.Phone</p>
+                </a>
+            }
+        }
+        else
+        {
+            <div class="empty-campus">Không có dữ liệu campus.</div>
+        }
     </div>
-</div>
+</section>
+
+<section class="feature-strip">
+    <article>
+        <h3>🎯 Đúng ngữ cảnh campus</h3>
+        <p>Mỗi thao tác quản lý được đặt trong đúng cơ sở để tránh nhầm dữ liệu.</p>
+    </article>
+    <article>
+        <h3>📊 Dashboard thời gian thực</h3>
+        <p>Theo dõi hiệu suất lớp học, điểm danh và tiến độ giảng dạy theo campus.</p>
+    </article>
+    <article>
+        <h3>🔐 Đăng nhập tập trung</h3>
+        <p>Đăng nhập một lần, chọn campus và đi thẳng đến màn hình vận hành.</p>
+    </article>
+</section>

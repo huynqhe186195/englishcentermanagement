@@ -18,7 +18,7 @@ public class LoginModel : PageModel
     [BindProperty]
     public LoginInputModel Input { get; set; } = new();
 
-    public List<SelectListItem> CampusOptions { get; private set; } = [];
+    public List<SelectListItem> CampusOptions { get; private set; } = new();
 
     public LoginModel(IHttpClientFactory httpClientFactory, ILogger<LoginModel> logger)
     {
@@ -84,7 +84,7 @@ public class LoginModel : PageModel
     {
         var client = _httpClientFactory.CreateClient(ApiClientName);
         var campusesResult = await GetApiDataAsync<PagedResult<CampusItem>>(client, "/api/Campuses?pageNumber=1&pageSize=100");
-        var campuses = campusesResult?.Items ?? [];
+        var campuses = campusesResult?.Items ?? Array.Empty<CampusItem>();
 
         CampusOptions = campuses
             .Select(c => new SelectListItem
@@ -171,6 +171,6 @@ public class LoginModel : PageModel
 
     public sealed class PagedResult<T>
     {
-        public IReadOnlyList<T> Items { get; set; } = [];
+        public IReadOnlyList<T> Items { get; set; } = Array.Empty<T>();
     }
 }

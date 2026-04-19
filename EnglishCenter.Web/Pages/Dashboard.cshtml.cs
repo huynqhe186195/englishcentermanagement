@@ -18,7 +18,7 @@ public class DashboardModel : PageModel
     public long? SelectedCampusId { get; set; }
 
     public string SelectedCampusName { get; private set; } = "Tất cả campus";
-    public List<SelectListItem> CampusOptions { get; private set; } = [];
+    public List<SelectListItem> CampusOptions { get; private set; } = new();
     public DashboardStatsViewModel Stats { get; private set; } = new();
     public IReadOnlyList<ClassDashboardItemViewModel> ClassDashboards { get; private set; } = Array.Empty<ClassDashboardItemViewModel>();
     public IReadOnlyList<ClassItemViewModel> Classes { get; private set; } = Array.Empty<ClassItemViewModel>();
@@ -53,9 +53,9 @@ public class DashboardModel : PageModel
             var classesResult = await classesTask;
             var classDashboardResult = await classDashboardTask;
 
-            var campuses = campusesResult?.Items ?? [];
-            var allClasses = classesResult?.Items ?? [];
-            var allDashboards = classDashboardResult?.Items ?? [];
+            var campuses = campusesResult?.Items ?? Array.Empty<CampusItemViewModel>();
+            var allClasses = classesResult?.Items ?? Array.Empty<ClassItemViewModel>();
+            var allDashboards = classDashboardResult?.Items ?? Array.Empty<ClassDashboardItemViewModel>();
 
             CampusOptions = BuildCampusOptions(campuses, SelectedCampusId);
             SelectedCampusName = SelectedCampusId.HasValue
@@ -123,7 +123,7 @@ public class DashboardModel : PageModel
 
     public sealed class PagedResult<T>
     {
-        public IReadOnlyList<T> Items { get; set; } = [];
+        public IReadOnlyList<T> Items { get; set; } = Array.Empty<T>();
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
         public int TotalRecords { get; set; }
