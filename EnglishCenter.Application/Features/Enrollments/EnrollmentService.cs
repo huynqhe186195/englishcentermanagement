@@ -4,8 +4,11 @@ using EnglishCenter.Application.Common.Exceptions;
 using EnglishCenter.Application.Common.Interfaces;
 using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Application.Features.Enrollments.Dtos;
+using EnglishCenter.Domain.Constants;
 using EnglishCenter.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
+using EnglishCenter.Application.Commons.Helpers;
 
 namespace EnglishCenter.Application.Features.Enrollments;
 
@@ -13,11 +16,272 @@ public class EnrollmentService
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IEmailService _emailService;
+    private readonly HelperMethodEnrollments _helperMethodEnrollments;
 
-    public EnrollmentService(IApplicationDbContext context, IMapper mapper)
+    public EnrollmentService(
+    IApplicationDbContext context,
+    IMapper mapper,
+    IEmailService emailService, HelperMethodEnrollments helperMethodEnrollments)
     {
         _context = context;
         _mapper = mapper;
+        _emailService = emailService;
+        _helperMethodEnrollments = helperMethodEnrollments;
+    }
+    // Đánh giá chính sách điểm danh cho tất cả sinh viên trong một lớp học cụ thể,
+    // tính toán tỷ lệ vắng mặt của từng sinh viên dựa trên số buổi học đã lên lịch và số buổi vắng mặt,
+    // sau đó cập nhật trạng thái của bản ghi enrollment tương ứng (ví dụ: cảnh báo nếu vắng mặt trên 10%,
+    // đình chỉ nếu vắng mặt trên 20%) và trả về kết quả đánh giá cho từng sinh viên.
+    public async Task<List<EnrollmentAttendancePolicyResultDto>> EvaluateAttendancePolicyByClassAsync(long classId)
+    {
+        var @class = await _context.Classes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == classId && !x.IsDeleted);
+
+        if (@class == null)
+        {
+            throw new NotFoundException("Class not found.");
+        }
+
+        var validSessionCount = await _context.ClassSessions.CountAsync(x =>
+            x.ClassId == classId &&
+            x.Status != ClassSessionStatusConstants.Cancelled);
+
+        if (validSessionCount == 0)
+        {
+            return [];
+        }
+
+        var enrollments = await (
+            from e in _context.Enrollments
+            join s in _context.Students on e.StudentId equals s.Id
+            where e.ClassId == classId
+                  && !e.IsDeleted
+                  && !s.IsDeleted
+                  && (e.Status == EnrollmentStatusConstants.Active
+                      || e.Status == EnrollmentStatusConstants.Suspended)
+            select new
+            {
+                Enrollment = e,
+                Student = s
+            }
+        ).ToListAsync();
+
+        var results = new List<EnrollmentAttendancePolicyResultDto>();
+
+        foreach (var item in enrollments)
+        {
+            var absentCount = await (
+                from a in _context.AttendanceRecords
+                join cs in _context.ClassSessions on a.SessionId equals cs.Id
+                where cs.ClassId == classId
+                      && cs.Status != ClassSessionStatusConstants.Cancelled
+                      && a.StudentId == item.Enrollment.StudentId
+                      && a.Status == AttendanceStatusConstants.Absent
+                select a.Id
+            ).CountAsync();
+
+            var absentRate = Math.Round((decimal)absentCount * 100 / validSessionCount, 2);
+
+            var isWarning = absentRate > 10 && absentRate <= 20;
+            var isSuspended = absentRate > 20;
+            var warningEmailSentNow = false;
+
+            // Warning mail: chi gui 1 lan dau tien
+            if (absentRate > 10 &&
+                !_helperMethodEnrollments.HasAttendanceWarningSent(item.Enrollment.Note) &&
+                !string.IsNullOrWhiteSpace(item.Student.Email))
+            {
+                var subject = $"[Attendance Warning] {@class.Name}";
+                var body = _helperMethodEnrollments.BuildAttendanceWarningEmailBody(
+                    item.Student.FullName,
+                    @class.Name,
+                    @class.ClassCode,
+                    absentRate,
+                    absentCount,
+                    validSessionCount);
+
+                await _emailService.SendAsync(item.Student.Email!, subject, body);
+
+                item.Enrollment.Note = _helperMethodEnrollments.AppendAttendanceWarningMarker(item.Enrollment.Note);
+                item.Enrollment.UpdatedAt = DateTime.UtcNow;
+                warningEmailSentNow = true;
+            }
+
+            // Suspend neu > 20%
+            if (item.Enrollment.Status == EnrollmentStatusConstants.Active && isSuspended)
+            {
+                var baseNote = item.Enrollment.Note ?? string.Empty;
+
+                var suspendMessage =
+                    $"Suspended because absent {absentCount}/{validSessionCount} sessions ({absentRate}%). Exceeded 20% threshold.";
+
+                if (!baseNote.Contains("Suspended because absent", StringComparison.OrdinalIgnoreCase))
+                {
+                    item.Enrollment.Note = string.IsNullOrWhiteSpace(baseNote)
+                        ? suspendMessage
+                        : $"{baseNote} {suspendMessage}";
+                }
+
+                item.Enrollment.Status = EnrollmentStatusConstants.Suspended;
+                item.Enrollment.UpdatedAt = DateTime.UtcNow;
+            }
+            else if (item.Enrollment.Status == EnrollmentStatusConstants.Active && isWarning)
+            {
+                var baseNote = item.Enrollment.Note ?? string.Empty;
+                var warningMessage =
+                    $"Warning: absent {absentCount}/{validSessionCount} sessions ({absentRate}%). Exceeded 10% threshold.";
+
+                if (!baseNote.Contains("Warning: absent", StringComparison.OrdinalIgnoreCase))
+                {
+                    item.Enrollment.Note = string.IsNullOrWhiteSpace(baseNote)
+                        ? warningMessage
+                        : $"{baseNote} {warningMessage}";
+                    item.Enrollment.UpdatedAt = DateTime.UtcNow;
+                }
+            }
+
+            results.Add(new EnrollmentAttendancePolicyResultDto
+            {
+                EnrollmentId = item.Enrollment.Id,
+                StudentId = item.Student.Id,
+                StudentCode = item.Student.StudentCode,
+                FullName = item.Student.FullName,
+                ValidSessionCount = validSessionCount,
+                AbsentCount = absentCount,
+                AbsentRate = absentRate,
+                IsWarning = isWarning,
+                IsSuspended = isSuspended,
+                WarningEmailSentNow = warningEmailSentNow,
+                Message = isSuspended
+                    ? "Student exceeded 20% absence rate and has been suspended."
+                    : absentRate > 10
+                        ? warningEmailSentNow
+                            ? "Student exceeded 10% absence rate and warning email was sent."
+                            : "Student exceeded 10% absence rate and warning email had already been sent before."
+                        : "Attendance is within allowed threshold."
+            });
+        }
+
+        await _context.SaveChangesAsync();
+
+        return results;
+    }
+
+    public async Task SuspendAsync(long enrollmentId, SuspendEnrollmentRequestDto request)
+    {
+        var entity = await _context.Enrollments
+            .FirstOrDefaultAsync(x => x.Id == enrollmentId && !x.IsDeleted);
+
+        if (entity == null)
+        {
+            throw new NotFoundException("Enrollment not found.");
+        }
+
+        if (entity.Status != 1)
+        {
+            throw new BusinessException("Only active enrollment can be suspended.");
+        }
+
+        entity.Status = 2;
+        entity.Note = request.Reason.Trim();
+        entity.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task CompleteAsync(long enrollmentId, CompleteEnrollmentRequestDto request)
+    {
+        var entity = await _context.Enrollments
+            .FirstOrDefaultAsync(x => x.Id == enrollmentId && !x.IsDeleted);
+
+        if (entity == null)
+        {
+            throw new NotFoundException("Enrollment not found.");
+        }
+
+        if (entity.Status != 1)
+        {
+            throw new BusinessException("Only active enrollment can be completed.");
+        }
+
+        entity.Status = 3;
+        entity.Note = request.Note;
+        entity.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<long> TransferAsync(long enrollmentId, TransferEnrollmentRequestDto request)
+    {
+        var sourceEnrollment = await _context.Enrollments
+            .FirstOrDefaultAsync(x => x.Id == enrollmentId && !x.IsDeleted);
+
+        if (sourceEnrollment == null)
+        {
+            throw new NotFoundException("Enrollment not found.");
+        }
+
+        if (sourceEnrollment.Status != 1)
+        {
+            throw new BusinessException("Only active enrollment can be transferred.");
+        }
+
+        var targetClass = await _context.Classes
+            .FirstOrDefaultAsync(x => x.Id == request.TargetClassId && !x.IsDeleted);
+
+        if (targetClass == null)
+        {
+            throw new NotFoundException("Target class not found.");
+        }
+
+        if (sourceEnrollment.ClassId == request.TargetClassId)
+        {
+            throw new BusinessException("Target class must be different from current class.");
+        }
+
+        var alreadyExists = await _context.Enrollments.AnyAsync(x =>
+            x.StudentId == sourceEnrollment.StudentId &&
+            x.ClassId == request.TargetClassId &&
+            !x.IsDeleted &&
+            x.Status == 1);
+
+        if (alreadyExists)
+        {
+            throw new BusinessException("Student is already actively enrolled in target class.");
+        }
+
+        var activeCount = await _context.Enrollments.CountAsync(x =>
+                x.ClassId == request.TargetClassId &&
+                !x.IsDeleted &&
+                x.Status == 1);
+
+        if (activeCount >= 10)
+        {
+            throw new BusinessException("Target class already has the maximum of 10 students.");
+        }
+
+        sourceEnrollment.Status = 4;
+        sourceEnrollment.Note = request.Note;
+        sourceEnrollment.UpdatedAt = DateTime.UtcNow;
+
+        var newEnrollment = new Enrollment
+        {
+            StudentId = sourceEnrollment.StudentId,
+            ClassId = request.TargetClassId,
+            EnrollDate = DateOnly.FromDateTime(DateTime.Today),
+            Status = 1,
+            Note = $"Transferred from enrollment {sourceEnrollment.Id}. {request.Note}",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = null,
+            IsDeleted = false
+        };
+
+        _context.Enrollments.Add(newEnrollment);
+        await _context.SaveChangesAsync();
+
+        return newEnrollment.Id;
     }
 
     public async Task SuspendAsync(long enrollmentId, SuspendEnrollmentRequestDto request)

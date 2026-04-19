@@ -17,6 +17,15 @@ public class EnrollmentsController : ControllerBase
         _enrollmentService = enrollmentService;
     }
 
+    // đánh giá chính sách điểm danh của lớp học dựa trên số buổi học đã tham gia và
+    // số buổi học đã vắng mặt của học viên trong quá trình đăng ký lớp học
+    [HttpPost("classes/{classId:long}/evaluate-attendance-policy")]
+    public async Task<IActionResult> EvaluateAttendancePolicy(long classId)
+    {
+        var result = await _enrollmentService.EvaluateAttendancePolicyByClassAsync(classId);
+        return Ok(result);
+    }
+
     // đình chỉ học viên khỏi lớp học nếu có bất kỳ active nào không đúng trong quá trình đăng ký lớp học
     [HttpPut("{enrollmentId:long}/suspend")]
     public async Task<IActionResult> Suspend(long enrollmentId, [FromBody] SuspendEnrollmentRequestDto request)
@@ -38,14 +47,13 @@ public class EnrollmentsController : ControllerBase
         var newEnrollmentId = await _enrollmentService.TransferAsync(enrollmentId, request);
         return Ok(new { NewEnrollmentId = newEnrollmentId });
     }
-
     [HttpGet]
     public async Task<IActionResult> GetPaged([FromQuery] GetEnrollmentsPagingRequestDto request)
     {
         var result = await _enrollmentService.GetPagedAsync(request);
         return Ok(ApiResponse<PagedResult<EnrollmentDto>>.SuccessResponse(result, "Get enrollments successfully"));
     }
-
+   
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(long id)
     {
