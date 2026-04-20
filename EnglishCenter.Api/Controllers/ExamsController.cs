@@ -34,6 +34,15 @@ public class ExamsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateExamRequestDto request)
     {
+        // attach current user id from token if available
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                          ?? User.FindFirst("sub")?.Value
+                          ?? User.FindFirst("id")?.Value;
+        if (!string.IsNullOrEmpty(userIdClaim) && long.TryParse(userIdClaim, out var uid))
+        {
+            request.CreatedByUserId = uid;
+        }
+
         // create with validation to avoid student schedule conflicts
         var id = await _examService.CreateWithValidationAsync(request);
         return Ok(ApiResponse<object>.SuccessResponse(new { Id = id }, "Exam created successfully"));
