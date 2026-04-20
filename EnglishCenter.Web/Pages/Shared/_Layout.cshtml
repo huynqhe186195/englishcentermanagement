@@ -61,6 +61,60 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 10800;">
+        <div id="toastContainer"></div>
+    </div>
+
+    <script>
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/\"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function showToast(message, type) {
+            var bg = 'bg-info';
+            var textClass = '';
+            if (type === 'success') { bg = 'bg-success text-white'; }
+            else if (type === 'error') { bg = 'bg-danger text-white'; }
+            else if (type === 'warning') { bg = 'bg-warning text-dark'; }
+
+            var toastId = 'toast-' + Date.now();
+            var html = '<div id="' + toastId + '" class="toast align-items-center ' + bg + ' border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">'
+                + '<div class="d-flex">'
+                + '<div class="toast-body">' + escapeHtml(message) + '</div>'
+                + '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>'
+                + '</div></div>';
+
+            var container = document.getElementById('toastContainer');
+            if (!container) return;
+            container.insertAdjacentHTML('beforeend', html);
+            var toastEl = document.getElementById(toastId);
+            var toast = new bootstrap.Toast(toastEl, { delay: 5000 });
+            toast.show();
+            // remove after hidden
+            toastEl.addEventListener('hidden.bs.toast', function () { toastEl.remove(); });
+        }
+    </script>
+
+    @if (TempData["ToastMessage"] != null)
+    {
+        var msgJson = System.Text.Json.JsonSerializer.Serialize(TempData["ToastMessage"].ToString());
+        var typeJson = System.Text.Json.JsonSerializer.Serialize((TempData["ToastType"] ?? "info").ToString());
+        <text>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    try {
+                        showToast(@Html.Raw(msgJson), @Html.Raw(typeJson));
+                    } catch (e) { console.error(e); }
+                });
+            </script>
+        </text>
+    }
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
