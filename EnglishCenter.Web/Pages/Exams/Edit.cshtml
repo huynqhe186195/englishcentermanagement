@@ -1,0 +1,35 @@
+@page "{id:long}"
+@model EnglishCenter.Web.Pages.Exams.EditModel
+@{
+    ViewData["Title"] = "Edit Exam";
+}
+
+<h2>Edit Exam</h2>
+
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">Title</label>
+        <input asp-for="Title" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Exam Type</label>
+        <select asp-for="ExamType" class="form-select">
+            <option value="1">30 minutes</option>
+            <option value="2">90 minutes</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Date</label>
+        <input asp-for="ExamDate" type="datetime-local" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Max Score</label>
+        <input asp-for="MaxScore" type="number" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+    <button class="btn btn-primary" type="submit">Save</button>
+    <a class="btn btn-secondary" asp-page="/Classes/Details" asp-route-id="@Model.ClassId">Cancel</a>
+</form>
