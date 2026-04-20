@@ -10,6 +10,7 @@ using EnglishCenter.Domain.Constants;
 using EnglishCenter.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using static EnglishCenter.Domain.Constants.PermissionConstants;
 
 namespace EnglishCenter.Application.Features.ClassSessions;
 
@@ -67,7 +68,7 @@ public class ClassSessionService
 
         if (request.SessionDate < @class.StartDate || request.SessionDate > @class.EndDate)
         {
-            throw new BusinessException("SessionDate must be within the class date range.");
+            throw new BusinessException("Rescheduled date must be within the class date range.");
         }
 
         await _sessionConflictService.ValidateSessionConflictsAsync(
@@ -357,9 +358,11 @@ public class ClassSessionService
         await _context.SaveChangesAsync();
     }
 
+    // Tự động sinh các buổi học cho một lớp học dựa trên lịch học đã được thiết lập trước đó,
     public async Task<int> GenerateSessionsAsync(GenerateClassSessionsRequestDto request)
     {
         var @class = await _context.Classes
+            .Include(x => x.Course)
             .FirstOrDefaultAsync(x => x.Id == request.ClassId && !x.IsDeleted);
 
         if (@class == null)
@@ -367,7 +370,20 @@ public class ClassSessionService
             throw new NotFoundException("Class not found.");
         }
 
+        if (@class.Course == null)
+        {
+            throw new BusinessException("Class must belong to a course.");
+        }
+
+        var totalSessions = @class.Course.TotalSessions;
+
+        if (totalSessions <= 0)
+        {
+            throw new BusinessException("Course.TotalSessions must be greater than 0.");
+        }
+
         var schedules = await _context.ClassSchedules
+            .AsNoTracking()
             .Where(x => x.ClassId == request.ClassId)
             .OrderBy(x => x.DayOfWeek)
             .ThenBy(x => x.StartTime)
@@ -375,24 +391,29 @@ public class ClassSessionService
 
         if (!schedules.Any())
         {
-            throw new BusinessException("Class has no schedules to generate sessions.");
+            throw new BusinessException("No class schedules found.");
         }
 
         var existingSessions = await _context.ClassSessions
             .Where(x => x.ClassId == request.ClassId)
-            .Select(x => new { x.SessionDate, x.StartTime })
             .ToListAsync();
+
+        if (existingSessions.Count >= totalSessions)
+        {
+            throw new BusinessException(
+                $"All sessions have already been generated. Target is {totalSessions} sessions.");
+        }
 
         var existingSet = existingSessions
             .Select(x => $"{x.SessionDate:yyyy-MM-dd}_{x.StartTime}")
             .ToHashSet();
 
-        var currentMaxSessionNo = await _context.ClassSessions
-            .Where(x => x.ClassId == request.ClassId)
-            .Select(x => (int?)x.SessionNo)
-            .MaxAsync() ?? 0;
+        var currentMaxSessionNo = existingSessions.Any()
+            ? existingSessions.Max(x => x.SessionNo)
+            : 0;
 
-        var createdSessions = new List<ClassSession>();
+        // 1. Sinh tất cả candidate slots hợp lệ trong khoảng StartDate -> EndDate
+        var candidateSlots = new List<(DateOnly SessionDate, TimeOnly StartTime, TimeOnly EndTime, long? RoomId)>();
         var currentDate = @class.StartDate;
         var endDate = @class.EndDate;
 
@@ -411,34 +432,67 @@ public class ClassSessionService
                 if (existingSet.Contains(key))
                     continue;
 
-                await _sessionConflictService.ValidateRoomConflictAsync(
-                    schedule.RoomId,
+                candidateSlots.Add((
                     currentDate,
                     schedule.StartTime,
-                    schedule.EndTime);
-
-                currentMaxSessionNo++;
-
-                createdSessions.Add(new ClassSession
-                {
-                    ClassId = request.ClassId,
-                    SessionNo = currentMaxSessionNo,
-                    SessionDate = currentDate,
-                    StartTime = schedule.StartTime,
-                    EndTime = schedule.EndTime,
-                    RoomId = schedule.RoomId,
-                    TeacherId = null,
-                    Topic = null,
-                    Note = null,
-                    Status = ClassSessionStatusConstants.Planned,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = null
-                });
-
-                existingSet.Add(key);
+                    schedule.EndTime,
+                    schedule.RoomId
+                ));
             }
 
             currentDate = currentDate.AddDays(1);
+        }
+
+        // 2. Sort candidate slots theo ngày và giờ
+        candidateSlots = candidateSlots
+            .OrderBy(x => x.SessionDate)
+            .ThenBy(x => x.StartTime)
+            .ToList();
+
+        // 3. Tính số session còn thiếu cần generate
+        var remainingSessionsToGenerate = totalSessions - existingSessions.Count;
+
+        // 4. Nếu không đủ slot thì báo lỗi
+        if (candidateSlots.Count < remainingSessionsToGenerate)
+        {
+            throw new BusinessException(
+                $"Schedule is not sufficient to generate {totalSessions} sessions within the selected date range. " +
+                $"Existing sessions: {existingSessions.Count}, remaining required: {remainingSessionsToGenerate}, available slots: {candidateSlots.Count}.");
+        }
+
+        // 5. Chỉ lấy đúng số slot cần thiết
+        var selectedSlots = candidateSlots
+            .Take(remainingSessionsToGenerate)
+            .ToList();
+
+        // 6. Tạo session từ selected slots
+        var createdSessions = new List<ClassSession>();
+
+        foreach (var slot in selectedSlots)
+        {
+            await _sessionConflictService.ValidateRoomConflictAsync(
+                slot.RoomId,
+                slot.SessionDate,
+                slot.StartTime,
+                slot.EndTime);
+
+            currentMaxSessionNo++;
+
+            createdSessions.Add(new ClassSession
+            {
+                ClassId = request.ClassId,
+                SessionNo = currentMaxSessionNo,
+                SessionDate = slot.SessionDate,
+                StartTime = slot.StartTime,
+                EndTime = slot.EndTime,
+                RoomId = slot.RoomId,
+                TeacherId = null,
+                Topic = null,
+                Note = null,
+                Status = ClassSessionStatusConstants.Planned,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = null
+            });
         }
 
         if (createdSessions.Any())

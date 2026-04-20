@@ -27,6 +27,8 @@ public partial class User
 
     public bool IsDeleted { get; set; }
 
+    public long? CampusId { get; set; }
+
     public virtual ICollection<AssignmentSubmission> AssignmentSubmissions { get; set; } = new List<AssignmentSubmission>();
 
     public virtual ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
@@ -34,6 +36,8 @@ public partial class User
     public virtual ICollection<AttendanceRecord> AttendanceRecords { get; set; } = new List<AttendanceRecord>();
 
     public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
+
+    public virtual Campus? Campus { get; set; }
 
     public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();
 

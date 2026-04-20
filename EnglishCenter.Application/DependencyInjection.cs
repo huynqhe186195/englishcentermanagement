@@ -11,6 +11,8 @@ using EnglishCenter.Application.Features.Courses;
 using EnglishCenter.Application.Features.Dashboards;
 using EnglishCenter.Application.Features.Enrollments;
 using EnglishCenter.Application.Features.Exams;
+using EnglishCenter.Application.Features.FinancialDashboards;
+using EnglishCenter.Application.Features.Invoices;
 using EnglishCenter.Application.Features.Notifications;
 using EnglishCenter.Application.Features.RolePermissions;
 using EnglishCenter.Application.Features.Roles;
@@ -57,6 +59,8 @@ public static class DependencyInjection
         services.AddScoped<TimetableService>();
         services.AddScoped<AcademicDashboardService>();
         services.AddScoped<HelperMethodEnrollments>();
+        services.AddScoped<InvoiceService>();
+        services.AddScoped<FinancialDashboardService>();
         return services;
     }
 }

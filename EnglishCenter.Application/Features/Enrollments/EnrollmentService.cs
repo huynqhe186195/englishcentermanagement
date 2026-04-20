@@ -190,29 +190,6 @@ public class EnrollmentService
 
         await _context.SaveChangesAsync();
     }
-
-    public async Task CompleteAsync(long enrollmentId, CompleteEnrollmentRequestDto request)
-    {
-        var entity = await _context.Enrollments
-            .FirstOrDefaultAsync(x => x.Id == enrollmentId && !x.IsDeleted);
-
-        if (entity == null)
-        {
-            throw new NotFoundException("Enrollment not found.");
-        }
-
-        if (entity.Status != 1)
-        {
-            throw new BusinessException("Only active enrollment can be completed.");
-        }
-
-        entity.Status = 3;
-        entity.Note = request.Note;
-        entity.UpdatedAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-    }
-
     public async Task<long> TransferAsync(long enrollmentId, TransferEnrollmentRequestDto request)
     {
         var sourceEnrollment = await _context.Enrollments
@@ -284,7 +261,29 @@ public class EnrollmentService
         return newEnrollment.Id;
     }
 
-   
+    public async Task CompleteAsync(long enrollmentId, CompleteEnrollmentRequestDto request)
+    {
+        var entity = await _context.Enrollments
+            .FirstOrDefaultAsync(x => x.Id == enrollmentId && !x.IsDeleted);
+
+        if (entity == null)
+        {
+            throw new NotFoundException("Enrollment not found.");
+        }
+
+        if (entity.Status != 1)
+        {
+            throw new BusinessException("Only active enrollment can be completed.");
+        }
+
+        entity.Status = 3;
+        entity.Note = request.Note;
+        entity.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+    }
+
+    
 
     public async Task<List<EnrollmentDto>> GetAllAsync()
     {

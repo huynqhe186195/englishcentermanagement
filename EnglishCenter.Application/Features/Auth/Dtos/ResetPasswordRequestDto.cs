@@ -8,7 +8,7 @@ namespace EnglishCenter.Application.Features.Auth.Dtos;
 
 public class ResetPasswordRequestDto
 {
-    public long UserId { get; set; }
+    public string Token { get; set; } = string.Empty;
     public string NewPassword { get; set; } = string.Empty;
-    public string ConfirmNewPassword { get; set; } = string.Empty;
+    public string ConfirmPassword { get; set; } = string.Empty;
 }

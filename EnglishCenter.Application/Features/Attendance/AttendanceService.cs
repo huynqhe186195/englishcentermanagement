@@ -51,6 +51,13 @@ public class AttendanceService
             throw new BusinessException("Cannot modify attendance because the session is already completed.");
         }
 
+        var today = DateOnly.FromDateTime(DateTime.Today);
+
+        if (today != session.SessionDate)
+        {
+            throw new BusinessException("Attendance can only be marked or updated on the session date.");
+        }
+
         foreach (var item in request.Items)
         {
             var isEnrolled = await _context.Enrollments.AnyAsync(x =>

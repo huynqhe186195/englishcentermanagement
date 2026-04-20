@@ -1,5 +1,6 @@
 ﻿using EnglishCenter.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace EnglishCenter.Application.Common.Interfaces;
 
@@ -27,5 +28,9 @@ public interface IApplicationDbContext
     DbSet<Permission> Permissions { get; }
     DbSet<RolePermission> RolePermissions { get; }
     DbSet<AuditLog> AuditLogs { get; }
+    DbSet<Invoice> Invoices { get; }
+    DbSet<Payment> Payments { get; }
+    DbSet<ClassTeacher> ClassTeachers { get; }
+    Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

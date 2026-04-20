@@ -31,6 +31,10 @@ public partial class Teacher
 
     public bool IsDeleted { get; set; }
 
+    public long? CampusId { get; set; }
+
+    public virtual Campus? Campus { get; set; }
+
     public virtual ICollection<ClassSession> ClassSessions { get; set; } = new List<ClassSession>();
 
     public virtual ICollection<ClassTeacher> ClassTeachers { get; set; } = new List<ClassTeacher>();

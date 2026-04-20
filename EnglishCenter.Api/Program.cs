@@ -131,6 +131,9 @@ builder.Services.AddAuthorization(options =>
     options.AddPermissionPolicies();
 });
 
+builder.Services.Configure<ResetPasswordSettings>(
+    builder.Configuration.GetSection("ResetPasswordSettings"));
+
 builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));
 

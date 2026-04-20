@@ -1,100 +1,27 @@
-﻿using EnglishCenter.Application.Common.Interfaces;
+﻿using System;
+using System.Collections.Generic;
+using System.Text.Json;
+using EnglishCenter.Application.Common.Interfaces;
 using EnglishCenter.Domain.Models;
 using EnglishCenter.Infrastructure.Persistence.Auditing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System;
-using System.Collections.Generic;
-using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace EnglishCenter.Infrastructure.Persistence.Context;
 
 public partial class EnglishCenterDbContext : DbContext, IApplicationDbContext
 {
     private readonly ICurrentUserService? _currentUserService;
-
     public EnglishCenterDbContext()
     {
     }
 
-    public EnglishCenterDbContext(
-        DbContextOptions<EnglishCenterDbContext> options,
-        ICurrentUserService? currentUserService = null)
+    public EnglishCenterDbContext(DbContextOptions<EnglishCenterDbContext> options, ICurrentUserService? currentUserService = null)
         : base(options)
     {
         _currentUserService = currentUserService;
     }
-
-    public virtual DbSet<Assignment> Assignments { get; set; }
-
-    public virtual DbSet<AssignmentSubmission> AssignmentSubmissions { get; set; }
-
-    public virtual DbSet<AttendanceRecord> AttendanceRecords { get; set; }
-
-    public virtual DbSet<AuditLog> AuditLogs { get; set; }
-
-    public virtual DbSet<Campus> Campuses { get; set; }
-
-    public virtual DbSet<Class> Classes { get; set; }
-
-    public virtual DbSet<ClassSchedule> ClassSchedules { get; set; }
-
-    public virtual DbSet<ClassSession> ClassSessions { get; set; }
-
-    public virtual DbSet<ClassTeacher> ClassTeachers { get; set; }
-
-    public virtual DbSet<Course> Courses { get; set; }
-
-    public virtual DbSet<Discount> Discounts { get; set; }
-
-    public virtual DbSet<Enrollment> Enrollments { get; set; }
-
-    public virtual DbSet<Exam> Exams { get; set; }
-
-    public virtual DbSet<Invoice> Invoices { get; set; }
-
-    public virtual DbSet<InvoiceDiscount> InvoiceDiscounts { get; set; }
-
-    public virtual DbSet<Notification> Notifications { get; set; }
-
-    public virtual DbSet<Parent> Parents { get; set; }
-
-    public virtual DbSet<Payment> Payments { get; set; }
-
-    public virtual DbSet<Permission> Permissions { get; set; }
-
-    public virtual DbSet<ProgressReport> ProgressReports { get; set; }
-
-    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
-
-    public virtual DbSet<Refund> Refunds { get; set; }
-
-    public virtual DbSet<Role> Roles { get; set; }
-
-    public virtual DbSet<RolePermission> RolePermissions { get; set; }
-
-    public virtual DbSet<Room> Rooms { get; set; }
-
-    public virtual DbSet<Score> Scores { get; set; }
-
-    public virtual DbSet<Student> Students { get; set; }
-
-    public virtual DbSet<StudentParent> StudentParents { get; set; }
-
-    public virtual DbSet<Teacher> Teachers { get; set; }
-
-    public virtual DbSet<User> Users { get; set; }
-
-    public virtual DbSet<UserRole> UserRoles { get; set; }
-
-    public virtual DbSet<VwAttendanceSummary> VwAttendanceSummaries { get; set; }
-
-    public virtual DbSet<VwClassEnrollmentSummary> VwClassEnrollmentSummaries { get; set; }
-
-    public virtual DbSet<VwStudentBillingSummary> VwStudentBillingSummaries { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Name=ConnectionStrings:MyCnn");
 
     //======================================== Auditing Logic ========================================
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -255,7 +182,81 @@ public partial class EnglishCenterDbContext : DbContext, IApplicationDbContext
             && currentValue;
     }
     //==============================================================================================================
+    public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    {
+        return await Database.BeginTransactionAsync(cancellationToken);
+    }
 
+    public virtual DbSet<Assignment> Assignments { get; set; }
+
+    public virtual DbSet<AssignmentSubmission> AssignmentSubmissions { get; set; }
+
+    public virtual DbSet<AttendanceRecord> AttendanceRecords { get; set; }
+
+    public virtual DbSet<AuditLog> AuditLogs { get; set; }
+
+    public virtual DbSet<Campus> Campuses { get; set; }
+
+    public virtual DbSet<Class> Classes { get; set; }
+
+    public virtual DbSet<ClassSchedule> ClassSchedules { get; set; }
+
+    public virtual DbSet<ClassSession> ClassSessions { get; set; }
+
+    public virtual DbSet<ClassTeacher> ClassTeachers { get; set; }
+
+    public virtual DbSet<Course> Courses { get; set; }
+
+    public virtual DbSet<Discount> Discounts { get; set; }
+
+    public virtual DbSet<Enrollment> Enrollments { get; set; }
+
+    public virtual DbSet<Exam> Exams { get; set; }
+
+    public virtual DbSet<Invoice> Invoices { get; set; }
+
+    public virtual DbSet<InvoiceDiscount> InvoiceDiscounts { get; set; }
+
+    public virtual DbSet<Notification> Notifications { get; set; }
+
+    public virtual DbSet<Parent> Parents { get; set; }
+
+    public virtual DbSet<Payment> Payments { get; set; }
+
+    public virtual DbSet<Permission> Permissions { get; set; }
+
+    public virtual DbSet<ProgressReport> ProgressReports { get; set; }
+
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+
+    public virtual DbSet<Refund> Refunds { get; set; }
+
+    public virtual DbSet<Role> Roles { get; set; }
+
+    public virtual DbSet<RolePermission> RolePermissions { get; set; }
+
+    public virtual DbSet<Room> Rooms { get; set; }
+
+    public virtual DbSet<Score> Scores { get; set; }
+
+    public virtual DbSet<Student> Students { get; set; }
+
+    public virtual DbSet<StudentParent> StudentParents { get; set; }
+
+    public virtual DbSet<Teacher> Teachers { get; set; }
+
+    public virtual DbSet<User> Users { get; set; }
+
+    public virtual DbSet<UserRole> UserRoles { get; set; }
+
+    public virtual DbSet<VwAttendanceSummary> VwAttendanceSummaries { get; set; }
+
+    public virtual DbSet<VwClassEnrollmentSummary> VwClassEnrollmentSummaries { get; set; }
+
+    public virtual DbSet<VwStudentBillingSummary> VwStudentBillingSummaries { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlServer("Name=ConnectionStrings:MyCnn");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -811,6 +812,10 @@ public partial class EnglishCenterDbContext : DbContext, IApplicationDbContext
             entity.Property(e => e.Status).HasDefaultValue(1);
             entity.Property(e => e.TeacherCode).HasMaxLength(50);
 
+            entity.HasOne(d => d.Campus).WithMany(p => p.Teachers)
+                .HasForeignKey(d => d.CampusId)
+                .HasConstraintName("FK_Teachers_Campuses");
+
             entity.HasOne(d => d.User).WithMany(p => p.Teachers)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK_Teachers_Users");
@@ -829,6 +834,10 @@ public partial class EnglishCenterDbContext : DbContext, IApplicationDbContext
             entity.Property(e => e.PhoneNumber).HasMaxLength(20);
             entity.Property(e => e.Status).HasDefaultValue(1);
             entity.Property(e => e.UserName).HasMaxLength(100);
+
+            entity.HasOne(d => d.Campus).WithMany(p => p.Users)
+                .HasForeignKey(d => d.CampusId)
+                .HasConstraintName("FK_Users_Campuses");
         });
 
         modelBuilder.Entity<UserRole>(entity =>
