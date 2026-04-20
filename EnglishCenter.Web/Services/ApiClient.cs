@@ -50,6 +50,7 @@ public class ApiClient : IApiClient
             _httpContextAccessor.HttpContext?.Session.SetString("AccessToken", login.AccessToken ?? string.Empty);
             _httpContextAccessor.HttpContext?.Session.SetString("RefreshToken", login.RefreshToken ?? string.Empty);
             _httpContextAccessor.HttpContext?.Session.SetString("UserName", login.UserName ?? string.Empty);
+            _httpContextAccessor.HttpContext?.Session.SetString("CampusId", login.CampusId?.ToString() ?? string.Empty);
             _httpContextAccessor.HttpContext?.Session.SetString("Roles", JsonSerializer.Serialize(login.Roles ?? new List<string>()));
 
             return true;

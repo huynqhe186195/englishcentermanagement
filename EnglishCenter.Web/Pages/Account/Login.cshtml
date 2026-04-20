@@ -23,6 +23,18 @@
                 </div>
 
                 <form method="post">
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger py-2">@Model.ErrorMessage</div>
+                    }
+
+                    <div class="mb-3">
+                        <label class="form-label">Campus</label>
+                        <select asp-for="Input.CampusId" asp-items="Model.Campuses" class="form-select">
+                            <option value="">-- Select campus --</option>
+                        </select>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label">Username</label>
                         <input asp-for="Input.UserName" class="form-control" />

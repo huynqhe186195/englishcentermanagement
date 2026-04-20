@@ -7,7 +7,8 @@ public class CampusProfile : Profile
 {
     public CampusProfile()
     {
-        CreateMap<CampusDto, EnglishCenter.Domain.Models.Campus> ();
+        CreateMap<EnglishCenter.Domain.Models.Campus, CampusDto>();
+        CreateMap<CampusDto, EnglishCenter.Domain.Models.Campus>();
 
         CreateMap<EnglishCenter.Domain.Models.Campus, CampusDetailDto>();
         CreateMap<CreateCampusRequestDto, EnglishCenter.Domain.Models.Campus>();

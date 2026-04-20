@@ -13,5 +13,8 @@ public class LoginRequestDtoValidator : AbstractValidator<LoginRequestDto>
 
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password is required.");
+
+        RuleFor(x => x.CampusId)
+            .GreaterThan(0).WithMessage("Campus is required.");
     }
 }

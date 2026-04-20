@@ -6,8 +6,21 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnCh
 
 builder.Services.AddHttpClient("Api", client =>
 {
-    var baseUrl = builder.Configuration.GetValue<string>("Api:BaseUrl");
-    if (!string.IsNullOrEmpty(baseUrl)) client.BaseAddress = new Uri(baseUrl);
+    var baseUrl = builder.Configuration.GetValue<string>("Api:BaseUrl")?.Trim();
+    if (!string.IsNullOrEmpty(baseUrl))
+    {
+        if (!baseUrl.EndsWith("/"))
+        {
+            baseUrl += "/";
+        }
+
+        if (!baseUrl.Contains("/api/", StringComparison.OrdinalIgnoreCase))
+        {
+            baseUrl += "api/";
+        }
+
+        client.BaseAddress = new Uri(baseUrl);
+    }
 });
 
 builder.Services.AddSession(options =>

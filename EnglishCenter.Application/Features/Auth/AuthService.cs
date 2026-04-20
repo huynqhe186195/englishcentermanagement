@@ -186,6 +186,11 @@ public class AuthService
             select r.Code
         ).ToListAsync();
 
+        if (user.CampusId.HasValue && user.CampusId.Value != request.CampusId)
+        {
+            throw new BusinessException("Invalid campus for this account.");
+        }
+
         var permissions = await _permissionCacheService.GetPermissionsAsync(user.Id);
 
         var (accessToken, expiresAtUtc) = _jwtTokenService.GenerateToken(
@@ -218,6 +223,7 @@ public class AuthService
             AccessToken = accessToken,
             RefreshToken = refreshToken,
             ExpiresAtUtc = expiresAtUtc,
+            CampusId = user.CampusId,
             Roles = roles
         };
     }
@@ -293,6 +299,7 @@ public class AuthService
             AccessToken = accessToken,
             RefreshToken = newRefreshToken,
             ExpiresAtUtc = expiresAtUtc,
+            CampusId = user.CampusId,
             Roles = roles
         };
     }
