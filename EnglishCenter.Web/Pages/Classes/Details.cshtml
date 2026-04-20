@@ -18,3 +18,38 @@
         <a asp-page="Index" class="btn btn-secondary">Back</a>
     </div>
 </div>
+
+<div class="mt-4">
+    <h4>Exams</h4>
+    <a class="btn btn-success mb-2" asp-page="/Exams/Schedule" asp-route-classId="@Model.Item.Id">Schedule Exam</a>
+    @if (Model.Exams?.Any() == true)
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ex in Model.Exams)
+                {
+                    <tr>
+                        <td>@ex.Title</td>
+                        <td>@ex.ExamDate.ToLocalTime()</td>
+                        <td>@(ex.ExamType==1?"30 min":"90 min")</td>
+                        <td>@(ex.Status==0?"Upcoming":ex.Status==1?"Ongoing":"Completed")</td>
+                        <td>
+                            <a class="btn btn-sm btn-primary" asp-page="/Exams/Scores" asp-route-selectedExamId="@ex.Id">View Scores</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+    </div>
+</div>

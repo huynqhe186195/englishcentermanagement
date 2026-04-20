@@ -1,0 +1,80 @@
+@page
+@model EnglishCenter.Web.Pages.Exams.ScoresModel
+@{
+    ViewData["Title"] = "Manage Scores";
+}
+
+<h2>Manage Scores</h2>
+
+<form method="get">
+    <label>Select exam:</label>
+    <select asp-for="SelectedExamId" asp-items="Model.ExamOptions">
+        <option value="">-- Select exam --</option>
+    </select>
+    <button type="submit">Load</button>
+</form>
+
+@if (Model.SelectedExamId > 0)
+{
+    <div>
+        <h4>Exam actions</h4>
+        @if (!string.IsNullOrEmpty(Model.ApiBaseUrl))
+        {
+            <a class="btn btn-primary" href="@($"{Model.ApiBaseUrl}/scores/template/{Model.SelectedExamId}")" onclick="showToast('Downloading template...', 'info')">Download Template</a>
+        }
+        else
+        {
+            <form method="get" asp-page-handler="DownloadTemplate" onsubmit="showToast('Downloading template...', 'info')">
+                <input type="hidden" name="examId" value="@Model.SelectedExamId" />
+                <button type="submit">Download Template</button>
+            </form>
+        }
+
+        <form method="post" enctype="multipart/form-data" asp-page-handler="Import" onsubmit="showToast('Import started...', 'info')">
+            <input type="file" name="file" />
+            <input type="hidden" asp-for="SelectedExamId" />
+            <button type="submit">Import Scores</button>
+        </form>
+
+        @if (!string.IsNullOrEmpty(Model.ApiBaseUrl))
+        {
+            <a class="btn btn-outline-primary" href="@($"{Model.ApiBaseUrl}/scores/export-all/{Model.SelectedExamId}")" onclick="showToast('Export started...', 'info')">Export All Students</a>
+        }
+        else
+        {
+            <form method="get" asp-page-handler="Export" onsubmit="showToast('Export started...', 'info')">
+                <input type="hidden" name="examId" value="@Model.SelectedExamId" />
+                <button type="submit" name="passed" value="true">Export Passed</button>
+                <button type="submit" name="passed" value="false">Export Not Pass</button>
+            </form>
+        }
+    </div>
+}
+
+@if (Model.PassFailList?.Any() == true)
+{
+    <h3>Import result</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>StudentCode</th>
+                <th>Name</th>
+                <th>Average</th>
+                <th>Attendance %</th>
+                <th>Passed</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var it in Model.PassFailList)
+            {
+                <tr>
+                    <td>@it.StudentCode</td>
+                    <td>@it.StudentName</td>
+                    <td>@it.AverageScore</td>
+                    <td>@it.AttendancePercent</td>
+                    <td>@(it.IsPassed ? "Pass" : "Not Pass")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
