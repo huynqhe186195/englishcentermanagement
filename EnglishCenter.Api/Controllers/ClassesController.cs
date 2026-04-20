@@ -23,6 +23,13 @@ public class ClassesController : ControllerBase
         _timetableService = timetableService;
     }
 
+    [HttpGet("{classId:long}/exams")]
+    public async Task<IActionResult> GetExamsByClass(long classId)
+    {
+        var result = await _classService.GetExamsByClassAsync(classId);
+        return Ok(ApiResponse<List<EnglishCenter.Application.Features.Exams.Dtos.ExamDto>>.SuccessResponse(result, "Get class exams"));
+    }
+
     // xem thông tin tổng quan của lớp
     [HttpGet("{classId:long}/summary")]
     public async Task<IActionResult> GetSummary(long classId)

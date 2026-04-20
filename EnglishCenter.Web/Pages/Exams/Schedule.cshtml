@@ -1,0 +1,136 @@
+@page
+@model EnglishCenter.Web.Pages.Exams.ScheduleModel
+@{
+    ViewData["Title"] = "Schedule Exam";
+}
+
+<h2>Schedule Exam for class @Model.ClassId</h2>
+
+<form method="post" asp-page-handler="Search" class="card p-3 mb-3">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Title</label>
+            <input asp-for="Title" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Exam Type</label>
+            <select asp-for="ExamType" class="form-select">
+                <option value="1">30 minutes</option>
+                <option value="2">90 minutes</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Date</label>
+            <input asp-for="SelectedDate" type="date" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Time</label>
+            <input asp-for="SelectedTime" type="time" class="form-control" />
+        </div>
+        <div class="col-12">
+            <button class="btn btn-primary" type="submit">Check Slot</button>
+        </div>
+    </div>
+</form>
+
+<div class="form-check mt-2">
+    <input class="form-check-input" type="checkbox" value="" id="filterFree" />
+    <label class="form-check-label" for="filterFree">Show only free slots (no conflicts)</label>
+</div>
+
+@if (Model.Slots?.Any() == true)
+{
+    <h4 class="mt-3">Available Slots</h4>
+    <table class="table" id="slotsTable">
+        <thead>
+            <tr>
+                <th>Start</th>
+                <th>End</th>
+                <th>Conflicts</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Model.Slots)
+            {
+                var conflictsJson = System.Text.Json.JsonSerializer.Serialize(s.ConflictingStudents);
+                <tr data-conflicts="@s.ConflictingStudentCount">
+                    <td>@s.Start.ToLocalTime()</td>
+                    <td>@s.End.ToLocalTime()</td>
+                    <td>@s.ConflictingStudentCount</td>
+                    <td>
+                        @if (s.ConflictingStudents != null && s.ConflictingStudents.Any())
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-info conflict-details-btn" data-conflict-list='@Html.Raw(conflictsJson)'>Details</button>
+                        }
+                        else
+                        {
+                            <span class="text-success">No conflicts</span>
+                        }
+                    </td>
+                    <td>
+                        <form method="post" asp-page-handler="Create">
+                            <input type="hidden" name="SelectedStart" value="@s.Start.ToString("o")" />
+                            <input type="hidden" asp-for="ExamType" />
+                            <input type="hidden" asp-for="Title" />
+                            <input type="hidden" asp-for="ClassId" />
+                            <button class="btn btn-sm btn-success" type="submit">Schedule</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Modal -->
+    <div class="modal fade" id="conflictModal" tabindex="-1" aria-labelledby="conflictModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="conflictModalLabel">Conflicting Students</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <ul id="conflictStudentList" class="list-group"></ul>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @section Scripts {
+        <script>
+            $(function() {
+                $('#filterFree').on('change', function() {
+                    var onlyFree = $(this).is(':checked');
+                    $('#slotsTable tbody tr').each(function() {
+                        var conflicts = parseInt($(this).attr('data-conflicts') || '0');
+                        if (onlyFree && conflicts > 0) $(this).hide(); else $(this).show();
+                    });
+                });
+
+                $('.conflict-details-btn').on('click', function() {
+                    var list = $(this).attr('data-conflict-list');
+                    var arr = [];
+                    try { arr = JSON.parse(list); } catch(e) { arr = []; }
+                    var $ul = $('#conflictStudentList');
+                    $ul.empty();
+                    if (arr.length === 0) {
+                        $ul.append('<li class="list-group-item">No conflicts</li>');
+                    } else {
+                        arr.forEach(function(s) {
+                            var href = '/Student/AcademicSummary/' + s.studentId;
+                            var text = (s.studentCode || '') + ' - ' + (s.studentName || '');
+                            $ul.append('<li class="list-group-item"><a href="' + href + '">' + text + '</a></li>');
+                        });
+                    }
+                    var modal = new bootstrap.Modal(document.getElementById('conflictModal'));
+                    modal.show();
+                });
+            });
+        </script>
+    }
+}

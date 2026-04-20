@@ -20,6 +20,38 @@ public class ClassService
         _mapper = mapper;
     }
 
+    public async Task<List<EnglishCenter.Application.Features.Exams.Dtos.ExamDto>> GetExamsByClassAsync(long classId)
+    {
+        var exams = await _context.Exams
+            .AsNoTracking()
+            .Where(x => x.ClassId == classId)
+            .OrderBy(x => x.ExamDate)
+            .Select(x => new EnglishCenter.Application.Features.Exams.Dtos.ExamDto
+            {
+                Id = x.Id,
+                ClassId = x.ClassId,
+                ClassName = x.Class.Name,
+                Title = x.Title,
+                ExamType = x.ExamType,
+                ExamDate = x.ExamDate,
+                MaxScore = x.MaxScore
+            })
+            .ToListAsync();
+
+        var now = DateTime.UtcNow;
+        foreach (var ex in exams)
+        {
+            var dur = ex.ExamType == 1 ? 30 : 90;
+            var start = DateTime.SpecifyKind(ex.ExamDate, DateTimeKind.Utc);
+            var end = start.AddMinutes(dur);
+            if (now < start) ex.Status = 0;
+            else if (now >= start && now < end) ex.Status = 1;
+            else ex.Status = 2;
+        }
+
+        return exams;
+    }
+
     public async Task<ClassSummaryDto> GetSummaryAsync(long classId)
     {
         var @class = await _context.Classes

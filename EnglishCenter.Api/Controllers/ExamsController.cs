@@ -34,8 +34,16 @@ public class ExamsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateExamRequestDto request)
     {
-        var id = await _examService.CreateAsync(request);
+        // create with validation to avoid student schedule conflicts
+        var id = await _examService.CreateWithValidationAsync(request);
         return Ok(ApiResponse<object>.SuccessResponse(new { Id = id }, "Exam created successfully"));
+    }
+
+    [HttpGet("available-slots")]
+    public async Task<IActionResult> GetAvailableSlots([FromQuery] long classId, [FromQuery] DateTime from, [FromQuery] DateTime to, [FromQuery] int durationMinutes, [FromQuery] int stepMinutes = 30)
+    {
+        var slots = await _examService.GetAvailableSlotsAsync(classId, from, to, durationMinutes, stepMinutes);
+        return Ok(ApiResponse<List<AvailableSlotDto>>.SuccessResponse(slots, "Available slots"));
     }
 
     [HttpPut("{id:long}")]

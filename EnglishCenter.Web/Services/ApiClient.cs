@@ -11,11 +11,13 @@ public class ApiClient : IApiClient
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ILogger<ApiClient> _logger;
 
-    public ApiClient(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
+    public ApiClient(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, ILogger<ApiClient> logger)
     {
         _httpClientFactory = httpClientFactory;
         _httpContextAccessor = httpContextAccessor;
+        _logger = logger;
     }
 
     private HttpClient CreateClient()
@@ -56,6 +58,38 @@ public class ApiClient : IApiClient
         {
             return false;
         }
+    }
+
+    public async Task<byte[]?> GetFileAsync(string url)
+    {
+        var client = CreateClient();
+        var resp = await client.GetAsync(url);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            var ok = await TryRefreshTokenAsync();
+            if (ok)
+            {
+                client = CreateClient();
+                resp = await client.GetAsync(url);
+            }
+        }
+
+        if (!resp.IsSuccessStatusCode)
+        {
+            try
+            {
+                var txt = await resp.Content.ReadAsStringAsync();
+                _logger.LogWarning("GetFileAsync failed. Url: {Url}, Status: {Status}, Response: {Response}", url, resp.StatusCode, txt);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "GetFileAsync failed reading response body. Url: {Url}, Status: {Status}", url, resp.StatusCode);
+            }
+
+            return default;
+        }
+
+        return await resp.Content.ReadAsByteArrayAsync();
     }
 
     public async Task<T?> GetAsync<T>(string url)
@@ -101,6 +135,44 @@ public class ApiClient : IApiClient
             {
                 client = CreateClient();
                 resp = await client.PostAsJsonAsync(url, body);
+            }
+        }
+
+        if (!resp.IsSuccessStatusCode) return default;
+        var json = await resp.Content.ReadAsStringAsync();
+        try
+        {
+            var apiResp = JsonSerializer.Deserialize<ApiResponse<T>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            if (apiResp != null) return apiResp.Data;
+            return JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch
+        {
+            return default;
+        }
+    }
+
+    public async Task<T?> PostMultipartAsync<T>(string url, IFormFile file)
+    {
+        var client = CreateClient();
+        using var content = new MultipartFormDataContent();
+        if (file != null)
+        {
+            var stream = file.OpenReadStream();
+            var streamContent = new StreamContent(stream);
+            if (!string.IsNullOrEmpty(file.ContentType))
+                streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+            content.Add(streamContent, "file", file.FileName);
+        }
+
+        var resp = await client.PostAsync(url, content);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            var ok = await TryRefreshTokenAsync();
+            if (ok)
+            {
+                client = CreateClient();
+                resp = await client.PostAsync(url, content);
             }
         }
 

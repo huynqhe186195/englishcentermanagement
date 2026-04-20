@@ -15,10 +15,13 @@ public class DetailsModel : PageModel
     }
 
     public ClassDetailDto Item { get; set; } = new();
+    public List<EnglishCenter.Web.Models.ExamDto> Exams { get; set; } = new();
 
     public async Task OnGetAsync(long id)
     {
         var data = await _apiClient.GetAsync<ClassDetailDto>($"classes/{id}");
         if (data != null) Item = data;
+        var exams = await _apiClient.GetAsync<List<EnglishCenter.Web.Models.ExamDto>>($"classes/{id}/exams");
+        if (exams != null) Exams = exams;
     }
 }
