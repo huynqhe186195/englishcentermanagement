@@ -94,6 +94,11 @@ public class ExamService
         var entity = await _context.Exams.FirstOrDefaultAsync(x => x.Id == id);
         if (entity == null) throw new NotFoundException("Exam not found.");
 
+        // only allow update if exam has not started yet
+        var start = DateTime.SpecifyKind(entity.ExamDate, DateTimeKind.Utc);
+        if (DateTime.UtcNow >= start)
+            throw new BusinessException("Cannot edit exam that has already started or completed.");
+
         _mapper.Map(request, entity);
         entity.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
@@ -104,6 +109,10 @@ public class ExamService
     {
         var entity = await _context.Exams.FirstOrDefaultAsync(x => x.Id == id);
         if (entity == null) throw new NotFoundException("Exam not found.");
+
+        var start = DateTime.SpecifyKind(entity.ExamDate, DateTimeKind.Utc);
+        if (DateTime.UtcNow >= start)
+            throw new BusinessException("Cannot delete exam that has already started or completed.");
 
         _context.Exams.Remove(entity);
         await _context.SaveChangesAsync();
@@ -157,11 +166,15 @@ public class ExamService
             .AsNoTracking()
             .ToListAsync();
 
+        // filter sessions by session date range first (compare DateOnly) then evaluate precise DateTime overlaps in memory
+        var windowStartDate = DateOnly.FromDateTime(windowStart);
+        var windowEndDate = DateOnly.FromDateTime(windowEnd);
+
         var sessions = await (from cs in _context.ClassSessions
                               join en in _context.Enrollments on cs.ClassId equals en.ClassId
                               where studentIds.Contains(en.StudentId)
-                                    && DateTime.SpecifyKind(cs.SessionDate.ToDateTime(cs.StartTime), DateTimeKind.Utc) >= windowStart
-                                    && DateTime.SpecifyKind(cs.SessionDate.ToDateTime(cs.EndTime), DateTimeKind.Utc) <= windowEnd
+                                    && cs.SessionDate >= windowStartDate
+                                    && cs.SessionDate <= windowEndDate
                               select new { cs.Id, cs.ClassId, cs.SessionDate, cs.StartTime, cs.EndTime, StudentId = en.StudentId })
             .AsNoTracking()
             .ToListAsync();
@@ -265,11 +278,14 @@ public class ExamService
             .AsNoTracking()
             .ToListAsync();
 
+        var windowStartDate2 = DateOnly.FromDateTime(windowStart);
+        var windowEndDate2 = DateOnly.FromDateTime(windowEnd);
+
         var sessions = await (from cs in _context.ClassSessions
                               join en in _context.Enrollments on cs.ClassId equals en.ClassId
                               where studentIds.Contains(en.StudentId)
-                                    && DateTime.SpecifyKind(cs.SessionDate.ToDateTime(cs.StartTime), DateTimeKind.Utc) >= windowStart
-                                    && DateTime.SpecifyKind(cs.SessionDate.ToDateTime(cs.EndTime), DateTimeKind.Utc) <= windowEnd
+                                    && cs.SessionDate >= windowStartDate2
+                                    && cs.SessionDate <= windowEndDate2
                               select new { cs.Id, cs.SessionDate, cs.StartTime, cs.EndTime, StudentId = en.StudentId })
             .AsNoTracking()
             .ToListAsync();

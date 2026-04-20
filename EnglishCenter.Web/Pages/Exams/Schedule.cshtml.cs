@@ -24,6 +24,9 @@ public class ScheduleModel : PageModel
     public int ExamType { get; set; } = 1;
 
     [BindProperty]
+    public string? Description { get; set; }
+
+    [BindProperty]
     public DateTime SelectedDate { get; set; } = DateTime.UtcNow.Date;
 
     [BindProperty]

@@ -7,6 +7,7 @@
 <h2>Schedule Exam for class @Model.ClassId</h2>
 
 <form method="post" asp-page-handler="Search" class="card p-3 mb-3">
+    <input type="hidden" asp-for="ClassId" />
     <div class="row g-3">
         <div class="col-md-6">
             <label class="form-label">Title</label>
@@ -26,6 +27,10 @@
         <div class="col-md-3">
             <label class="form-label">Time</label>
             <input asp-for="SelectedTime" type="time" class="form-control" />
+        </div>
+        <div class="col-12">
+            <label class="form-label">Description (optional)</label>
+            <textarea asp-for="Description" class="form-control" rows="2"></textarea>
         </div>
         <div class="col-12">
             <button class="btn btn-primary" type="submit">Check Slot</button>
@@ -74,6 +79,7 @@
                             <input type="hidden" name="SelectedStart" value="@s.Start.ToString("o")" />
                             <input type="hidden" asp-for="ExamType" />
                             <input type="hidden" asp-for="Title" />
+                            <input type="hidden" asp-for="Description" />
                             <input type="hidden" asp-for="ClassId" />
                             <button class="btn btn-sm btn-success" type="submit">Schedule</button>
                         </form>

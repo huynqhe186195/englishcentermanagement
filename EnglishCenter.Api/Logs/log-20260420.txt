@@ -704,3 +704,433 @@ System.InvalidOperationException: The LINQ expression 'DbSet<Score>()
 2026-04-20 23:32:55.140 +07:00 [INF] HTTP GET /api/classes responded 200 in 9.3036 ms
 2026-04-20 23:32:58.772 +07:00 [INF] HTTP GET /api/classes/1 responded 200 in 5.9558 ms
 2026-04-20 23:32:58.791 +07:00 [INF] HTTP GET /api/classes/1/exams responded 200 in 6.1295 ms
+2026-04-20 23:44:16.629 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-04-20 23:44:17.255 +07:00 [INF] HTTP GET /api/classes responded 200 in 650.4147 ms
+2026-04-20 23:44:27.156 +07:00 [INF] HTTP GET /api/classes/1 responded 200 in 81.7986 ms
+2026-04-20 23:44:27.231 +07:00 [INF] HTTP GET /api/classes/1/exams responded 200 in 52.8863 ms
+2026-04-20 23:45:05.106 +07:00 [ERR] Unhandled exception occurred. Path: /api/exams/available-slots
+System.InvalidOperationException: The LINQ expression 'DbSet<ClassSession>()
+    .Join(
+        inner: DbSet<Enrollment>(), 
+        outerKeySelector: c => (object)c.ClassId, 
+        innerKeySelector: e => (object)e.ClassId, 
+        resultSelector: (c, e) => new TransparentIdentifier<ClassSession, Enrollment>(
+            Outer = c, 
+            Inner = e
+        ))
+    .Where(ti => __studentIds_0
+        .Contains(ti.Inner.StudentId) && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.StartTime), 
+        kind: Utc) >= __windowStart_1 && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.EndTime), 
+        kind: Utc) <= __windowEnd_2)' could not be translated. Additional information: Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.
+Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutor[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Storage.Database.CompileQuery[TResult](Expression query, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.CompileQueryCore[TResult](IDatabase database, Expression query, IModel model, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.<>c__DisplayClass12_0`1.<ExecuteAsync>b__0()
+   at Microsoft.EntityFrameworkCore.Query.Internal.CompiledQueryCache.GetOrAddQuery[TResult](Object cacheKey, Func`1 compiler)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteAsync[TResult](Expression query, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.ExecuteAsync[TResult](Expression expression, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1.GetAsyncEnumerator(CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1.GetAsyncEnumerator()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at EnglishCenter.Application.Features.Exams.ExamService.GetAvailableSlotsAsync(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Application\Features\Exams\ExamService.cs:line 160
+   at EnglishCenter.Api.Controllers.ExamsController.GetAvailableSlots(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Controllers\ExamsController.cs:line 45
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at EnglishCenter.Api.Middlewares.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Middlewares\ExceptionMiddleware.cs:line 24
+2026-04-20 23:45:05.149 +07:00 [ERR] HTTP GET /api/exams/available-slots responded 500 in 343.0512 ms
+2026-04-20 23:45:16.902 +07:00 [INF] HTTP GET /api/exams responded 200 in 28.5644 ms
+2026-04-20 23:46:59.530 +07:00 [ERR] Unhandled exception occurred. Path: /api/exams/available-slots
+System.InvalidOperationException: The LINQ expression 'DbSet<ClassSession>()
+    .Join(
+        inner: DbSet<Enrollment>(), 
+        outerKeySelector: c => (object)c.ClassId, 
+        innerKeySelector: e => (object)e.ClassId, 
+        resultSelector: (c, e) => new TransparentIdentifier<ClassSession, Enrollment>(
+            Outer = c, 
+            Inner = e
+        ))
+    .Where(ti => __studentIds_0
+        .Contains(ti.Inner.StudentId) && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.StartTime), 
+        kind: Utc) >= __windowStart_1 && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.EndTime), 
+        kind: Utc) <= __windowEnd_2)' could not be translated. Additional information: Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.
+Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutor[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Storage.Database.CompileQuery[TResult](Expression query, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.CompileQueryCore[TResult](IDatabase database, Expression query, IModel model, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.<>c__DisplayClass12_0`1.<ExecuteAsync>b__0()
+   at Microsoft.EntityFrameworkCore.Query.Internal.CompiledQueryCache.GetOrAddQuery[TResult](Object cacheKey, Func`1 compiler)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteAsync[TResult](Expression query, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.ExecuteAsync[TResult](Expression expression, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1.GetAsyncEnumerator(CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1.GetAsyncEnumerator()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at EnglishCenter.Application.Features.Exams.ExamService.GetAvailableSlotsAsync(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Application\Features\Exams\ExamService.cs:line 160
+   at EnglishCenter.Api.Controllers.ExamsController.GetAvailableSlots(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Controllers\ExamsController.cs:line 45
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at EnglishCenter.Api.Middlewares.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Middlewares\ExceptionMiddleware.cs:line 24
+2026-04-20 23:46:59.549 +07:00 [ERR] HTTP GET /api/exams/available-slots responded 500 in 177.6846 ms
+2026-04-20 23:53:21.301 +07:00 [WRN] Failed to determine the https port for redirect.
+2026-04-20 23:53:22.135 +07:00 [ERR] Unhandled exception occurred. Path: /api/exams/available-slots
+System.InvalidOperationException: The LINQ expression 'DbSet<ClassSession>()
+    .Join(
+        inner: DbSet<Enrollment>(), 
+        outerKeySelector: c => (object)c.ClassId, 
+        innerKeySelector: e => (object)e.ClassId, 
+        resultSelector: (c, e) => new TransparentIdentifier<ClassSession, Enrollment>(
+            Outer = c, 
+            Inner = e
+        ))
+    .Where(ti => __studentIds_0
+        .Contains(ti.Inner.StudentId) && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.StartTime), 
+        kind: Utc) >= __windowStart_1 && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.EndTime), 
+        kind: Utc) <= __windowEnd_2)' could not be translated. Additional information: Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.
+Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutor[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Storage.Database.CompileQuery[TResult](Expression query, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.CompileQueryCore[TResult](IDatabase database, Expression query, IModel model, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.<>c__DisplayClass12_0`1.<ExecuteAsync>b__0()
+   at Microsoft.EntityFrameworkCore.Query.Internal.CompiledQueryCache.GetOrAddQuery[TResult](Object cacheKey, Func`1 compiler)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteAsync[TResult](Expression query, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.ExecuteAsync[TResult](Expression expression, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1.GetAsyncEnumerator(CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1.GetAsyncEnumerator()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at EnglishCenter.Application.Features.Exams.ExamService.GetAvailableSlotsAsync(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Application\Features\Exams\ExamService.cs:line 169
+   at EnglishCenter.Api.Controllers.ExamsController.GetAvailableSlots(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Controllers\ExamsController.cs:line 45
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at EnglishCenter.Api.Middlewares.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Middlewares\ExceptionMiddleware.cs:line 24
+2026-04-20 23:53:22.212 +07:00 [ERR] HTTP GET /api/exams/available-slots responded 500 in 943.9037 ms
+2026-04-20 23:53:31.427 +07:00 [INF] Permission cache miss for userId 7
+2026-04-20 23:53:31.668 +07:00 [INF] HTTP POST /api/auth/login responded 200 in 517.2197 ms
+2026-04-20 23:53:31.917 +07:00 [INF] HTTP GET /api/academicDashboard/class-dashboard responded 200 in 212.2898 ms
+2026-04-20 23:53:32.000 +07:00 [INF] HTTP GET /api/academicDashboard/students-at-risk responded 200 in 60.4261 ms
+2026-04-20 23:53:32.110 +07:00 [INF] HTTP GET /api/academicDashboard/room-utilization responded 200 in 95.3811 ms
+2026-04-20 23:53:32.192 +07:00 [INF] HTTP GET /api/classes responded 200 in 66.1854 ms
+2026-04-20 23:53:32.250 +07:00 [INF] HTTP GET /api/students responded 200 in 42.3140 ms
+2026-04-20 23:53:32.290 +07:00 [INF] HTTP GET /api/teachers responded 200 in 28.4896 ms
+2026-04-20 23:53:32.340 +07:00 [INF] HTTP GET /api/enrollments responded 200 in 38.1729 ms
+2026-04-20 23:53:35.674 +07:00 [INF] HTTP GET /api/classes responded 200 in 12.2410 ms
+2026-04-20 23:53:37.302 +07:00 [INF] HTTP GET /api/classes/1 responded 200 in 28.2450 ms
+2026-04-20 23:53:37.351 +07:00 [INF] HTTP GET /api/classes/1/exams responded 200 in 26.3093 ms
+2026-04-20 23:53:49.166 +07:00 [INF] HTTP GET /api/exams/1 responded 200 in 40.6330 ms
+2026-04-20 23:54:10.189 +07:00 [ERR] Unhandled exception occurred. Path: /api/exams/available-slots
+System.InvalidOperationException: The LINQ expression 'DbSet<ClassSession>()
+    .Join(
+        inner: DbSet<Enrollment>(), 
+        outerKeySelector: c => (object)c.ClassId, 
+        innerKeySelector: e => (object)e.ClassId, 
+        resultSelector: (c, e) => new TransparentIdentifier<ClassSession, Enrollment>(
+            Outer = c, 
+            Inner = e
+        ))
+    .Where(ti => __studentIds_0
+        .Contains(ti.Inner.StudentId) && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.StartTime), 
+        kind: Utc) >= __windowStart_1 && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.EndTime), 
+        kind: Utc) <= __windowEnd_2)' could not be translated. Additional information: Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.
+Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutor[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Storage.Database.CompileQuery[TResult](Expression query, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.CompileQueryCore[TResult](IDatabase database, Expression query, IModel model, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.<>c__DisplayClass12_0`1.<ExecuteAsync>b__0()
+   at Microsoft.EntityFrameworkCore.Query.Internal.CompiledQueryCache.GetOrAddQuery[TResult](Object cacheKey, Func`1 compiler)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteAsync[TResult](Expression query, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1.GetAsyncEnumerator(CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1.GetAsyncEnumerator()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at EnglishCenter.Application.Features.Exams.ExamService.GetAvailableSlotsAsync(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Application\Features\Exams\ExamService.cs:line 169
+   at EnglishCenter.Api.Controllers.ExamsController.GetAvailableSlots(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Controllers\ExamsController.cs:line 45
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at EnglishCenter.Api.Middlewares.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Middlewares\ExceptionMiddleware.cs:line 24
+2026-04-20 23:54:10.205 +07:00 [ERR] HTTP GET /api/exams/available-slots responded 500 in 194.6239 ms
+2026-04-20 23:54:11.925 +07:00 [ERR] Unhandled exception occurred. Path: /api/exams/available-slots
+System.InvalidOperationException: The LINQ expression 'DbSet<ClassSession>()
+    .Join(
+        inner: DbSet<Enrollment>(), 
+        outerKeySelector: c => (object)c.ClassId, 
+        innerKeySelector: e => (object)e.ClassId, 
+        resultSelector: (c, e) => new TransparentIdentifier<ClassSession, Enrollment>(
+            Outer = c, 
+            Inner = e
+        ))
+    .Where(ti => __studentIds_0
+        .Contains(ti.Inner.StudentId) && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.StartTime), 
+        kind: Utc) >= __windowStart_1 && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.EndTime), 
+        kind: Utc) <= __windowEnd_2)' could not be translated. Additional information: Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.
+Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutor[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Storage.Database.CompileQuery[TResult](Expression query, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.CompileQueryCore[TResult](IDatabase database, Expression query, IModel model, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.<>c__DisplayClass12_0`1.<ExecuteAsync>b__0()
+   at Microsoft.EntityFrameworkCore.Query.Internal.CompiledQueryCache.GetOrAddQuery[TResult](Object cacheKey, Func`1 compiler)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteAsync[TResult](Expression query, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1.GetAsyncEnumerator(CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1.GetAsyncEnumerator()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at EnglishCenter.Application.Features.Exams.ExamService.GetAvailableSlotsAsync(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Application\Features\Exams\ExamService.cs:line 169
+   at EnglishCenter.Api.Controllers.ExamsController.GetAvailableSlots(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Controllers\ExamsController.cs:line 45
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at EnglishCenter.Api.Middlewares.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Middlewares\ExceptionMiddleware.cs:line 24
+2026-04-20 23:54:11.944 +07:00 [ERR] HTTP GET /api/exams/available-slots responded 500 in 161.1499 ms
+2026-04-20 23:54:55.564 +07:00 [ERR] Unhandled exception occurred. Path: /api/exams/available-slots
+System.InvalidOperationException: The LINQ expression 'DbSet<ClassSession>()
+    .Join(
+        inner: DbSet<Enrollment>(), 
+        outerKeySelector: c => (object)c.ClassId, 
+        innerKeySelector: e => (object)e.ClassId, 
+        resultSelector: (c, e) => new TransparentIdentifier<ClassSession, Enrollment>(
+            Outer = c, 
+            Inner = e
+        ))
+    .Where(ti => __studentIds_0
+        .Contains(ti.Inner.StudentId) && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.StartTime), 
+        kind: Utc) >= __windowStart_1 && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.EndTime), 
+        kind: Utc) <= __windowEnd_2)' could not be translated. Additional information: Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.
+Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutor[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Storage.Database.CompileQuery[TResult](Expression query, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.CompileQueryCore[TResult](IDatabase database, Expression query, IModel model, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.<>c__DisplayClass12_0`1.<ExecuteAsync>b__0()
+   at Microsoft.EntityFrameworkCore.Query.Internal.CompiledQueryCache.GetOrAddQuery[TResult](Object cacheKey, Func`1 compiler)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteAsync[TResult](Expression query, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1.GetAsyncEnumerator(CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1.GetAsyncEnumerator()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at EnglishCenter.Application.Features.Exams.ExamService.GetAvailableSlotsAsync(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Application\Features\Exams\ExamService.cs:line 169
+   at EnglishCenter.Api.Controllers.ExamsController.GetAvailableSlots(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Controllers\ExamsController.cs:line 45
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at EnglishCenter.Api.Middlewares.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Middlewares\ExceptionMiddleware.cs:line 24
+2026-04-20 23:54:55.581 +07:00 [ERR] HTTP GET /api/exams/available-slots responded 500 in 170.3961 ms
+2026-04-20 23:54:57.433 +07:00 [ERR] Unhandled exception occurred. Path: /api/exams/available-slots
+System.InvalidOperationException: The LINQ expression 'DbSet<ClassSession>()
+    .Join(
+        inner: DbSet<Enrollment>(), 
+        outerKeySelector: c => (object)c.ClassId, 
+        innerKeySelector: e => (object)e.ClassId, 
+        resultSelector: (c, e) => new TransparentIdentifier<ClassSession, Enrollment>(
+            Outer = c, 
+            Inner = e
+        ))
+    .Where(ti => __studentIds_0
+        .Contains(ti.Inner.StudentId) && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.StartTime), 
+        kind: Utc) >= __windowStart_1 && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.EndTime), 
+        kind: Utc) <= __windowEnd_2)' could not be translated. Additional information: Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.
+Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutor[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Storage.Database.CompileQuery[TResult](Expression query, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.CompileQueryCore[TResult](IDatabase database, Expression query, IModel model, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.<>c__DisplayClass12_0`1.<ExecuteAsync>b__0()
+   at Microsoft.EntityFrameworkCore.Query.Internal.CompiledQueryCache.GetOrAddQuery[TResult](Object cacheKey, Func`1 compiler)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteAsync[TResult](Expression query, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1.GetAsyncEnumerator(CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1.GetAsyncEnumerator()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at EnglishCenter.Application.Features.Exams.ExamService.GetAvailableSlotsAsync(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Application\Features\Exams\ExamService.cs:line 169
+   at EnglishCenter.Api.Controllers.ExamsController.GetAvailableSlots(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Controllers\ExamsController.cs:line 45
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at EnglishCenter.Api.Middlewares.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Middlewares\ExceptionMiddleware.cs:line 24
+2026-04-20 23:54:57.451 +07:00 [ERR] HTTP GET /api/exams/available-slots responded 500 in 162.9414 ms
+2026-04-20 23:55:01.398 +07:00 [INF] HTTP GET /api/classes responded 200 in 11.6924 ms
+2026-04-20 23:55:02.700 +07:00 [INF] HTTP GET /api/classes/1 responded 200 in 4.5247 ms
+2026-04-20 23:55:02.731 +07:00 [INF] HTTP GET /api/classes/1/exams responded 200 in 14.9215 ms
+2026-04-20 23:59:20.392 +07:00 [ERR] Unhandled exception occurred. Path: /api/exams/available-slots
+System.InvalidOperationException: The LINQ expression 'DbSet<ClassSession>()
+    .Join(
+        inner: DbSet<Enrollment>(), 
+        outerKeySelector: c => (object)c.ClassId, 
+        innerKeySelector: e => (object)e.ClassId, 
+        resultSelector: (c, e) => new TransparentIdentifier<ClassSession, Enrollment>(
+            Outer = c, 
+            Inner = e
+        ))
+    .Where(ti => __studentIds_0
+        .Contains(ti.Inner.StudentId) && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.StartTime), 
+        kind: Utc) >= __windowStart_1 && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.EndTime), 
+        kind: Utc) <= __windowEnd_2)' could not be translated. Additional information: Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.
+Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutor[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Storage.Database.CompileQuery[TResult](Expression query, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.CompileQueryCore[TResult](IDatabase database, Expression query, IModel model, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.<>c__DisplayClass12_0`1.<ExecuteAsync>b__0()
+   at Microsoft.EntityFrameworkCore.Query.Internal.CompiledQueryCache.GetOrAddQuery[TResult](Object cacheKey, Func`1 compiler)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteAsync[TResult](Expression query, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1.GetAsyncEnumerator(CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1.GetAsyncEnumerator()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at EnglishCenter.Application.Features.Exams.ExamService.GetAvailableSlotsAsync(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Application\Features\Exams\ExamService.cs:line 169
+   at EnglishCenter.Api.Controllers.ExamsController.GetAvailableSlots(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Controllers\ExamsController.cs:line 45
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at EnglishCenter.Api.Middlewares.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Middlewares\ExceptionMiddleware.cs:line 24
+2026-04-20 23:59:20.413 +07:00 [ERR] HTTP GET /api/exams/available-slots responded 500 in 161.0518 ms
+2026-04-20 23:59:36.263 +07:00 [ERR] Unhandled exception occurred. Path: /api/exams/available-slots
+System.InvalidOperationException: The LINQ expression 'DbSet<ClassSession>()
+    .Join(
+        inner: DbSet<Enrollment>(), 
+        outerKeySelector: c => (object)c.ClassId, 
+        innerKeySelector: e => (object)e.ClassId, 
+        resultSelector: (c, e) => new TransparentIdentifier<ClassSession, Enrollment>(
+            Outer = c, 
+            Inner = e
+        ))
+    .Where(ti => __studentIds_0
+        .Contains(ti.Inner.StudentId) && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.StartTime), 
+        kind: Utc) >= __windowStart_1 && DateTime.SpecifyKind(
+        value: ti.Outer.SessionDate.ToDateTime(ti.Outer.EndTime), 
+        kind: Utc) <= __windowEnd_2)' could not be translated. Additional information: Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.
+Translation of method 'System.DateOnly.ToDateTime' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutor[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Storage.Database.CompileQuery[TResult](Expression query, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.CompileQueryCore[TResult](IDatabase database, Expression query, IModel model, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.<>c__DisplayClass12_0`1.<ExecuteAsync>b__0()
+   at Microsoft.EntityFrameworkCore.Query.Internal.CompiledQueryCache.GetOrAddQuery[TResult](Object cacheKey, Func`1 compiler)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteAsync[TResult](Expression query, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1.GetAsyncEnumerator(CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1.GetAsyncEnumerator()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at EnglishCenter.Application.Features.Exams.ExamService.GetAvailableSlotsAsync(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Application\Features\Exams\ExamService.cs:line 169
+   at EnglishCenter.Api.Controllers.ExamsController.GetAvailableSlots(Int64 classId, DateTime from, DateTime to, Int32 durationMinutes, Int32 stepMinutes) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Controllers\ExamsController.cs:line 45
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at EnglishCenter.Api.Middlewares.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\acer\Desktop\PRN232\englishcentermanagement\EnglishCenter.Api\Middlewares\ExceptionMiddleware.cs:line 24
+2026-04-20 23:59:36.283 +07:00 [ERR] HTTP GET /api/exams/available-slots responded 500 in 157.4474 ms
