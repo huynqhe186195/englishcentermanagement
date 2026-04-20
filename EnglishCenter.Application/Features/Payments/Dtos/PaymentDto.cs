@@ -16,6 +16,5 @@ public class PaymentDto
     public string? TransactionCode { get; set; }
     public long? ReceivedByUserId { get; set; }
     public string? Note { get; set; }
-    public int Status { get; set; }
     public DateTime CreatedAt { get; set; }
 }

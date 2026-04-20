@@ -12,7 +12,7 @@ public class GetPaymentsPagingRequestDtoValidator : AbstractValidator<GetPayment
 {
     private static readonly string[] AllowedSortBy =
     [
-        "Id", "InvoiceId", "Amount", "PaymentMethod", "PaymentDate", "Status", "CreatedAt"
+        "Id", "InvoiceId", "Amount", "PaymentMethod", "PaymentDate", "CreatedAt"
     ];
 
     public GetPaymentsPagingRequestDtoValidator()
@@ -32,10 +32,6 @@ public class GetPaymentsPagingRequestDtoValidator : AbstractValidator<GetPayment
         RuleFor(x => x.PaymentMethod)
             .Must(x => x == null || x == 1 || x == 2 || x == 3)
             .WithMessage("PaymentMethod is invalid.");
-
-        RuleFor(x => x.Status)
-            .Must(x => x == null || x == 1 || x == 2 || x == 3)
-            .WithMessage("Status is invalid.");
 
         RuleFor(x => x.TransactionCode)
             .MaximumLength(100).WithMessage("TransactionCode must not exceed 100 characters.");

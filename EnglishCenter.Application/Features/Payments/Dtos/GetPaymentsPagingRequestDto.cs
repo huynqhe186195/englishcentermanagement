@@ -11,6 +11,5 @@ public class GetPaymentsPagingRequestDto : SortablePaginationRequest
 {
     public long? InvoiceId { get; set; }
     public int? PaymentMethod { get; set; }
-    public int? Status { get; set; }
     public string? TransactionCode { get; set; }
 }
