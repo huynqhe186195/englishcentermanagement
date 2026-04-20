@@ -1,0 +1,99 @@
+2026-04-21 01:28:16.364 +07:00 [ERR] An error occurred using the connection to database 'EnglishCenterDb' on server 'DESKTOP-FRT5LG2'.
+2026-04-21 01:28:16.421 +07:00 [ERR] An exception occurred while iterating over the results of a query for context type 'EnglishCenter.Infrastructure.Persistence.Context.EnglishCenterDbContext'.
+Microsoft.Data.SqlClient.SqlException (0x80131904): A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)
+ ---> System.ComponentModel.Win32Exception (53): The network path was not found.
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.Connect(ServerInfo serverInfo, SqlInternalConnectionTds connHandler, Boolean ignoreSniOpenTimeout, Int64 timerExpire, SqlConnectionString connectionOptions, Boolean withFailover)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.AttemptOneLogin(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean ignoreSniOpenTimeout, TimeoutTimer timeout, Boolean withFailover)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.LoginNoFailover(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString connectionOptions, SqlCredential credential, TimeoutTimer timeout)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.OpenLoginEnlist(TimeoutTimer timeout, SqlConnectionString connectionOptions, SqlCredential credential, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds..ctor(DbConnectionPoolIdentity identity, SqlConnectionString connectionOptions, SqlCredential credential, Object providerInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString userConnectionOptions, SessionData reconnectSessionData, Boolean applyTransientFaultHandling, String accessToken, DbConnectionPool pool)
+   at Microsoft.Data.SqlClient.SqlConnectionFactory.CreateConnection(DbConnectionOptions options, DbConnectionPoolKey poolKey, Object poolGroupProviderInfo, DbConnectionPool pool, DbConnection owningConnection, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionFactory.CreatePooledConnection(DbConnectionPool pool, DbConnection owningObject, DbConnectionOptions options, DbConnectionPoolKey poolKey, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.CreateObject(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.UserCreateRequest(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.TryGetConnection(DbConnection owningObject, UInt32 waitForMultipleObjectsTimeout, Boolean allowCreate, Boolean onlyOneCheckConnection, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.WaitForPendingOpen()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+ClientConnectionId:00000000-0000-0000-0000-000000000000
+Error Number:53,State:0,Class:20
+Microsoft.Data.SqlClient.SqlException (0x80131904): A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)
+ ---> System.ComponentModel.Win32Exception (53): The network path was not found.
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.Connect(ServerInfo serverInfo, SqlInternalConnectionTds connHandler, Boolean ignoreSniOpenTimeout, Int64 timerExpire, SqlConnectionString connectionOptions, Boolean withFailover)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.AttemptOneLogin(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean ignoreSniOpenTimeout, TimeoutTimer timeout, Boolean withFailover)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.LoginNoFailover(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString connectionOptions, SqlCredential credential, TimeoutTimer timeout)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.OpenLoginEnlist(TimeoutTimer timeout, SqlConnectionString connectionOptions, SqlCredential credential, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds..ctor(DbConnectionPoolIdentity identity, SqlConnectionString connectionOptions, SqlCredential credential, Object providerInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString userConnectionOptions, SessionData reconnectSessionData, Boolean applyTransientFaultHandling, String accessToken, DbConnectionPool pool)
+   at Microsoft.Data.SqlClient.SqlConnectionFactory.CreateConnection(DbConnectionOptions options, DbConnectionPoolKey poolKey, Object poolGroupProviderInfo, DbConnectionPool pool, DbConnection owningConnection, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionFactory.CreatePooledConnection(DbConnectionPool pool, DbConnection owningObject, DbConnectionOptions options, DbConnectionPoolKey poolKey, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.CreateObject(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.UserCreateRequest(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.TryGetConnection(DbConnection owningObject, UInt32 waitForMultipleObjectsTimeout, Boolean allowCreate, Boolean onlyOneCheckConnection, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.WaitForPendingOpen()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+ClientConnectionId:00000000-0000-0000-0000-000000000000
+Error Number:53,State:0,Class:20
+2026-04-21 01:42:22.878 +07:00 [INF] HTTP GET / responded 307 in 18.8822 ms
+2026-04-21 01:42:23.192 +07:00 [INF] HTTP GET / responded 307 in 0.7559 ms
+2026-04-21 01:45:02.296 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 55.0365 ms
+2026-04-21 01:45:02.504 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 30.3833 ms
+2026-04-21 01:47:36.651 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 51.9854 ms
+2026-04-21 01:47:36.814 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 36.3103 ms
+2026-04-21 01:48:17.487 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 57.5521 ms
+2026-04-21 01:48:17.705 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 32.7880 ms
+2026-04-21 01:49:15.960 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 362.7034 ms
+2026-04-21 01:49:16.516 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 231.4884 ms
+2026-04-21 01:52:45.306 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 42.3194 ms
+2026-04-21 01:52:45.497 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 36.9314 ms
+2026-04-21 01:55:17.620 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 43.3886 ms
+2026-04-21 01:55:17.783 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 28.3700 ms
+2026-04-21 01:55:31.200 +07:00 [INF] HTTP POST /auth/login responded 404 in 5451.4681 ms
+2026-04-21 01:56:16.834 +07:00 [INF] HTTP POST /auth/login responded 404 in 4.0732 ms
+2026-04-21 01:56:22.520 +07:00 [INF] HTTP POST /auth/login responded 404 in 6.9895 ms
+2026-04-21 01:56:39.985 +07:00 [INF] HTTP POST /auth/login responded 404 in 0.1162 ms
+2026-04-21 01:56:42.043 +07:00 [INF] HTTP POST /auth/login responded 404 in 0.1326 ms
+2026-04-21 01:56:46.913 +07:00 [INF] HTTP POST /auth/login responded 404 in 0.5532 ms
+2026-04-21 01:56:50.128 +07:00 [INF] HTTP POST /auth/login responded 404 in 0.2056 ms
+2026-04-21 01:57:41.761 +07:00 [INF] Permission cache miss for userId 6
+2026-04-21 01:57:42.643 +07:00 [INF] HTTP POST /api/Auth/login responded 200 in 1793.8739 ms
+2026-04-21 01:58:26.144 +07:00 [INF] HTTP GET /auth/login responded 404 in 0.5412 ms
+2026-04-21 02:06:46.670 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 38.0221 ms
+2026-04-21 02:06:46.840 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 30.0175 ms
+2026-04-21 02:06:53.109 +07:00 [INF] Permission cache miss for userId 6
+2026-04-21 02:06:53.300 +07:00 [INF] HTTP POST /api/auth/login responded 200 in 448.8324 ms
+2026-04-21 02:06:53.615 +07:00 [INF] HTTP GET /api/academicDashboard/class-dashboard responded 200 in 282.3760 ms
+2026-04-21 02:06:53.698 +07:00 [INF] HTTP GET /api/academicDashboard/students-at-risk responded 200 in 66.5883 ms
+2026-04-21 02:06:53.847 +07:00 [INF] HTTP GET /api/academicDashboard/room-utilization responded 200 in 143.3424 ms
+2026-04-21 02:06:54.004 +07:00 [INF] HTTP GET /api/classes responded 200 in 147.6472 ms
+2026-04-21 02:06:54.058 +07:00 [INF] HTTP GET /api/students responded 200 in 42.5614 ms
+2026-04-21 02:06:54.094 +07:00 [INF] HTTP GET /api/teachers responded 200 in 29.9158 ms
+2026-04-21 02:06:54.159 +07:00 [INF] HTTP GET /api/enrollments responded 200 in 47.9227 ms
+2026-04-21 02:07:06.817 +07:00 [INF] HTTP GET /api/academicDashboard/class-dashboard responded 200 in 84.0910 ms
+2026-04-21 02:07:06.848 +07:00 [INF] HTTP GET /api/academicDashboard/students-at-risk responded 200 in 25.9665 ms
+2026-04-21 02:07:06.904 +07:00 [INF] HTTP GET /api/academicDashboard/room-utilization responded 200 in 46.5100 ms
+2026-04-21 02:07:06.921 +07:00 [INF] HTTP GET /api/classes responded 200 in 9.7376 ms
+2026-04-21 02:07:06.943 +07:00 [INF] HTTP GET /api/students responded 200 in 11.7397 ms
+2026-04-21 02:07:06.957 +07:00 [INF] HTTP GET /api/teachers responded 200 in 10.4139 ms
+2026-04-21 02:07:06.974 +07:00 [INF] HTTP GET /api/enrollments responded 200 in 14.0048 ms
+2026-04-21 02:07:08.059 +07:00 [INF] HTTP GET /api/academicDashboard/teacher-workload responded 200 in 78.3324 ms
+2026-04-21 02:07:10.268 +07:00 [INF] HTTP GET /api/auth/me responded 200 in 20.5452 ms
+2026-04-21 02:07:16.282 +07:00 [INF] HTTP GET /api/classes responded 200 in 14.8889 ms
+2026-04-21 02:07:21.611 +07:00 [INF] HTTP GET /api/enrollments responded 200 in 20.6781 ms
+2026-04-21 02:07:22.539 +07:00 [INF] HTTP GET /api/classes responded 200 in 17.8597 ms

@@ -163,5 +163,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapGet("/", () => "API is running...");
-app.Urls.Add("http://localhost:5000");
 app.Run();
