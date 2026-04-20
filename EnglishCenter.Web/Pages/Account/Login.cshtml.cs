@@ -39,7 +39,12 @@ public class LoginModel : PageModel
             }
 
             var json = await response.Content.ReadAsStringAsync();
-            var loginResp = JsonSerializer.Deserialize<LoginResponse>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var apiResponse = JsonSerializer.Deserialize<ApiResponse<LoginResponse>>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            var loginResp = apiResponse?.Data;
             if (loginResp == null)
             {
                 ErrorMessage = "Invalid server response.";
@@ -54,9 +59,9 @@ public class LoginModel : PageModel
 
             // redirect based on role
             var roles = loginResp.Roles ?? new List<string>();
-            if (roles.Contains("Admin")) return RedirectToPage("/Admin/Index");
-            if (roles.Contains("Teacher")) return RedirectToPage("/Teacher/Index");
-            if (roles.Contains("Student")) return RedirectToPage("/Student/Index");
+            if (roles.Contains("SUPER_ADMIN")) return RedirectToPage("/Admin/Index");
+            if (roles.Contains("TEACHER")) return RedirectToPage("/Teacher/Index");
+            if (roles.Contains("STUDENT")) return RedirectToPage("/Student/Index");
 
             return RedirectToPage("/Index");
         }
@@ -74,13 +79,20 @@ public class LoginInput
     public string Password { get; set; } = string.Empty;
 }
 
+public class ApiResponse<T>
+{
+    public bool Success { get; set; }
+    public string? Message { get; set; }
+    public T? Data { get; set; }
+}
+
 public class LoginResponse
 {
-    public long UserId { get; set; }
-    public string UserName { get; set; } = string.Empty;
-    public string FullName { get; set; } = string.Empty;
-    public string AccessToken { get; set; } = string.Empty;
-    public string RefreshToken { get; set; } = string.Empty;
+    public int UserId { get; set; }
+    public string? UserName { get; set; }
+    public string? FullName { get; set; }
+    public string? AccessToken { get; set; }
+    public string? RefreshToken { get; set; }
     public DateTime ExpiresAtUtc { get; set; }
-    public List<string> Roles { get; set; } = new();
+    public List<string>? Roles { get; set; }
 }
