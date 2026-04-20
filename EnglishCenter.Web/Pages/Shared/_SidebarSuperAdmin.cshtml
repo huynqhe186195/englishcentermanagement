@@ -1,0 +1,37 @@
+﻿<div class="sidebar-inner">
+    <div class="sidebar-brand">
+        <div class="brand-badge">SA</div>
+        <div>
+            <h5 class="mb-0 text-white">SuperAdmin</h5>
+            <small class="text-sidebar-muted">System Control Center</small>
+        </div>
+    </div>
+
+    <div class="sidebar-role-box">
+        <div class="fw-semibold text-white mb-1">SuperAdmin</div>
+        <div class="small text-sidebar-muted">
+            Quản trị toàn hệ thống, quản lý campus, users, roles, học vụ, tài chính và các thao tác nhạy cảm.
+        </div>
+    </div>
+
+    <nav class="nav flex-column sidebar-nav">
+        <a class="nav-link" asp-page="/SuperAdmin/Dashboard">
+            <span>Dashboard</span>
+        </a>
+        <a class="nav-link" asp-page="/SuperAdmin/Users/Index">
+            <span>Users</span>
+        </a>
+        <a class="nav-link" asp-page="/SuperAdmin/Roles/Index">
+            <span>Roles</span>
+        </a>
+        <a class="nav-link" asp-page="/SuperAdmin/Campuses/Index">
+            <span>Campuses</span>
+        </a>
+        <a class="nav-link" asp-page="/SuperAdmin/SystemLogs/Index">
+            <span>System Logs</span>
+        </a>
+        <a class="nav-link" asp-page="/SuperAdmin/Financial/Index">
+            <span>Global Financial Dashboard</span>
+        </a>
+    </nav>
+</div>

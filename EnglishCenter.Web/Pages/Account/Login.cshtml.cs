@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net.Http.Json;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 namespace EnglishCenter.Web.Pages.Account;
@@ -18,20 +20,24 @@ public class LoginModel : PageModel
     public LoginInput Input { get; set; } = new();
 
     public string ErrorMessage { get; set; } = string.Empty;
+    public List<SelectListItem> Campuses { get; set; } = new();
 
-    public void OnGet()
+    public async Task OnGetAsync()
     {
+        await LoadCampusesAsync();
     }
 
     public async Task<IActionResult> OnPostAsync()
     {
+        await LoadCampusesAsync();
+
         if (!ModelState.IsValid)
             return Page();
 
         try
         {
             var client = _httpClientFactory.CreateClient("Api");
-            var response = await client.PostAsJsonAsync("auth/login", new { UserName = Input.UserName, Password = Input.Password });
+            var response = await client.PostAsJsonAsync("auth/login", new { UserName = Input.UserName, Password = Input.Password, CampusId = Input.CampusId });
             if (!response.IsSuccessStatusCode)
             {
                 ErrorMessage = "Invalid credentials or server error.";
@@ -56,6 +62,7 @@ public class LoginModel : PageModel
             HttpContext.Session.SetString("RefreshToken", loginResp.RefreshToken ?? string.Empty);
             HttpContext.Session.SetString("UserName", loginResp.UserName ?? string.Empty);
             HttpContext.Session.SetString("Roles", JsonSerializer.Serialize(loginResp.Roles ?? new List<string>()));
+            HttpContext.Session.SetString("CampusId", loginResp.CampusId?.ToString() ?? Input.CampusId.ToString());
 
             // redirect based on role
             var roles = loginResp.Roles ?? new List<string>();
@@ -71,12 +78,54 @@ public class LoginModel : PageModel
             return Page();
         }
     }
+
+    private async Task LoadCampusesAsync()
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient("Api");
+            const int pageSize = 100;
+            var allItems = new List<CampusOption>();
+            var pageNumber = 1;
+            var totalPages = 1;
+
+            do
+            {
+                var response = await client.GetFromJsonAsync<ApiResponse<PagedResult<CampusOption>>>(
+                    $"campuses?pageNumber={pageNumber}&pageSize={pageSize}&status=1");
+                var data = response?.Data;
+                if (data == null) break;
+
+                allItems.AddRange(data.Items);
+                totalPages = data.TotalPages < 1 ? 1 : data.TotalPages;
+                pageNumber++;
+            } while (pageNumber <= totalPages);
+
+            Campuses = allItems
+                .OrderBy(x => x.Name)
+                .Select(x => new SelectListItem
+                {
+                    Value = x.Id.ToString(),
+                    Text = $"{x.CampusCode} - {x.Name}"
+                })
+                .ToList();
+        }
+        catch
+        {
+            Campuses = new List<SelectListItem>();
+        }
+    }
 }
 
 public class LoginInput
 {
+    [Required]
     public string UserName { get; set; } = string.Empty;
+    [Required]
     public string Password { get; set; } = string.Empty;
+    [Required]
+    [Range(1, long.MaxValue, ErrorMessage = "Campus is required.")]
+    public long CampusId { get; set; }
 }
 
 public class ApiResponse<T>
@@ -84,6 +133,19 @@ public class ApiResponse<T>
     public bool Success { get; set; }
     public string? Message { get; set; }
     public T? Data { get; set; }
+}
+
+public class PagedResult<T>
+{
+    public List<T> Items { get; set; } = new();
+    public int TotalPages { get; set; }
+}
+
+public class CampusOption
+{
+    public long Id { get; set; }
+    public string CampusCode { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
 }
 
 public class LoginResponse
@@ -94,5 +156,6 @@ public class LoginResponse
     public string? AccessToken { get; set; }
     public string? RefreshToken { get; set; }
     public DateTime ExpiresAtUtc { get; set; }
+    public long? CampusId { get; set; }
     public List<string>? Roles { get; set; }
 }

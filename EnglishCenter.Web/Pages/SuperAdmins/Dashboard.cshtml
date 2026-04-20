@@ -1,0 +1,166 @@
+﻿@page
+@model EnglishCenter.Web.Pages.SuperAdmins.DashboardModel
+@{
+    Layout = "~/Pages/Shared/_SuperAdminLayout.cshtml";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="page-header">
+    <div>
+        <h2 class="page-title">Dashboard</h2>
+        <p class="page-subtitle">Toàn cảnh hệ thống và hiệu suất tổng thể.</p>
+    </div>
+    <div>
+        <button class="btn btn-primary">Export Report</button>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card sa-card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Total Users</div>
+                <div class="stat-value">1,245</div>
+                <div class="stat-change positive">+12.4% vs last month</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card sa-card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Campuses</div>
+                <div class="stat-value">12</div>
+                <div class="stat-change neutral">2 new this quarter</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card sa-card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Students</div>
+                <div class="stat-value">8,420</div>
+                <div class="stat-change positive">+8.1% enrollment growth</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card sa-card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Monthly Revenue</div>
+                <div class="stat-value">$58,400</div>
+                <div class="stat-change positive">+5.7% compared to last month</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card sa-card h-100">
+            <div class="card-header card-header-clean">
+                <h5 class="mb-0">Revenue Overview</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-placeholder">
+                    Revenue chart area
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card sa-card h-100">
+            <div class="card-header card-header-clean">
+                <h5 class="mb-0">System Alerts</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush sa-list">
+                    <li class="list-group-item">
+                        <div class="fw-semibold">Failed login spike</div>
+                        <small class="text-muted">Detected on Campus A within the last hour.</small>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="fw-semibold">Permission override used</div>
+                        <small class="text-muted">A sensitive action was overridden by SuperAdmin.</small>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="fw-semibold">Finance sync delayed</div>
+                        <small class="text-muted">Global revenue sync is running slower than expected.</small>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card sa-card h-100">
+            <div class="card-header card-header-clean">
+                <h5 class="mb-0">Recent Activities</h5>
+            </div>
+            <div class="card-body">
+                <div class="timeline-item">
+                    <div class="timeline-title">User role updated</div>
+                    <div class="timeline-text">Nguyen Van A changed role of Campus Manager at Campus B.</div>
+                    <div class="timeline-time">10 minutes ago</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-title">New campus created</div>
+                    <div class="timeline-text">Campus Thu Duc was added to the system.</div>
+                    <div class="timeline-time">1 hour ago</div>
+                </div>
+                <div class="timeline-item mb-0">
+                    <div class="timeline-title">Financial report exported</div>
+                    <div class="timeline-text">Global monthly report was exported by SuperAdmin.</div>
+                    <div class="timeline-time">Today, 08:25 AM</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card sa-card h-100">
+            <div class="card-header card-header-clean">
+                <h5 class="mb-0">Top Campuses</h5>
+            </div>
+            <div class="card-body">
+                <div class="campus-row">
+                    <div>
+                        <div class="fw-semibold">Campus District 1</div>
+                        <small class="text-muted">Revenue Leader</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold">$14,200</div>
+                        <small class="text-success">+9.4%</small>
+                    </div>
+                </div>
+
+                <div class="campus-row">
+                    <div>
+                        <div class="fw-semibold">Campus Thu Duc</div>
+                        <small class="text-muted">Enrollment Growth</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold">$11,600</div>
+                        <small class="text-success">+7.8%</small>
+                    </div>
+                </div>
+
+                <div class="campus-row mb-0">
+                    <div>
+                        <div class="fw-semibold">Campus Binh Thanh</div>
+                        <small class="text-muted">Stable Performance</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold">$10,450</div>
+                        <small class="text-success">+4.2%</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

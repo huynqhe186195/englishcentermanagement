@@ -1,0 +1,101 @@
+﻿@page
+@model EnglishCenter.Web.Pages.SuperAdmins.Financial.IndexModel
+@{
+    Layout = "~/Pages/Shared/_SuperAdminLayout.cshtml";
+    ViewData["Title"] = "Global Financial Dashboard";
+}
+
+<div class="page-header">
+    <div>
+        <h2 class="page-title">Global Financial Dashboard</h2>
+        <p class="page-subtitle">Theo dõi tài chính toàn hệ thống.</p>
+    </div>
+    <div>
+        <button class="btn btn-primary">Export Finance Report</button>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="card sa-card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-value">$210,500</div>
+                <div class="stat-change positive">+6.8% this month</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card sa-card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Collected Tuition</div>
+                <div class="stat-value">$184,700</div>
+                <div class="stat-change positive">87.7% collection rate</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card sa-card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Outstanding Payment</div>
+                <div class="stat-value">$25,800</div>
+                <div class="stat-change negative">Needs follow-up</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card sa-card stat-card h-100">
+            <div class="card-body">
+                <div class="stat-label">Operating Cost</div>
+                <div class="stat-value">$96,300</div>
+                <div class="stat-change neutral">Stable cost ratio</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card sa-card h-100">
+            <div class="card-header card-header-clean">
+                <h5 class="mb-0">Financial Trend</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-placeholder">
+                    Financial trend chart area
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card sa-card h-100">
+            <div class="card-header card-header-clean">
+                <h5 class="mb-0">Outstanding by Campus</h5>
+            </div>
+            <div class="card-body">
+                <div class="campus-row">
+                    <div>
+                        <div class="fw-semibold">District 1</div>
+                        <small class="text-muted">Pending tuition</small>
+                    </div>
+                    <div class="fw-bold">$7,200</div>
+                </div>
+                <div class="campus-row">
+                    <div>
+                        <div class="fw-semibold">Thu Duc</div>
+                        <small class="text-muted">Pending tuition</small>
+                    </div>
+                    <div class="fw-bold">$6,450</div>
+                </div>
+                <div class="campus-row mb-0">
+                    <div>
+                        <div class="fw-semibold">Binh Thanh</div>
+                        <small class="text-muted">Pending tuition</small>
+                    </div>
+                    <div class="fw-bold">$5,980</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

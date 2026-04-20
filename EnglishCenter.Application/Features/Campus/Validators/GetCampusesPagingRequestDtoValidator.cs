@@ -1,17 +1,10 @@
 using EnglishCenter.Application.Features.Campus.Dtos;
 using FluentValidation;
-using System;
-using System.Linq;
 
 namespace EnglishCenter.Application.Features.Campus.Validators;
 
 public class GetCampusesPagingRequestDtoValidator : AbstractValidator<GetCampusesPagingRequestDto>
 {
-    private static readonly string[] AllowedSortBy =
-    [
-        "Id", "CampusCode", "Name", "Status", "CreatedAt"
-    ];
-
     public GetCampusesPagingRequestDtoValidator()
     {
         RuleFor(x => x.PageNumber)
@@ -27,10 +20,5 @@ public class GetCampusesPagingRequestDtoValidator : AbstractValidator<GetCampuse
         RuleFor(x => x.Status)
             .Must(x => x == null || x == 0 || x == 1)
             .WithMessage("Status must be 0 or 1.");
-
-        // Optional sort fields if implemented in controllers/services
-        RuleFor(x => x)
-            .Must(x => true)
-            .WithMessage(string.Empty);
     }
 }

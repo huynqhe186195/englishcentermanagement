@@ -1,0 +1,80 @@
+﻿@page
+@model EnglishCenter.Web.Pages.SuperAdmins.Roles.IndexModel
+@{
+    Layout = "~/Pages/Shared/_SuperAdminLayout.cshtml";
+    ViewData["Title"] = "Roles";
+}
+
+<div class="page-header">
+    <div>
+        <h2 class="page-title">Roles</h2>
+        <p class="page-subtitle">Quản lý vai trò và permissions toàn hệ thống.</p>
+    </div>
+    <div>
+        <button class="btn btn-primary">+ Create Role</button>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card sa-card h-100">
+            <div class="card-header card-header-clean">
+                <h5 class="mb-0">Role List</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <button class="list-group-item list-group-item-action active">SuperAdmin</button>
+                    <button class="list-group-item list-group-item-action">Campus Manager</button>
+                    <button class="list-group-item list-group-item-action">Academic Staff</button>
+                    <button class="list-group-item list-group-item-action">Finance Staff</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card sa-card">
+            <div class="card-header card-header-clean d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Permission Matrix - SuperAdmin</h5>
+                <button class="btn btn-sm btn-outline-primary">Save Changes</button>
+            </div>
+            <div class="card-body">
+                <div class="permission-group">
+                    <h6>Users</h6>
+                    <div class="row">
+                        <div class="col-md-4"><div class="form-check"><input class="form-check-input" checked type="checkbox" id="u1"><label class="form-check-label" for="u1">View</label></div></div>
+                        <div class="col-md-4"><div class="form-check"><input class="form-check-input" checked type="checkbox" id="u2"><label class="form-check-label" for="u2">Create</label></div></div>
+                        <div class="col-md-4"><div class="form-check"><input class="form-check-input" checked type="checkbox" id="u3"><label class="form-check-label" for="u3">Edit/Delete</label></div></div>
+                    </div>
+                </div>
+
+                <div class="permission-group">
+                    <h6>Roles & Permissions</h6>
+                    <div class="row">
+                        <div class="col-md-4"><div class="form-check"><input class="form-check-input" checked type="checkbox" id="r1"><label class="form-check-label" for="r1">View</label></div></div>
+                        <div class="col-md-4"><div class="form-check"><input class="form-check-input" checked type="checkbox" id="r2"><label class="form-check-label" for="r2">Create/Edit</label></div></div>
+                        <div class="col-md-4"><div class="form-check"><input class="form-check-input" checked type="checkbox" id="r3"><label class="form-check-label" for="r3">Override</label></div></div>
+                    </div>
+                </div>
+
+                <div class="permission-group">
+                    <h6>Campuses</h6>
+                    <div class="row">
+                        <div class="col-md-4"><div class="form-check"><input class="form-check-input" checked type="checkbox" id="c1"><label class="form-check-label" for="c1">View</label></div></div>
+                        <div class="col-md-4"><div class="form-check"><input class="form-check-input" checked type="checkbox" id="c2"><label class="form-check-label" for="c2">Create/Edit</label></div></div>
+                        <div class="col-md-4"><div class="form-check"><input class="form-check-input" checked type="checkbox" id="c3"><label class="form-check-label" for="c3">Deactivate</label></div></div>
+                    </div>
+                </div>
+
+                <div class="permission-group mb-0">
+                    <h6>Finance / Logs / Sensitive Actions</h6>
+                    <div class="row">
+                        <div class="col-md-4"><div class="form-check"><input class="form-check-input" checked type="checkbox" id="f1"><label class="form-check-label" for="f1">View Global Finance</label></div></div>
+                        <div class="col-md-4"><div class="form-check"><input class="form-check-input" checked type="checkbox" id="f2"><label class="form-check-label" for="f2">View Logs</label></div></div>
+                        <div class="col-md-4"><div class="form-check"><input class="form-check-input" checked type="checkbox" id="f3"><label class="form-check-label" for="f3">Override Sensitive Actions</label></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
