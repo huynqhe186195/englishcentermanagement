@@ -1,0 +1,96 @@
+﻿@page
+@model EnglishCenter.Web.Pages.SuperAdmins.SystemLogs.IndexModel
+@{
+    Layout = "~/Pages/Shared/_SuperAdminLayout.cshtml";
+    ViewData["Title"] = "System Logs";
+}
+
+<div class="page-header">
+    <div>
+        <h2 class="page-title">System Logs</h2>
+        <p class="page-subtitle">Theo dõi log hệ thống và các hành động nhạy cảm.</p>
+    </div>
+    <div>
+        <button class="btn btn-outline-primary">Export Logs</button>
+    </div>
+</div>
+
+<div class="card sa-card mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <input type="text" class="form-control" placeholder="Search user or action" />
+            </div>
+            <div class="col-md-3">
+                <select class="form-select">
+                    <option>All Modules</option>
+                    <option>Users</option>
+                    <option>Finance</option>
+                    <option>Roles</option>
+                    <option>Campuses</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select">
+                    <option>All Severity</option>
+                    <option>Info</option>
+                    <option>Warning</option>
+                    <option>Error</option>
+                    <option>Critical</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-secondary w-100">Apply Filter</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card sa-card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table sa-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>User</th>
+                        <th>Module</th>
+                        <th>Action</th>
+                        <th>Severity</th>
+                        <th>IP</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2026-04-21 09:10</td>
+                        <td>SuperAdmin</td>
+                        <td>Roles</td>
+                        <td>Updated permission matrix</td>
+                        <td><span class="badge bg-info">Info</span></td>
+                        <td>192.168.1.12</td>
+                        <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                    </tr>
+                    <tr>
+                        <td>2026-04-21 08:40</td>
+                        <td>SuperAdmin</td>
+                        <td>Finance</td>
+                        <td>Override payment confirmation</td>
+                        <td><span class="badge bg-warning text-dark">Warning</span></td>
+                        <td>192.168.1.12</td>
+                        <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                    </tr>
+                    <tr>
+                        <td>2026-04-21 08:12</td>
+                        <td>System</td>
+                        <td>Authentication</td>
+                        <td>Multiple failed login attempts</td>
+                        <td><span class="badge bg-danger">Critical</span></td>
+                        <td>192.168.1.24</td>
+                        <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

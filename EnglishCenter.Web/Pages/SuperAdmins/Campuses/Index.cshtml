@@ -1,0 +1,78 @@
+﻿@page
+@model EnglishCenter.Web.Pages.SuperAdmins.Campuses.IndexModel
+@{
+    Layout = "~/Pages/Shared/_SuperAdminLayout.cshtml";
+    ViewData["Title"] = "Campuses";
+}
+
+<div class="page-header">
+    <div>
+        <h2 class="page-title">Campuses</h2>
+        <p class="page-subtitle">Quản lý tất cả campus trong hệ thống.</p>
+    </div>
+    <div>
+        <button class="btn btn-primary">+ Add Campus</button>
+    </div>
+</div>
+
+<div class="card sa-card">
+    <div class="card-header card-header-clean d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Campus Management</h5>
+        <button class="btn btn-sm btn-outline-primary">Export</button>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table sa-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Campus Name</th>
+                        <th>Address</th>
+                        <th>Manager</th>
+                        <th>Students</th>
+                        <th>Revenue</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>District 1</td>
+                        <td>123 Nguyen Hue, HCMC</td>
+                        <td>Nguyen Van A</td>
+                        <td>1,250</td>
+                        <td>$14,200</td>
+                        <td><span class="badge badge-soft-success">Active</span></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary">View</button>
+                            <button class="btn btn-sm btn-outline-secondary">Edit</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Thu Duc</td>
+                        <td>25 Vo Van Ngan, HCMC</td>
+                        <td>Tran Thi B</td>
+                        <td>1,020</td>
+                        <td>$11,600</td>
+                        <td><span class="badge badge-soft-success">Active</span></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary">View</button>
+                            <button class="btn btn-sm btn-outline-secondary">Edit</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Binh Thanh</td>
+                        <td>88 Dien Bien Phu, HCMC</td>
+                        <td>Le Van C</td>
+                        <td>980</td>
+                        <td>$10,450</td>
+                        <td><span class="badge badge-soft-danger">Inactive</span></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary">View</button>
+                            <button class="btn btn-sm btn-outline-secondary">Edit</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
