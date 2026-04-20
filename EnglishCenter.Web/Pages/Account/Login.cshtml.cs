@@ -84,9 +84,24 @@ public class LoginModel : PageModel
         try
         {
             var client = _httpClientFactory.CreateClient("Api");
-            var response = await client.GetFromJsonAsync<ApiResponse<PagedResult<CampusOption>>>("campuses?pageNumber=1&pageSize=1000&status=1");
-            var items = response?.Data?.Items ?? new List<CampusOption>();
-            Campuses = items
+            const int pageSize = 100;
+            var allItems = new List<CampusOption>();
+            var pageNumber = 1;
+            var totalPages = 1;
+
+            do
+            {
+                var response = await client.GetFromJsonAsync<ApiResponse<PagedResult<CampusOption>>>(
+                    $"campuses?pageNumber={pageNumber}&pageSize={pageSize}&status=1");
+                var data = response?.Data;
+                if (data == null) break;
+
+                allItems.AddRange(data.Items);
+                totalPages = data.TotalPages < 1 ? 1 : data.TotalPages;
+                pageNumber++;
+            } while (pageNumber <= totalPages);
+
+            Campuses = allItems
                 .OrderBy(x => x.Name)
                 .Select(x => new SelectListItem
                 {
@@ -123,6 +138,7 @@ public class ApiResponse<T>
 public class PagedResult<T>
 {
     public List<T> Items { get; set; } = new();
+    public int TotalPages { get; set; }
 }
 
 public class CampusOption
