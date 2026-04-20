@@ -12,6 +12,20 @@ public class AuthController : ControllerBase
 {
     private readonly AuthService _authService;
 
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto request)
+    {
+        await _authService.ForgotPasswordAsync(request);
+        return Ok("If the account exists, a password reset email has been sent.");
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto request)
+    {
+        await _authService.ResetPasswordAsync(request);
+        return Ok("Password has been reset successfully.");
+    }
+
     public AuthController(AuthService authService)
     {
         _authService = authService;
@@ -54,14 +68,6 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto request)
     {
         await _authService.ChangePasswordAsync(request);
-        return Ok();
-    }
-
-    [Authorize(Policy = PermissionConstants.Users.ResetPassword)]
-    [HttpPost("reset-password")]
-    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto request)
-    {
-        await _authService.ResetPasswordAsync(request);
         return Ok();
     }
 }

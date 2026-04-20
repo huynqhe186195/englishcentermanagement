@@ -27,5 +27,7 @@ public class UpdateClassRequestDtoValidator : AbstractValidator<UpdateClassReque
         RuleFor(x => x.MaxStudents)
             .Equal(10)
             .WithMessage("Each class can only have 10 students.");
+        RuleFor(x => x.CampusId)
+            .GreaterThan(0).WithMessage("CampusId must be greater than 0.");
     }
 }

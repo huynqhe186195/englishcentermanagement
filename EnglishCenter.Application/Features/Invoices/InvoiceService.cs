@@ -219,6 +219,8 @@ public class InvoiceService
 
     public async Task<long> SelectClassAsync(long invoiceId, SelectClassForInvoiceRequestDto request)
     {
+        await using var transaction = await _context.BeginTransactionAsync();
+
         var invoice = await _context.Invoices
             .FirstOrDefaultAsync(x => x.Id == invoiceId && !x.IsDeleted);
 
@@ -232,9 +234,28 @@ public class InvoiceService
             throw new BusinessException("You must complete full payment before selecting a class.");
         }
 
+        if (invoice.PaidAmount != invoice.FinalAmount)
+        {
+            throw new BusinessException("Invoice is not fully paid.");
+        }
+
         if (invoice.ClassId.HasValue)
         {
             throw new BusinessException("Class has already been selected for this invoice.");
+        }
+
+        var hasPayment = await _context.Payments.AnyAsync(x => x.InvoiceId == invoice.Id);
+        if (!hasPayment)
+        {
+            throw new BusinessException("No payment record was found for this invoice.");
+        }
+
+        var student = await _context.Students
+            .FirstOrDefaultAsync(x => x.Id == invoice.StudentId && !x.IsDeleted);
+
+        if (student == null)
+        {
+            throw new NotFoundException("Student not found.");
         }
 
         var @class = await _context.Classes
@@ -244,6 +265,11 @@ public class InvoiceService
         if (@class == null)
         {
             throw new NotFoundException("Class not found.");
+        }
+
+        if (@class.Status != 1)
+        {
+            throw new BusinessException("Selected class is not available.");
         }
 
         var courseIdFromInvoice = ExtractCourseIdFromNote(invoice.Note);
@@ -295,6 +321,7 @@ public class InvoiceService
 
         _context.Enrollments.Add(enrollment);
         await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
 
         return enrollment.Id;
     }

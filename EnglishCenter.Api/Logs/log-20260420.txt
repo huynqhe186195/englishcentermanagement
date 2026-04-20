@@ -1,0 +1,9 @@
+2026-04-20 13:26:40.260 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 51.7052 ms
+2026-04-20 13:26:40.488 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 22.3235 ms
+2026-04-20 13:29:52.007 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 501.7286 ms
+2026-04-20 13:29:52.684 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 187.9987 ms
+2026-04-20 14:13:38.775 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 135.5385 ms
+2026-04-20 14:13:39.352 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 343.9286 ms
+2026-04-20 14:13:53.984 +07:00 [INF] HTTP GET /api/Attendance responded 200 in 2805.5774 ms
+2026-04-20 14:14:40.667 +07:00 [INF] Permission cache miss for userId 6
+2026-04-20 14:14:41.193 +07:00 [INF] HTTP POST /api/auth/login responded 200 in 1249.9664 ms

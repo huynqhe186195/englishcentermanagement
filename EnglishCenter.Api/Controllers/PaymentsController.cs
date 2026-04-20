@@ -15,7 +15,7 @@ namespace EnglishCenter.Api.Controllers
         {
             _paymentService = paymentService;
         }
-
+        
         [HttpGet]
         public async Task<IActionResult> GetPaged([FromQuery] GetPaymentsPagingRequestDto request)
         {

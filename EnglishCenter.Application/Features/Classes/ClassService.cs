@@ -185,6 +185,12 @@ public class ClassService
             throw new BusinessException("ClassCode already exists.");
         }
 
+        var campusExists = await _context.Campuses.AnyAsync(x => x.Id == request.CampusId && !x.IsDeleted);
+        if (!campusExists)
+        {
+            throw new NotFoundException("Campus not found.");
+        }
+
         var entity = _mapper.Map<Class>(request);
 
         entity.ClassCode = classCode;
@@ -208,6 +214,12 @@ public class ClassService
         if (entity == null)
         {
             throw new NotFoundException("Class not found.");
+        }
+
+        var campusExists = await _context.Campuses.AnyAsync(x => x.Id == request.CampusId && !x.IsDeleted);
+        if (!campusExists)
+        {
+            throw new NotFoundException("Campus not found.");
         }
 
         _mapper.Map(request, entity);

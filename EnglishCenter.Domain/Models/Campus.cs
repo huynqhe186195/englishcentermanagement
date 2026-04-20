@@ -26,4 +26,8 @@ public partial class Campus
     public virtual ICollection<Class> Classes { get; set; } = new List<Class>();
 
     public virtual ICollection<Room> Rooms { get; set; } = new List<Room>();
+
+    public virtual ICollection<Teacher> Teachers { get; set; } = new List<Teacher>();
+
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }
