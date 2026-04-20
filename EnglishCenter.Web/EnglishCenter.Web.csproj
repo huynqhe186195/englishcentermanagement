@@ -13,11 +13,8 @@
     <Folder Include="Models\ViewModels\" />
     <Folder Include="Models\Requests\" />
     <Folder Include="Pages\Dashboard\" />
-    <Folder Include="Pages\Admins\" />
     <Folder Include="Pages\Rooms\" />
     <Folder Include="Pages\Parents\" />
-    <Folder Include="Pages\Teachers\" />
-    <Folder Include="Pages\Students\" />
     <Folder Include="Services\Interfaces\" />
     <Folder Include="Services\Api\" />
     <Folder Include="Services\Handlers\" />

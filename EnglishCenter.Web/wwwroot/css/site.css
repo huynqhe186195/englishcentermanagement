@@ -1,23 +1,74 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+html, body {
+    height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
-  padding-top: 70px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f8f9fa;
+}
+
+.app-shell {
+    min-height: 100vh;
+    display: flex;
+}
+
+.sidebar {
+    width: 260px;
+    min-height: 100vh;
+    transition: all .25s ease;
+}
+
+    .sidebar.collapsed {
+        margin-left: -260px;
+    }
+
+.main-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.content-area {
+    flex: 1;
+}
+
+.nav-pills .nav-link {
+    border-radius: 12px;
+    padding: .75rem 1rem;
+}
+
+    .nav-pills .nav-link:hover,
+    .nav-pills .nav-link.active {
+        background: rgba(255,255,255,.12);
+    }
+
+.stat-card {
+    border-radius: 20px;
+}
+
+.icon-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-body {
+    background: linear-gradient(135deg, #0d6efd, #5b9cff);
+}
+
+.login-card {
+    width: 100%;
+    max-width: 460px;
+    border-radius: 24px;
+}
+
+@media (max-width: 991.98px) {
+    .sidebar {
+        position: fixed;
+        z-index: 1050;
+    }
 }

@@ -1,0 +1,34 @@
+﻿@page
+@{
+    ViewData["Title"] = "Teacher Dashboard";
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">My Classes</div><h3>6</h3></div></div></div>
+    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Sessions Today</div><h3>3</h3></div></div></div>
+    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Attendance Pending</div><h3>1</h3></div></div></div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white fw-semibold">Today Sessions</div>
+    <div class="card-body p-0">
+        <table class="table mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Class</th>
+                    <th>Time</th>
+                    <th>Room</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>TOEIC-MOR-01</td>
+                    <td>18:00 - 19:30</td>
+                    <td>R101</td>
+                    <td><a asp-page="/Teacher/Attendance" class="btn btn-sm btn-primary">Take Attendance</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

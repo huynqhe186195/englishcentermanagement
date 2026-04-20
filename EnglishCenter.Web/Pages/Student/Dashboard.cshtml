@@ -1,0 +1,33 @@
+﻿@page
+@{
+    ViewData["Title"] = "Student Dashboard";
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">My Classes</div><h3>2</h3></div></div></div>
+    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Attendance Rate</div><h3>92%</h3></div></div></div>
+    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Outstanding Invoices</div><h3>0</h3></div></div></div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold">Upcoming Classes</div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between"><span>IELTS-EVE-01</span><span>Tomorrow 18:00</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold">Quick Access</div>
+            <div class="card-body d-grid gap-2">
+                <a asp-page="/Student/AttendanceReport" class="btn btn-outline-primary">Attendance Report</a>
+                <a asp-page="/Student/Invoices" class="btn btn-outline-success">Invoices</a>
+                <a asp-page="/Student/SelectClass" class="btn btn-primary">Select Class</a>
+            </div>
+        </div>
+    </div>
+</div>

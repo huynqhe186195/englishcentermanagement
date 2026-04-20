@@ -1,0 +1,54 @@
+﻿@page
+@{
+    ViewData["Title"] = "Super Admin Dashboard";
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="card stat-card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Total Campuses</div><h3 class="fw-bold">5</h3></div></div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card stat-card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">System Users</div><h3 class="fw-bold">248</h3></div></div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card stat-card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Active Classes</div><h3 class="fw-bold">74</h3></div></div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card stat-card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Collected Revenue</div><h3 class="fw-bold">1.2B</h3></div></div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold">Revenue by Campus</div>
+            <div class="card-body">
+                <canvas id="revenueByCampusChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold">Quick Access</div>
+            <div class="list-group list-group-flush">
+                <a asp-page="/SuperAdmin/Users" class="list-group-item list-group-item-action">Manage Users</a>
+                <a asp-page="/SuperAdmin/Roles" class="list-group-item list-group-item-action">Roles & Permissions</a>
+                <a asp-page="/SuperAdmin/Campuses" class="list-group-item list-group-item-action">Campuses</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('revenueByCampusChart');
+        new Chart(ctx, {
+        type: 'bar',
+        data: {
+        labels: ['Q1', 'Thu Duc', 'Binh Thanh'],
+        datasets: [{ label: 'Revenue', data: [320, 280, 150] }]
+        }
+        });
+    </script>
+}

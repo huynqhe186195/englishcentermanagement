@@ -1,0 +1,52 @@
+﻿@page
+@{
+    ViewData["Title"] = "Attendance Report";
+}
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Class</label>
+                <select class="form-select">
+                    <option>IELTS-EVE-01</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-primary">Load Report</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Total Sessions</div><h3>20</h3></div></div></div>
+    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Present</div><h3>18</h3></div></div></div>
+    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Absent</div><h3>2</h3></div></div></div>
+    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Absent Rate</div><h3 class="text-warning">10%</h3></div></div></div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-striped align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Session No</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>Note</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>2026-05-01</td>
+                    <td>18:00 - 19:30</td>
+                    <td><span class="badge bg-success">Present</span></td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
