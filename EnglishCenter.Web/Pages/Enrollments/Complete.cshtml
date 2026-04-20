@@ -1,0 +1,22 @@
+@page "{id:long}" 
+@model EnglishCenter.Web.Pages.Enrollments.CompleteModel
+@{
+    ViewData["Title"] = "Complete Enrollment";
+}
+
+<h2>Complete Enrollment</h2>
+
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">Note</label>
+        <textarea asp-for="Input.Note" class="form-control"></textarea>
+    </div>
+
+    <button class="btn btn-success" type="submit">Complete</button>
+    <a asp-page="/Classes/Roster" asp-route-id="@Model.ClassId" class="btn btn-secondary">Back to Roster</a>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger mt-3">@Model.ErrorMessage</div>
+    }
+</form>

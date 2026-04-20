@@ -1,0 +1,57 @@
+@page "{id:long}"
+@model EnglishCenter.Web.Pages.Classes.TimetableModel
+@{
+    ViewData["Title"] = "Class Timetable";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Class Timetable</h2>
+    <a class="btn btn-secondary" asp-page="Index">Back to Classes</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <input type="date" name="FromDate" value="@Model.FromDate" class="form-control" />
+    </div>
+    <div class="col-auto">
+        <input type="date" name="ToDate" value="@Model.ToDate" class="form-control" />
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-outline-primary" type="submit">Filter</button>
+    </div>
+</form>
+
+@if (!Model.Items.Any())
+{
+    <div class="alert alert-info">No sessions found.</div>
+}
+else
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Session No</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Teacher</th>
+                <th>Room</th>
+                <th>Topic</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Model.Items)
+            {
+                <tr>
+                    <td>@s.SessionNo</td>
+                    <td>@s.SessionDate</td>
+                    <td>@s.StartTime - @s.EndTime</td>
+                    <td>@s.TeacherId</td>
+                    <td>@s.RoomId</td>
+                    <td>@s.Topic</td>
+                    <td>@(s.Status==1?"Planned": s.Status==2?"Completed":"Cancelled")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

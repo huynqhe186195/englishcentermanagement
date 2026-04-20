@@ -26,6 +26,21 @@
                             <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li>
                     </ul>
+                    <ul class="navbar-nav">
+                        @if (!string.IsNullOrEmpty(Context.Session?.GetString("AccessToken")))
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-page="/Admin/Index">Admin</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-page="/Teacher/Index">Teacher</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-page="/Student/Index">Student</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-page="/Classes/Index">Classes</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-page="/Enrollments/Index">Enrollments</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-page="/Account/Logout">Logout</a></li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-page="/Account/Login">Login</a></li>
+                        }
+                    </ul>
                 </div>
             </div>
         </nav>
@@ -38,7 +53,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - EnglishCenter.Web - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            © 2026 - EnglishCenter.Web - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
     </footer>
 
