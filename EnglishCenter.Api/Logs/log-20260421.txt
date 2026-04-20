@@ -1,0 +1,329 @@
+2026-04-21 02:26:07.360 +07:00 [ERR] An error occurred using the connection to database 'EnglishCenterDb' on server 'DESKTOP-FRT5LG2'.
+2026-04-21 02:26:07.681 +07:00 [ERR] An exception occurred while iterating over the results of a query for context type 'EnglishCenter.Infrastructure.Persistence.Context.EnglishCenterDbContext'.
+Microsoft.Data.SqlClient.SqlException (0x80131904): A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)
+ ---> System.ComponentModel.Win32Exception (53): The network path was not found.
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.Connect(ServerInfo serverInfo, SqlInternalConnectionTds connHandler, Boolean ignoreSniOpenTimeout, Int64 timerExpire, SqlConnectionString connectionOptions, Boolean withFailover)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.AttemptOneLogin(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean ignoreSniOpenTimeout, TimeoutTimer timeout, Boolean withFailover)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.LoginNoFailover(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString connectionOptions, SqlCredential credential, TimeoutTimer timeout)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.OpenLoginEnlist(TimeoutTimer timeout, SqlConnectionString connectionOptions, SqlCredential credential, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds..ctor(DbConnectionPoolIdentity identity, SqlConnectionString connectionOptions, SqlCredential credential, Object providerInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString userConnectionOptions, SessionData reconnectSessionData, Boolean applyTransientFaultHandling, String accessToken, DbConnectionPool pool)
+   at Microsoft.Data.SqlClient.SqlConnectionFactory.CreateConnection(DbConnectionOptions options, DbConnectionPoolKey poolKey, Object poolGroupProviderInfo, DbConnectionPool pool, DbConnection owningConnection, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionFactory.CreatePooledConnection(DbConnectionPool pool, DbConnection owningObject, DbConnectionOptions options, DbConnectionPoolKey poolKey, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.CreateObject(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.UserCreateRequest(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.TryGetConnection(DbConnection owningObject, UInt32 waitForMultipleObjectsTimeout, Boolean allowCreate, Boolean onlyOneCheckConnection, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.WaitForPendingOpen()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+ClientConnectionId:00000000-0000-0000-0000-000000000000
+Error Number:53,State:0,Class:20
+Microsoft.Data.SqlClient.SqlException (0x80131904): A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)
+ ---> System.ComponentModel.Win32Exception (53): The network path was not found.
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.Connect(ServerInfo serverInfo, SqlInternalConnectionTds connHandler, Boolean ignoreSniOpenTimeout, Int64 timerExpire, SqlConnectionString connectionOptions, Boolean withFailover)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.AttemptOneLogin(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean ignoreSniOpenTimeout, TimeoutTimer timeout, Boolean withFailover)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.LoginNoFailover(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString connectionOptions, SqlCredential credential, TimeoutTimer timeout)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.OpenLoginEnlist(TimeoutTimer timeout, SqlConnectionString connectionOptions, SqlCredential credential, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds..ctor(DbConnectionPoolIdentity identity, SqlConnectionString connectionOptions, SqlCredential credential, Object providerInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString userConnectionOptions, SessionData reconnectSessionData, Boolean applyTransientFaultHandling, String accessToken, DbConnectionPool pool)
+   at Microsoft.Data.SqlClient.SqlConnectionFactory.CreateConnection(DbConnectionOptions options, DbConnectionPoolKey poolKey, Object poolGroupProviderInfo, DbConnectionPool pool, DbConnection owningConnection, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionFactory.CreatePooledConnection(DbConnectionPool pool, DbConnection owningObject, DbConnectionOptions options, DbConnectionPoolKey poolKey, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.CreateObject(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.UserCreateRequest(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.TryGetConnection(DbConnection owningObject, UInt32 waitForMultipleObjectsTimeout, Boolean allowCreate, Boolean onlyOneCheckConnection, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.WaitForPendingOpen()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+ClientConnectionId:00000000-0000-0000-0000-000000000000
+Error Number:53,State:0,Class:20
+2026-04-21 02:27:37.069 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 214.5791 ms
+2026-04-21 02:27:37.648 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 367.9523 ms
+2026-04-21 02:27:51.829 +07:00 [ERR] Unhandled exception occurred. Path: /api/campuses
+System.ArgumentException: The value cannot be an empty string (Parameter 'errorMessage')
+   at FluentValidation.Internal.ExtensionsInternal.ThrowIfNullOrEmpty(String argument, String paramName) in /_/src/FluentValidation/Internal/ExtensionsInternal.cs:line 35
+   at FluentValidation.DefaultValidatorOptions.WithMessage[T,TProperty](IRuleBuilderOptions`2 rule, String errorMessage) in /_/src/FluentValidation/DefaultValidatorOptions.cs:line 120
+   at EnglishCenter.Application.Features.Campus.Validators.GetCampusesPagingRequestDtoValidator..ctor() in D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Application\Features\Campus\Validators\GetCampusesPagingRequestDtoValidator.cs:line 32
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at FluentValidation.ServiceProviderValidatorFactory.CreateInstance(Type validatorType) in /_/src/FluentValidation.DependencyInjectionExtensions/ServiceProviderValidatorFactory.cs:line 33
+   at FluentValidation.ValidatorFactoryBase.GetValidator(Type type) in /_/src/FluentValidation/ValidatorFactoryBase.cs:line 43
+   at FluentValidation.AspNetCore.FluentValidationModelValidator.Validate(ModelValidationContext mvContext) in /_/src/FluentValidation.AspNetCore/FluentValidationModelValidatorProvider.cs:line 108
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.ValidateNode()
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.VisitComplexType(IValidationStrategy defaultStrategy)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.VisitImplementation(ModelMetadata& metadata, String& key, Object model)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.Visit(ModelMetadata metadata, String key, Object model)
+   at FluentValidation.AspNetCore.FluentValidationVisitor.<>n__1(ModelMetadata metadata, String key, Object model, Boolean alwaysValidateAtTopLevel, Object container)
+   at FluentValidation.AspNetCore.FluentValidationVisitor.<>c__DisplayClass2_0.<Validate>g__BaseValidate|0() in /_/src/FluentValidation.AspNetCore/FluentValidationVisitor.cs:line 45
+   at FluentValidation.AspNetCore.FluentValidationVisitor.ValidateInternal(ModelMetadata metadata, String key, Object model, Func`1 continuation) in /_/src/FluentValidation.AspNetCore/FluentValidationVisitor.cs:line 63
+   at FluentValidation.AspNetCore.FluentValidationVisitor.Validate(ModelMetadata metadata, String key, Object model, Boolean alwaysValidateAtTopLevel, Object container) in /_/src/FluentValidation.AspNetCore/FluentValidationVisitor.cs:line 47
+   at Microsoft.AspNetCore.Mvc.ModelBinding.ObjectModelValidator.Validate(ActionContext actionContext, ValidationStateDictionary validationState, String prefix, Object model, ModelMetadata metadata, Object container)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.ParameterBinder.EnforceBindRequiredAndValidate(ObjectModelValidator baseObjectValidator, ActionContext actionContext, ParameterDescriptor parameter, ModelMetadata metadata, ModelBindingContext modelBindingContext, ModelBindingResult modelBindingResult, Object container)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.ParameterBinder.BindModelAsync(ActionContext actionContext, IModelBinder modelBinder, IValueProvider valueProvider, ParameterDescriptor parameter, ModelMetadata metadata, Object value, Object container)
+   at Microsoft.AspNetCore.Mvc.Controllers.ControllerBinderDelegateProvider.<>c__DisplayClass0_0.<<CreateBinderDelegate>g__Bind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at EnglishCenter.Api.Middlewares.ExceptionMiddleware.InvokeAsync(HttpContext context) in D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Api\Middlewares\ExceptionMiddleware.cs:line 24
+2026-04-21 02:27:52.067 +07:00 [ERR] HTTP GET /api/campuses responded 500 in 1110.2087 ms
+2026-04-21 02:29:01.675 +07:00 [ERR] Unhandled exception occurred. Path: /api/campuses
+System.ArgumentException: The value cannot be an empty string (Parameter 'errorMessage')
+   at FluentValidation.Internal.ExtensionsInternal.ThrowIfNullOrEmpty(String argument, String paramName) in /_/src/FluentValidation/Internal/ExtensionsInternal.cs:line 35
+   at FluentValidation.DefaultValidatorOptions.WithMessage[T,TProperty](IRuleBuilderOptions`2 rule, String errorMessage) in /_/src/FluentValidation/DefaultValidatorOptions.cs:line 120
+   at EnglishCenter.Application.Features.Campus.Validators.GetCampusesPagingRequestDtoValidator..ctor() in D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Application\Features\Campus\Validators\GetCampusesPagingRequestDtoValidator.cs:line 32
+   at InvokeStub_GetCampusesPagingRequestDtoValidator..ctor(Object, Object, IntPtr*)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at FluentValidation.ServiceProviderValidatorFactory.CreateInstance(Type validatorType) in /_/src/FluentValidation.DependencyInjectionExtensions/ServiceProviderValidatorFactory.cs:line 33
+   at FluentValidation.ValidatorFactoryBase.GetValidator(Type type) in /_/src/FluentValidation/ValidatorFactoryBase.cs:line 43
+   at FluentValidation.AspNetCore.FluentValidationModelValidator.Validate(ModelValidationContext mvContext) in /_/src/FluentValidation.AspNetCore/FluentValidationModelValidatorProvider.cs:line 108
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.ValidateNode()
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.VisitComplexType(IValidationStrategy defaultStrategy)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.VisitImplementation(ModelMetadata& metadata, String& key, Object model)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.Visit(ModelMetadata metadata, String key, Object model)
+   at FluentValidation.AspNetCore.FluentValidationVisitor.<>n__1(ModelMetadata metadata, String key, Object model, Boolean alwaysValidateAtTopLevel, Object container)
+   at FluentValidation.AspNetCore.FluentValidationVisitor.<>c__DisplayClass2_0.<Validate>g__BaseValidate|0() in /_/src/FluentValidation.AspNetCore/FluentValidationVisitor.cs:line 45
+   at FluentValidation.AspNetCore.FluentValidationVisitor.ValidateInternal(ModelMetadata metadata, String key, Object model, Func`1 continuation) in /_/src/FluentValidation.AspNetCore/FluentValidationVisitor.cs:line 63
+   at FluentValidation.AspNetCore.FluentValidationVisitor.Validate(ModelMetadata metadata, String key, Object model, Boolean alwaysValidateAtTopLevel, Object container) in /_/src/FluentValidation.AspNetCore/FluentValidationVisitor.cs:line 47
+   at Microsoft.AspNetCore.Mvc.ModelBinding.ObjectModelValidator.Validate(ActionContext actionContext, ValidationStateDictionary validationState, String prefix, Object model, ModelMetadata metadata, Object container)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.ParameterBinder.EnforceBindRequiredAndValidate(ObjectModelValidator baseObjectValidator, ActionContext actionContext, ParameterDescriptor parameter, ModelMetadata metadata, ModelBindingContext modelBindingContext, ModelBindingResult modelBindingResult, Object container)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.ParameterBinder.BindModelAsync(ActionContext actionContext, IModelBinder modelBinder, IValueProvider valueProvider, ParameterDescriptor parameter, ModelMetadata metadata, Object value, Object container)
+   at Microsoft.AspNetCore.Mvc.Controllers.ControllerBinderDelegateProvider.<>c__DisplayClass0_0.<<CreateBinderDelegate>g__Bind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at EnglishCenter.Api.Middlewares.ExceptionMiddleware.InvokeAsync(HttpContext context) in D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Api\Middlewares\ExceptionMiddleware.cs:line 24
+2026-04-21 02:29:01.722 +07:00 [ERR] HTTP GET /api/campuses responded 500 in 63.9385 ms
+2026-04-21 02:29:11.651 +07:00 [ERR] Unhandled exception occurred. Path: /api/campuses
+System.ArgumentException: The value cannot be an empty string (Parameter 'errorMessage')
+   at FluentValidation.Internal.ExtensionsInternal.ThrowIfNullOrEmpty(String argument, String paramName) in /_/src/FluentValidation/Internal/ExtensionsInternal.cs:line 35
+   at FluentValidation.DefaultValidatorOptions.WithMessage[T,TProperty](IRuleBuilderOptions`2 rule, String errorMessage) in /_/src/FluentValidation/DefaultValidatorOptions.cs:line 120
+   at EnglishCenter.Application.Features.Campus.Validators.GetCampusesPagingRequestDtoValidator..ctor() in D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Application\Features\Campus\Validators\GetCampusesPagingRequestDtoValidator.cs:line 32
+   at InvokeStub_GetCampusesPagingRequestDtoValidator..ctor(Object, Object, IntPtr*)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at FluentValidation.ServiceProviderValidatorFactory.CreateInstance(Type validatorType) in /_/src/FluentValidation.DependencyInjectionExtensions/ServiceProviderValidatorFactory.cs:line 33
+   at FluentValidation.ValidatorFactoryBase.GetValidator(Type type) in /_/src/FluentValidation/ValidatorFactoryBase.cs:line 43
+   at FluentValidation.AspNetCore.FluentValidationModelValidator.Validate(ModelValidationContext mvContext) in /_/src/FluentValidation.AspNetCore/FluentValidationModelValidatorProvider.cs:line 108
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.ValidateNode()
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.VisitComplexType(IValidationStrategy defaultStrategy)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.VisitImplementation(ModelMetadata& metadata, String& key, Object model)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.Visit(ModelMetadata metadata, String key, Object model)
+   at FluentValidation.AspNetCore.FluentValidationVisitor.<>n__1(ModelMetadata metadata, String key, Object model, Boolean alwaysValidateAtTopLevel, Object container)
+   at FluentValidation.AspNetCore.FluentValidationVisitor.<>c__DisplayClass2_0.<Validate>g__BaseValidate|0() in /_/src/FluentValidation.AspNetCore/FluentValidationVisitor.cs:line 45
+   at FluentValidation.AspNetCore.FluentValidationVisitor.ValidateInternal(ModelMetadata metadata, String key, Object model, Func`1 continuation) in /_/src/FluentValidation.AspNetCore/FluentValidationVisitor.cs:line 63
+   at FluentValidation.AspNetCore.FluentValidationVisitor.Validate(ModelMetadata metadata, String key, Object model, Boolean alwaysValidateAtTopLevel, Object container) in /_/src/FluentValidation.AspNetCore/FluentValidationVisitor.cs:line 47
+   at Microsoft.AspNetCore.Mvc.ModelBinding.ObjectModelValidator.Validate(ActionContext actionContext, ValidationStateDictionary validationState, String prefix, Object model, ModelMetadata metadata, Object container)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.ParameterBinder.EnforceBindRequiredAndValidate(ObjectModelValidator baseObjectValidator, ActionContext actionContext, ParameterDescriptor parameter, ModelMetadata metadata, ModelBindingContext modelBindingContext, ModelBindingResult modelBindingResult, Object container)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.ParameterBinder.BindModelAsync(ActionContext actionContext, IModelBinder modelBinder, IValueProvider valueProvider, ParameterDescriptor parameter, ModelMetadata metadata, Object value, Object container)
+   at Microsoft.AspNetCore.Mvc.Controllers.ControllerBinderDelegateProvider.<>c__DisplayClass0_0.<<CreateBinderDelegate>g__Bind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at EnglishCenter.Api.Middlewares.ExceptionMiddleware.InvokeAsync(HttpContext context) in D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Api\Middlewares\ExceptionMiddleware.cs:line 24
+2026-04-21 02:29:11.694 +07:00 [ERR] HTTP GET /api/campuses responded 500 in 60.8932 ms
+2026-04-21 02:29:33.309 +07:00 [ERR] Unhandled exception occurred. Path: /api/Campuses
+System.ArgumentException: The value cannot be an empty string (Parameter 'errorMessage')
+   at FluentValidation.Internal.ExtensionsInternal.ThrowIfNullOrEmpty(String argument, String paramName) in /_/src/FluentValidation/Internal/ExtensionsInternal.cs:line 35
+   at FluentValidation.DefaultValidatorOptions.WithMessage[T,TProperty](IRuleBuilderOptions`2 rule, String errorMessage) in /_/src/FluentValidation/DefaultValidatorOptions.cs:line 120
+   at EnglishCenter.Application.Features.Campus.Validators.GetCampusesPagingRequestDtoValidator..ctor() in D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Application\Features\Campus\Validators\GetCampusesPagingRequestDtoValidator.cs:line 32
+   at InvokeStub_GetCampusesPagingRequestDtoValidator..ctor(Object, Object, IntPtr*)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at FluentValidation.ServiceProviderValidatorFactory.CreateInstance(Type validatorType) in /_/src/FluentValidation.DependencyInjectionExtensions/ServiceProviderValidatorFactory.cs:line 33
+   at FluentValidation.ValidatorFactoryBase.GetValidator(Type type) in /_/src/FluentValidation/ValidatorFactoryBase.cs:line 43
+   at FluentValidation.AspNetCore.FluentValidationModelValidator.Validate(ModelValidationContext mvContext) in /_/src/FluentValidation.AspNetCore/FluentValidationModelValidatorProvider.cs:line 108
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.ValidateNode()
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.VisitComplexType(IValidationStrategy defaultStrategy)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.VisitImplementation(ModelMetadata& metadata, String& key, Object model)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.Visit(ModelMetadata metadata, String key, Object model)
+   at FluentValidation.AspNetCore.FluentValidationVisitor.<>n__1(ModelMetadata metadata, String key, Object model, Boolean alwaysValidateAtTopLevel, Object container)
+   at FluentValidation.AspNetCore.FluentValidationVisitor.<>c__DisplayClass2_0.<Validate>g__BaseValidate|0() in /_/src/FluentValidation.AspNetCore/FluentValidationVisitor.cs:line 45
+   at FluentValidation.AspNetCore.FluentValidationVisitor.ValidateInternal(ModelMetadata metadata, String key, Object model, Func`1 continuation) in /_/src/FluentValidation.AspNetCore/FluentValidationVisitor.cs:line 63
+   at FluentValidation.AspNetCore.FluentValidationVisitor.Validate(ModelMetadata metadata, String key, Object model, Boolean alwaysValidateAtTopLevel, Object container) in /_/src/FluentValidation.AspNetCore/FluentValidationVisitor.cs:line 47
+   at Microsoft.AspNetCore.Mvc.ModelBinding.ObjectModelValidator.Validate(ActionContext actionContext, ValidationStateDictionary validationState, String prefix, Object model, ModelMetadata metadata, Object container)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.ParameterBinder.EnforceBindRequiredAndValidate(ObjectModelValidator baseObjectValidator, ActionContext actionContext, ParameterDescriptor parameter, ModelMetadata metadata, ModelBindingContext modelBindingContext, ModelBindingResult modelBindingResult, Object container)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.ParameterBinder.BindModelAsync(ActionContext actionContext, IModelBinder modelBinder, IValueProvider valueProvider, ParameterDescriptor parameter, ModelMetadata metadata, Object value, Object container)
+   at Microsoft.AspNetCore.Mvc.Controllers.ControllerBinderDelegateProvider.<>c__DisplayClass0_0.<<CreateBinderDelegate>g__Bind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at EnglishCenter.Api.Middlewares.ExceptionMiddleware.InvokeAsync(HttpContext context) in D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Api\Middlewares\ExceptionMiddleware.cs:line 24
+2026-04-21 02:29:33.354 +07:00 [ERR] HTTP GET /api/Campuses responded 500 in 54.0551 ms
+2026-04-21 02:33:00.017 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 60.2694 ms
+2026-04-21 02:33:00.294 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 26.7653 ms
+2026-04-21 02:33:09.558 +07:00 [ERR] Unhandled exception occurred. Path: /api/Campuses
+System.ArgumentException: The value cannot be an empty string (Parameter 'errorMessage')
+   at FluentValidation.Internal.ExtensionsInternal.ThrowIfNullOrEmpty(String argument, String paramName) in /_/src/FluentValidation/Internal/ExtensionsInternal.cs:line 35
+   at FluentValidation.DefaultValidatorOptions.WithMessage[T,TProperty](IRuleBuilderOptions`2 rule, String errorMessage) in /_/src/FluentValidation/DefaultValidatorOptions.cs:line 120
+   at EnglishCenter.Application.Features.Campus.Validators.GetCampusesPagingRequestDtoValidator..ctor() in D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Application\Features\Campus\Validators\GetCampusesPagingRequestDtoValidator.cs:line 32
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at FluentValidation.ServiceProviderValidatorFactory.CreateInstance(Type validatorType) in /_/src/FluentValidation.DependencyInjectionExtensions/ServiceProviderValidatorFactory.cs:line 33
+   at FluentValidation.ValidatorFactoryBase.GetValidator(Type type) in /_/src/FluentValidation/ValidatorFactoryBase.cs:line 43
+   at FluentValidation.AspNetCore.FluentValidationModelValidator.Validate(ModelValidationContext mvContext) in /_/src/FluentValidation.AspNetCore/FluentValidationModelValidatorProvider.cs:line 108
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.ValidateNode()
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.VisitComplexType(IValidationStrategy defaultStrategy)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.VisitImplementation(ModelMetadata& metadata, String& key, Object model)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationVisitor.Visit(ModelMetadata metadata, String key, Object model)
+   at FluentValidation.AspNetCore.FluentValidationVisitor.<>n__1(ModelMetadata metadata, String key, Object model, Boolean alwaysValidateAtTopLevel, Object container)
+   at FluentValidation.AspNetCore.FluentValidationVisitor.<>c__DisplayClass2_0.<Validate>g__BaseValidate|0() in /_/src/FluentValidation.AspNetCore/FluentValidationVisitor.cs:line 45
+   at FluentValidation.AspNetCore.FluentValidationVisitor.ValidateInternal(ModelMetadata metadata, String key, Object model, Func`1 continuation) in /_/src/FluentValidation.AspNetCore/FluentValidationVisitor.cs:line 63
+   at FluentValidation.AspNetCore.FluentValidationVisitor.Validate(ModelMetadata metadata, String key, Object model, Boolean alwaysValidateAtTopLevel, Object container) in /_/src/FluentValidation.AspNetCore/FluentValidationVisitor.cs:line 47
+   at Microsoft.AspNetCore.Mvc.ModelBinding.ObjectModelValidator.Validate(ActionContext actionContext, ValidationStateDictionary validationState, String prefix, Object model, ModelMetadata metadata, Object container)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.ParameterBinder.EnforceBindRequiredAndValidate(ObjectModelValidator baseObjectValidator, ActionContext actionContext, ParameterDescriptor parameter, ModelMetadata metadata, ModelBindingContext modelBindingContext, ModelBindingResult modelBindingResult, Object container)
+   at Microsoft.AspNetCore.Mvc.ModelBinding.ParameterBinder.BindModelAsync(ActionContext actionContext, IModelBinder modelBinder, IValueProvider valueProvider, ParameterDescriptor parameter, ModelMetadata metadata, Object value, Object container)
+   at Microsoft.AspNetCore.Mvc.Controllers.ControllerBinderDelegateProvider.<>c__DisplayClass0_0.<<CreateBinderDelegate>g__Bind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at EnglishCenter.Api.Middlewares.ExceptionMiddleware.InvokeAsync(HttpContext context) in D:\FuLearning\PRN232\Project\EnglishCenterManagement\EnglishCenter.Api\Middlewares\ExceptionMiddleware.cs:line 24
+2026-04-21 02:33:09.727 +07:00 [ERR] HTTP GET /api/Campuses responded 500 in 1124.2121 ms
+2026-04-21 02:34:42.880 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 417.9966 ms
+2026-04-21 02:34:43.757 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 265.4787 ms
+2026-04-21 02:34:51.406 +07:00 [INF] HTTP GET /api/Campuses responded 200 in 2174.4117 ms
+2026-04-21 02:35:14.325 +07:00 [INF] HTTP GET /api/campuses responded 400 in 264.3625 ms
+2026-04-21 02:40:53.554 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 47.9744 ms
+2026-04-21 02:40:53.742 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 27.9445 ms
+2026-04-21 02:40:58.921 +07:00 [INF] HTTP GET /api/campuses responded 200 in 272.1321 ms
+2026-04-21 02:41:06.408 +07:00 [INF] HTTP GET /api/campuses responded 200 in 52.1669 ms
+2026-04-21 02:41:06.611 +07:00 [INF] Permission cache miss for userId 6
+2026-04-21 02:41:06.801 +07:00 [INF] HTTP POST /api/auth/login responded 200 in 378.9395 ms
+2026-04-21 02:41:07.008 +07:00 [INF] HTTP GET /api/academicDashboard/class-dashboard responded 200 in 175.2158 ms
+2026-04-21 02:41:07.076 +07:00 [INF] HTTP GET /api/academicDashboard/students-at-risk responded 200 in 55.3883 ms
+2026-04-21 02:41:07.185 +07:00 [INF] HTTP GET /api/academicDashboard/room-utilization responded 200 in 94.2930 ms
+2026-04-21 02:41:07.228 +07:00 [INF] HTTP GET /api/classes responded 200 in 22.8017 ms
+2026-04-21 02:41:07.274 +07:00 [INF] HTTP GET /api/students responded 200 in 30.4695 ms
+2026-04-21 02:41:07.308 +07:00 [INF] HTTP GET /api/teachers responded 200 in 27.0286 ms
+2026-04-21 02:41:07.366 +07:00 [INF] HTTP GET /api/enrollments responded 200 in 40.0266 ms
+2026-04-21 02:41:16.662 +07:00 [INF] HTTP GET /api/enrollments responded 200 in 7.6992 ms
+2026-04-21 02:41:20.457 +07:00 [INF] HTTP GET /api/campuses responded 200 in 13.9636 ms
+2026-04-21 02:41:25.529 +07:00 [INF] HTTP GET /api/campuses responded 200 in 11.7226 ms
+2026-04-21 02:41:25.673 +07:00 [INF] Permission cache hit for userId 6
+2026-04-21 02:41:25.692 +07:00 [INF] HTTP POST /api/auth/login responded 200 in 156.7478 ms
+2026-04-21 02:41:25.789 +07:00 [INF] HTTP GET /api/academicDashboard/class-dashboard responded 200 in 79.5527 ms
+2026-04-21 02:41:25.814 +07:00 [INF] HTTP GET /api/academicDashboard/students-at-risk responded 200 in 20.6455 ms
+2026-04-21 02:41:25.869 +07:00 [INF] HTTP GET /api/academicDashboard/room-utilization responded 200 in 47.4402 ms
+2026-04-21 02:41:25.881 +07:00 [INF] HTTP GET /api/classes responded 200 in 6.8289 ms
+2026-04-21 02:41:25.896 +07:00 [INF] HTTP GET /api/students responded 200 in 11.6269 ms
+2026-04-21 02:41:25.912 +07:00 [INF] HTTP GET /api/teachers responded 200 in 10.5324 ms
+2026-04-21 02:41:25.932 +07:00 [INF] HTTP GET /api/enrollments responded 200 in 15.8898 ms
+2026-04-21 02:41:39.325 +07:00 [INF] HTTP GET /api/campuses responded 200 in 3.3047 ms
+2026-04-21 02:41:46.331 +07:00 [INF] HTTP GET /api/campuses responded 200 in 3.3597 ms
+2026-04-21 02:41:46.463 +07:00 [INF] Permission cache hit for userId 6
+2026-04-21 02:41:46.471 +07:00 [INF] HTTP POST /api/auth/login responded 200 in 132.2383 ms
+2026-04-21 02:41:46.491 +07:00 [INF] HTTP GET /api/academicDashboard/class-dashboard responded 200 in 12.2375 ms
+2026-04-21 02:41:46.504 +07:00 [INF] HTTP GET /api/academicDashboard/students-at-risk responded 200 in 5.5695 ms
+2026-04-21 02:41:46.525 +07:00 [INF] HTTP GET /api/academicDashboard/room-utilization responded 200 in 12.2180 ms
+2026-04-21 02:41:46.534 +07:00 [INF] HTTP GET /api/classes responded 200 in 4.0058 ms
+2026-04-21 02:41:46.550 +07:00 [INF] HTTP GET /api/students responded 200 in 4.4972 ms
+2026-04-21 02:41:46.564 +07:00 [INF] HTTP GET /api/teachers responded 200 in 4.0173 ms
+2026-04-21 02:41:46.573 +07:00 [INF] HTTP GET /api/enrollments responded 200 in 3.3219 ms
+2026-04-21 02:42:49.449 +07:00 [INF] HTTP GET /api/academicDashboard/teacher-workload responded 200 in 194.9350 ms
+2026-04-21 02:42:50.101 +07:00 [INF] HTTP GET /api/classes responded 200 in 15.7611 ms
+2026-04-21 02:42:56.710 +07:00 [INF] HTTP GET /api/campuses responded 200 in 17.0871 ms
+2026-04-21 02:43:05.152 +07:00 [INF] HTTP GET /api/campuses responded 200 in 6.1894 ms
+2026-04-21 02:43:05.620 +07:00 [INF] Permission cache hit for userId 6
+2026-04-21 02:43:05.637 +07:00 [INF] HTTP POST /api/auth/login responded 200 in 473.2893 ms
+2026-04-21 02:43:05.795 +07:00 [INF] HTTP GET /api/academicDashboard/class-dashboard responded 200 in 129.0189 ms
+2026-04-21 02:43:06.170 +07:00 [INF] HTTP GET /api/academicDashboard/students-at-risk responded 200 in 32.3271 ms
+2026-04-21 02:43:06.289 +07:00 [INF] HTTP GET /api/academicDashboard/room-utilization responded 200 in 75.9591 ms
+2026-04-21 02:43:06.483 +07:00 [INF] HTTP GET /api/classes responded 200 in 14.6785 ms
+2026-04-21 02:43:06.572 +07:00 [INF] HTTP GET /api/students responded 200 in 14.1768 ms
+2026-04-21 02:43:06.602 +07:00 [INF] HTTP GET /api/teachers responded 200 in 11.5459 ms
+2026-04-21 02:43:06.638 +07:00 [INF] HTTP GET /api/enrollments responded 200 in 17.0342 ms
+2026-04-21 02:43:09.501 +07:00 [INF] HTTP GET /api/classes responded 200 in 6.9616 ms
+2026-04-21 02:43:41.009 +07:00 [INF] HTTP GET /api/classes responded 200 in 23.2256 ms
+2026-04-21 02:43:46.652 +07:00 [INF] HTTP GET /api/enrollments responded 200 in 21.9960 ms
+2026-04-21 02:43:48.701 +07:00 [INF] HTTP GET /api/classes responded 200 in 5.5524 ms
+2026-04-21 02:43:49.389 +07:00 [INF] HTTP GET /api/classes responded 200 in 8.3155 ms
+2026-04-21 02:43:50.040 +07:00 [INF] HTTP GET /api/auth/me responded 200 in 43.0739 ms
+2026-04-21 02:43:52.267 +07:00 [INF] HTTP GET /api/academicDashboard/teacher-workload responded 200 in 52.8671 ms
+2026-04-21 02:43:53.264 +07:00 [INF] HTTP GET /api/auth/me responded 200 in 6.2044 ms
+2026-04-21 02:43:58.023 +07:00 [INF] HTTP GET /api/campuses responded 200 in 15.0473 ms
+2026-04-21 02:44:06.010 +07:00 [INF] HTTP GET /api/campuses responded 200 in 7.5068 ms
+2026-04-21 02:44:06.465 +07:00 [INF] Permission cache hit for userId 6
+2026-04-21 02:44:06.491 +07:00 [INF] HTTP POST /api/auth/login responded 200 in 463.4187 ms
+2026-04-21 02:44:06.630 +07:00 [INF] HTTP GET /api/academicDashboard/class-dashboard responded 200 in 102.0454 ms
+2026-04-21 02:44:06.676 +07:00 [INF] HTTP GET /api/academicDashboard/students-at-risk responded 200 in 27.1309 ms
+2026-04-21 02:44:06.756 +07:00 [INF] HTTP GET /api/academicDashboard/room-utilization responded 200 in 62.8961 ms
+2026-04-21 02:44:06.789 +07:00 [INF] HTTP GET /api/classes responded 200 in 6.7226 ms
+2026-04-21 02:44:06.819 +07:00 [INF] HTTP GET /api/students responded 200 in 11.9462 ms
+2026-04-21 02:44:06.864 +07:00 [INF] HTTP GET /api/teachers responded 200 in 12.0413 ms
+2026-04-21 02:44:06.952 +07:00 [INF] HTTP GET /api/enrollments responded 200 in 17.0681 ms
+2026-04-21 02:44:09.720 +07:00 [INF] HTTP GET /api/classes responded 200 in 7.2330 ms
