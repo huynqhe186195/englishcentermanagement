@@ -93,10 +93,14 @@ public class LoginModel : PageModel
 
             // redirect based on role
             if (roles.Contains("SUPER_ADMIN", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Admin/Index");
+            if (roles.Contains("CENTER_ADMIN", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Admin/Index");
             if (roles.Contains("TEACHER", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Teacher/Index");
+            if (roles.Contains("STAFF", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Admin/Index");
+            if (roles.Contains("PARENT", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Student/Index");
             if (roles.Contains("STUDENT", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Student/Index");
 
-            return RedirectToPage("/Index");
+            // authenticated but role does not match known route yet
+            return RedirectToPage("/Student/Index");
         }
         catch (Exception ex)
         {
