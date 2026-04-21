@@ -1,0 +1,104 @@
+@page
+@model EnglishCenter.Web.Pages.Student.MyCoursesModel
+@{
+    ViewData["Title"] = "Khóa học của tôi";
+    ViewData["HideChrome"] = true;
+}
+
+<div class="student-shell">
+    <aside class="student-sidebar">
+        <div class="student-brand">English Center</div>
+
+        <div class="student-profile">
+            <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200"
+                 alt="student avatar" />
+            <h4>@(string.IsNullOrWhiteSpace(Model.FullName) ? Model.UserName : Model.FullName)</h4>
+            <span>Học viên</span>
+        </div>
+
+        <nav class="student-menu">
+            <a href="/Student/Index">Dashboard</a>
+            <a class="active" href="/Student/MyCourses">Khóa học của tôi</a>
+            <a href="/Student/AttendanceReport">Điểm danh</a>
+            <a href="/Student/AcademicSummary">Điểm số</a>
+            <a href="#">Bài tập</a>
+            <a href="#">Thông báo</a>
+            <a href="#">Hồ sơ cá nhân</a>
+        </nav>
+
+        <a class="student-logout" href="/Account/Logout">Đăng xuất</a>
+    </aside>
+
+    <main class="student-main student-courses-main">
+        <header class="student-topbar">
+            <h2>Khóa học của tôi</h2>
+            <input type="text" placeholder="Tìm khóa học..." />
+            <div class="student-topbar-user">👩‍🎓</div>
+        </header>
+
+        <section class="my-courses-stat-grid">
+            <article class="my-courses-stat my-courses-stat--blue">
+                <p>Đang học</p>
+                <strong>@Model.ActiveCount khóa</strong>
+            </article>
+            <article class="my-courses-stat my-courses-stat--green">
+                <p>Đã hoàn thành</p>
+                <strong>@Model.CompletedCount khóa</strong>
+            </article>
+            <article class="my-courses-stat my-courses-stat--purple">
+                <p>Tổng khóa đã đăng ký</p>
+                <strong>@Model.TotalCount khóa</strong>
+            </article>
+        </section>
+
+        @if (Model.Courses.Any())
+        {
+            <section class="my-course-list">
+                @for (var i = 0; i < Model.Courses.Count; i++)
+                {
+                    var course = Model.Courses[i];
+                    var themeClass = i % 2 == 0 ? "my-course-card--violet" : "my-course-card--teal";
+                    var statusText = course.Status == 1 ? "Đang học" : "Đã hoàn thành";
+                    var progress = course.Status == 1 ? 65 : 100;
+
+                    <article class="my-course-card @themeClass">
+                        <div class="my-course-card-head">
+                            <div>
+                                <h3>@course.ClassName</h3>
+                                <span>@statusText</span>
+                            </div>
+                            <small>Ngày đăng ký: @course.EnrollDate</small>
+                        </div>
+
+                        <div class="my-course-card-meta">
+                            <span>👨‍🏫 GV đang cập nhật</span>
+                            <span>🏫 Lớp #@course.ClassId</span>
+                            <span>🧾 Mã ghi danh: #@course.Id</span>
+                        </div>
+
+                        <div class="my-course-progress">
+                            <div class="my-course-progress-title">
+                                <span>Tiến độ khóa học</span>
+                                <strong>@progress%</strong>
+                            </div>
+                            <div class="my-course-progress-bar">
+                                <i style="width:@progress%"></i>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(course.Note))
+                        {
+                            <div class="my-course-note">Ghi chú: @course.Note</div>
+                        }
+                    </article>
+                }
+            </section>
+        }
+        else
+        {
+            <div class="my-course-empty">
+                Chưa có dữ liệu khóa học từ API. Hãy đăng ký khóa học để bắt đầu nhé.
+            </div>
+        }
+    </main>
+</div>
