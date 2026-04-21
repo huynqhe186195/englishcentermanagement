@@ -62,9 +62,13 @@
                             <span class="attendance-day-no">@day.Date.Day</span>
                             @foreach (var s in day.Sessions.Take(2))
                             {
-                                var isPresent = (s.AttendanceStatusText ?? string.Empty).Contains("Có mặt", StringComparison.OrdinalIgnoreCase);
-                                var css = isPresent ? "ok" : "miss";
-                                <small class="@css">@s.AttendanceStatusText</small>
+                                var statusText = s.AttendanceStatusText ?? string.Empty;
+                                var css = statusText.Contains("Có mặt", StringComparison.OrdinalIgnoreCase) || statusText.Contains("Present", StringComparison.OrdinalIgnoreCase)
+                                    ? "present"
+                                    : (statusText.Contains("Vắng", StringComparison.OrdinalIgnoreCase) || statusText.Contains("Absent", StringComparison.OrdinalIgnoreCase)
+                                        ? "absent"
+                                        : "nomarked");
+                                <small class="@css">@statusText</small>
                             }
                         </div>
                     }

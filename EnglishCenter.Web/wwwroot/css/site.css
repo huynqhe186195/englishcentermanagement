@@ -1540,14 +1540,19 @@ body {
     font-weight: 700;
 }
 
-.attendance-day small.ok {
+.attendance-day small.present {
     background: #dcfce7;
     color: #166534;
 }
 
-.attendance-day small.miss {
+.attendance-day small.absent {
     background: #fee2e2;
     color: #b91c1c;
+}
+
+.attendance-day small.nomarked {
+    background: #e5e7eb;
+    color: #4b5563;
 }
 
 .attendance-side {
