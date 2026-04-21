@@ -26,6 +26,7 @@ public class ScheduleModel : PageModel
 
     public DateOnly WeekStart { get; set; }
     public DateOnly WeekEnd { get; set; }
+    public string DataSourceNote { get; set; } = string.Empty;
 
     public async Task OnGetAsync()
     {
@@ -35,8 +36,6 @@ public class ScheduleModel : PageModel
         WeekStart = DateOnly.TryParse(FromDate, out var from) ? from : monday;
         WeekEnd = DateOnly.TryParse(ToDate, out var to) ? to : WeekStart.AddDays(6);
 
-        WeekDays = Enumerable.Range(0, 7).Select(x => WeekStart.AddDays(x)).ToList();
-
         var me = await _apiClient.GetAsync<CurrentUserDto>("auth/me");
         if (me != null)
         {
@@ -44,7 +43,7 @@ public class ScheduleModel : PageModel
             FullName = me.FullName;
         }
 
-        var enrollmentData = await _apiClient.GetAsync<PagedResult<EnrollmentDto>>("enrollments?PageNumber=1&PageSize=100");
+        var enrollmentData = await _apiClient.GetAsync<PagedResult<EnrollmentDto>>("enrollments?PageNumber=1&PageSize=200");
         var allEnrollments = enrollmentData?.Items?.ToList() ?? new List<EnrollmentDto>();
 
         Enrollments = allEnrollments
@@ -53,18 +52,52 @@ public class ScheduleModel : PageModel
                 || x.StudentName.Contains(FullName, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        if (!Enrollments.Any())
+        long studentId = 0;
+
+        var studentsData = await _apiClient.GetAsync<PagedResult<StudentSimpleDto>>($"students?PageNumber=1&PageSize=200&Keyword={Uri.EscapeDataString(FullName)}");
+        var matchedStudent = studentsData?.Items?.FirstOrDefault(x =>
+            x.FullName.Equals(FullName, StringComparison.OrdinalIgnoreCase)
+            || x.FullName.Contains(FullName, StringComparison.OrdinalIgnoreCase));
+
+        if (matchedStudent != null)
         {
-            Enrollments = allEnrollments.Take(10).ToList();
+            studentId = matchedStudent.Id;
+            DataSourceNote = "student-id: students endpoint";
+        }
+        else if (Enrollments.Any())
+        {
+            studentId = Enrollments[0].StudentId;
+            DataSourceNote = "student-id: enrollments endpoint";
+        }
+        else if (me != null)
+        {
+            studentId = me.UserId;
+            DataSourceNote = "student-id: fallback from auth/me";
         }
 
-        var studentId = Enrollments.FirstOrDefault()?.StudentId ?? 0;
         if (studentId > 0)
         {
-            var url = $"students/{studentId}/timetable?PageNumber=1&PageSize=200&FromDate={WeekStart:yyyy-MM-dd}&ToDate={WeekEnd:yyyy-MM-dd}";
-            var data = await _apiClient.GetAsync<PagedResult<TimetableItemDto>>(url);
-            Items = data?.Items?.OrderBy(x => x.SessionDate).ThenBy(x => x.StartTime).ToList() ?? new List<TimetableItemDto>();
+            var weeklyUrl = $"students/{studentId}/timetable?PageNumber=1&PageSize=200&FromDate={WeekStart:yyyy-MM-dd}&ToDate={WeekEnd:yyyy-MM-dd}";
+            var weeklyData = await _apiClient.GetAsync<PagedResult<TimetableItemDto>>(weeklyUrl);
+            Items = weeklyData?.Items?.OrderBy(x => x.SessionDate).ThenBy(x => x.StartTime).ToList() ?? new List<TimetableItemDto>();
+
+            if (!Items.Any())
+            {
+                var fallbackUrl = $"students/{studentId}/timetable?PageNumber=1&PageSize=200&SortBy=SessionDate&SortDirection=asc";
+                var fallback = await _apiClient.GetAsync<PagedResult<TimetableItemDto>>(fallbackUrl);
+                var allItems = fallback?.Items?.OrderBy(x => x.SessionDate).ThenBy(x => x.StartTime).ToList() ?? new List<TimetableItemDto>();
+
+                if (allItems.Any() && DateOnly.TryParse(allItems[0].SessionDate, out var firstDate))
+                {
+                    WeekStart = firstDate.AddDays(-(((int)firstDate.DayOfWeek + 6) % 7));
+                    WeekEnd = WeekStart.AddDays(6);
+                    Items = allItems.Where(x => DateOnly.TryParse(x.SessionDate, out var d) && d >= WeekStart && d <= WeekEnd).ToList();
+                    DataSourceNote += " | week auto-shifted to first available session";
+                }
+            }
         }
+
+        WeekDays = Enumerable.Range(0, 7).Select(x => WeekStart.AddDays(x)).ToList();
     }
 
     public List<TimetableItemDto> DayItems(DateOnly day)
@@ -93,5 +126,4 @@ public class ScheduleModel : PageModel
         DayOfWeek.Saturday => "T7",
         _ => "CN"
     };
-
 }

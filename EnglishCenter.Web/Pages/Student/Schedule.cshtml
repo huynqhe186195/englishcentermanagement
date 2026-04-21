@@ -39,6 +39,12 @@
             </form>
         </header>
 
+
+        @if (!string.IsNullOrWhiteSpace(Model.DataSourceNote))
+        {
+            <div class="schedule-debug-note">Nguồn dữ liệu: @Model.DataSourceNote • Số buổi tuần này: @Model.Items.Count</div>
+        }
+
         <section class="schedule-grid">
             <div class="schedule-board-card">
                 <div class="schedule-head-row">

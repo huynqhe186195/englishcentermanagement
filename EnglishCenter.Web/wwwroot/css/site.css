@@ -1809,3 +1809,10 @@ body {
         min-height: 560px;
     }
 }
+
+.schedule-debug-note {
+    margin-top: -6px;
+    color: #64748b;
+    font-size: .82rem;
+    font-weight: 600;
+}
