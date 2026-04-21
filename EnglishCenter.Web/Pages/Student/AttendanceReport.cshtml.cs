@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using EnglishCenter.Web.Models;
 using EnglishCenter.Web.Services;
-using System.Globalization;
-
 namespace EnglishCenter.Web.Pages.Student;
 
 public class AttendanceReportModel : PageModel
@@ -22,13 +20,17 @@ public class AttendanceReportModel : PageModel
     public long? ClassId { get; set; }
 
     [BindProperty(SupportsGet = true)]
-    public string? Month { get; set; }
+    public int? Year { get; set; }
+
+    [BindProperty(SupportsGet = true)]
+    public string? WeekStart { get; set; }
 
     public List<EnrollmentDto> Enrollments { get; set; } = new();
     public StudentAttendanceReportDto Report { get; set; } = new();
     public List<CalendarDayVm> CalendarDays { get; set; } = new();
-    public List<MonthOptionVm> MonthOptions { get; set; } = new();
-    public string DisplayMonthLabel { get; set; } = DateTime.UtcNow.ToString("MM/yyyy");
+    public List<int> YearOptions { get; set; } = new();
+    public List<WeekOptionVm> WeekOptions { get; set; } = new();
+    public string DisplayWeekLabel { get; set; } = string.Empty;
 
     public int ExcusedAbsentCount => Report.Sessions.Count(x => (x.AttendanceStatusText ?? string.Empty).Contains("Có phép", StringComparison.OrdinalIgnoreCase));
     public int UnexcusedAbsentCount => Math.Max(Report.AbsentCount - ExcusedAbsentCount, 0);
@@ -67,62 +69,85 @@ public class AttendanceReportModel : PageModel
             Report = await _apiClient.GetAsync<StudentAttendanceReportDto>(url) ?? new StudentAttendanceReportDto();
         }
 
-        var displayMonth = ResolveDisplayMonth(Report.Sessions, Month);
-        Month = displayMonth.ToString("yyyy-MM");
-        DisplayMonthLabel = displayMonth.ToString("MM/yyyy");
-        MonthOptions = BuildMonthOptions(Report.Sessions, displayMonth);
-        CalendarDays = BuildCalendar(Report.Sessions, displayMonth);
+        var selectedYear = ResolveSelectedYear(Report.Sessions, Year);
+        Year = selectedYear;
+        YearOptions = BuildYearOptions(Report.Sessions, selectedYear);
+
+        WeekOptions = BuildWeekOptions(Report.Sessions, selectedYear);
+        var selectedWeekStart = ResolveSelectedWeekStart(WeekOptions, WeekStart, selectedYear);
+        WeekStart = selectedWeekStart.ToString("yyyy-MM-dd");
+        DisplayWeekLabel = $"{selectedWeekStart:dd/MM} đến {selectedWeekStart.AddDays(6):dd/MM}";
+        CalendarDays = BuildWeekCalendar(Report.Sessions, selectedWeekStart);
     }
 
-    private static DateTime ResolveDisplayMonth(List<StudentAttendanceReportSessionItemDto> sessions, string? requestedMonth)
+    private static int ResolveSelectedYear(List<StudentAttendanceReportSessionItemDto> sessions, int? requestedYear)
     {
-        if (!string.IsNullOrWhiteSpace(requestedMonth)
-            && DateTime.TryParseExact(requestedMonth + "-01", "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
+        if (requestedYear.HasValue)
         {
-            return parsed;
+            return requestedYear.Value;
         }
 
         if (sessions.Any())
         {
-            var latestSessionDate = sessions.Max(x => x.SessionDate);
-            return latestSessionDate.ToDateTime(TimeOnly.MinValue);
+            return sessions.Max(x => x.SessionDate.Year);
         }
 
-        return DateTime.UtcNow;
+        return DateTime.UtcNow.Year;
     }
 
-    private static List<MonthOptionVm> BuildMonthOptions(List<StudentAttendanceReportSessionItemDto> sessions, DateTime displayMonth)
+    private static List<int> BuildYearOptions(List<StudentAttendanceReportSessionItemDto> sessions, int selectedYear)
     {
         var options = sessions
-            .Select(x => new DateTime(x.SessionDate.Year, x.SessionDate.Month, 1))
+            .Select(x => x.SessionDate.Year)
             .Distinct()
             .OrderByDescending(x => x)
-            .Select(x => new MonthOptionVm
-            {
-                Value = x.ToString("yyyy-MM"),
-                Label = x.ToString("MM/yyyy")
-            })
             .ToList();
 
-        var displayMonthValue = displayMonth.ToString("yyyy-MM");
-        if (!options.Any(x => x.Value == displayMonthValue))
+        if (!options.Contains(selectedYear))
         {
-            options.Insert(0, new MonthOptionVm
-            {
-                Value = displayMonthValue,
-                Label = displayMonth.ToString("MM/yyyy")
-            });
+            options.Insert(0, selectedYear);
         }
 
         return options;
     }
 
-    private static List<CalendarDayVm> BuildCalendar(List<StudentAttendanceReportSessionItemDto> sessions, DateTime displayMonth)
+    private static List<WeekOptionVm> BuildWeekOptions(List<StudentAttendanceReportSessionItemDto> sessions, int selectedYear)
     {
-        var monthStart = new DateTime(displayMonth.Year, displayMonth.Month, 1);
-        var startOffset = ((int)monthStart.DayOfWeek + 6) % 7;
-        var calendarStart = monthStart.AddDays(-startOffset);
+        var weekStarts = sessions
+            .Where(x => x.SessionDate.Year == selectedYear)
+            .Select(x => GetWeekStart(x.SessionDate.ToDateTime(TimeOnly.MinValue)))
+            .Distinct()
+            .OrderByDescending(x => x)
+            .ToList();
 
+        return weekStarts
+            .Select(x => new WeekOptionVm
+            {
+                Value = x.ToString("yyyy-MM-dd"),
+                Label = $"{x:dd/MM} đến {x.AddDays(6):dd/MM}"
+            })
+            .ToList();
+    }
+
+    private static DateTime ResolveSelectedWeekStart(List<WeekOptionVm> weekOptions, string? requestedWeekStart, int selectedYear)
+    {
+        if (!string.IsNullOrWhiteSpace(requestedWeekStart)
+            && DateTime.TryParse(requestedWeekStart, out var parsedWeek))
+        {
+            return parsedWeek.Date;
+        }
+
+        if (weekOptions.Any() && DateTime.TryParse(weekOptions[0].Value, out var firstWeek))
+        {
+            return firstWeek.Date;
+        }
+
+        var firstDay = new DateTime(selectedYear, 1, 1);
+        return GetWeekStart(firstDay);
+    }
+
+    private static List<CalendarDayVm> BuildWeekCalendar(List<StudentAttendanceReportSessionItemDto> sessions, DateTime weekStart)
+    {
         var map = sessions
             .GroupBy(x => x.SessionDate)
             .ToDictionary(
@@ -130,20 +155,26 @@ public class AttendanceReportModel : PageModel
                 g => g.OrderBy(x => x.StartTime).ToList());
 
         var result = new List<CalendarDayVm>();
-        for (var i = 0; i < 35; i++)
+        for (var i = 0; i < 7; i++)
         {
-            var day = DateOnly.FromDateTime(calendarStart.AddDays(i));
+            var day = DateOnly.FromDateTime(weekStart.AddDays(i));
             map.TryGetValue(day, out var daySessions);
 
             result.Add(new CalendarDayVm
             {
                 Date = day,
-                IsCurrentMonth = day.Month == monthStart.Month,
+                IsCurrentMonth = true,
                 Sessions = daySessions ?? new List<StudentAttendanceReportSessionItemDto>()
             });
         }
 
         return result;
+    }
+
+    private static DateTime GetWeekStart(DateTime date)
+    {
+        var offset = ((int)date.DayOfWeek + 6) % 7;
+        return date.Date.AddDays(-offset);
     }
 
     public class CalendarDayVm
@@ -153,7 +184,7 @@ public class AttendanceReportModel : PageModel
         public List<StudentAttendanceReportSessionItemDto> Sessions { get; set; } = new();
     }
 
-    public class MonthOptionVm
+    public class WeekOptionVm
     {
         public string Value { get; set; } = string.Empty;
         public string Label { get; set; } = string.Empty;

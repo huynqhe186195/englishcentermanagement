@@ -39,10 +39,16 @@
                         <option value="@item.ClassId" selected="@(Model.ClassId == item.ClassId)">@item.ClassName</option>
                     }
                 </select>
-                <select name="Month" onchange="this.form.submit()">
-                    @foreach (var item in Model.MonthOptions)
+                <select name="Year" onchange="this.form.submit()">
+                    @foreach (var item in Model.YearOptions)
                     {
-                        <option value="@item.Value" selected="@(Model.Month == item.Value)">@item.Label</option>
+                        <option value="@item" selected="@(Model.Year == item)">@item</option>
+                    }
+                </select>
+                <select name="WeekStart" onchange="this.form.submit()">
+                    @foreach (var item in Model.WeekOptions)
+                    {
+                        <option value="@item.Value" selected="@(Model.WeekStart == item.Value)">@item.Label</option>
                     }
                 </select>
             </form>
@@ -57,7 +63,7 @@
 
         <section class="attendance-grid">
             <div class="attendance-calendar-card">
-                <div class="attendance-card-title">Tháng @Model.DisplayMonthLabel</div>
+                <div class="attendance-card-title">Tuần @Model.DisplayWeekLabel</div>
                 <div class="attendance-weekdays">
                     <span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span>
                 </div>
