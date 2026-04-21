@@ -60,10 +60,10 @@
                                 <span class="my-course-badge">@course.StatusText</span>
                             </div>
                             <div class="my-course-meta-icons">
-                                <span>👨‍🏫 @course.TeacherName</span>
-                                <span>👥 @course.StudentsText</span>
-                                <span>📍 @course.RoomText</span>
-                                <span>🗓 @course.ScheduleText</span>
+                                <span>🧾 Enrollment #@course.EnrollmentId</span>
+                                <span>🏫 Class #@course.ClassId</span>
+                                <span>📍 Room @course.RoomText</span>
+                                <span>🗓 @course.NextSessionText</span>
                             </div>
                         </div>
 
@@ -75,43 +75,24 @@
                                         <strong>@course.ProgressPercent% (@course.CompletedSessions/@course.TotalSessions buổi)</strong>
                                     </div>
                                     <div class="my-course-progress-bar"><i style="width:@course.ProgressPercent%"></i></div>
-
-                                    <div class="my-course-skills-grid">
-                                        <div>
-                                            <label>Listening <b>@course.Listening%</b></label>
-                                            <div class="my-course-skill-bar"><i style="width:@course.Listening%"></i></div>
-                                        </div>
-                                        <div>
-                                            <label>Reading <b>@course.Reading%</b></label>
-                                            <div class="my-course-skill-bar"><i style="width:@course.Reading%"></i></div>
-                                        </div>
-                                        <div>
-                                            <label>Writing <b>@course.Writing%</b></label>
-                                            <div class="my-course-skill-bar"><i style="width:@course.Writing%"></i></div>
-                                        </div>
-                                        <div>
-                                            <label>Speaking <b>@course.Speaking%</b></label>
-                                            <div class="my-course-skill-bar"><i style="width:@course.Speaking%"></i></div>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 <div class="my-course-side-notes">
-                                    <div class="my-course-reminder">🕒 Buổi học tiếp theo<br /><b>@course.NextLessonText</b></div>
-                                    <div class="my-course-test">📝 Bài kiểm tra sắp tới<br /><b>@course.UpcomingTestText</b></div>
+                                    <div class="my-course-reminder">🕒 Buổi học tiếp theo<br /><b>@course.NextSessionText</b></div>
+                                    <div class="my-course-test">📊 Điểm danh<br /><b>@course.AttendanceSummary</b></div>
                                 </div>
                             </div>
 
                             <div class="my-course-actions">
                                 <div class="my-course-tabs">
                                     <span class="active">Tổng quan</span>
-                                    <span>Bài học</span>
-                                    <span>Bài tập</span>
+                                    <span>Điểm danh</span>
+                                    <span>Lịch học</span>
                                     <span>Điểm số</span>
                                 </div>
                                 <div class="my-course-buttons">
-                                    <a class="btn btn-sm btn-outline-secondary" href="#">Tài liệu học</a>
-                                    <a class="btn btn-sm btn-primary" href="#">Xem chi tiết</a>
+                                    <a class="btn btn-sm btn-outline-secondary" href="/Student/AttendanceReport">Chi tiết điểm danh</a>
+                                    <a class="btn btn-sm btn-primary" href="/Student/Schedule">Xem lịch</a>
                                 </div>
                             </div>
                         </div>
@@ -121,7 +102,7 @@
         }
         else
         {
-            <div class="my-course-empty">Chưa có dữ liệu khóa học từ API. Hãy đăng ký khóa học để bắt đầu nhé.</div>
+            <div class="my-course-empty">Không có dữ liệu khóa học từ API cho tài khoản hiện tại.</div>
         }
     </main>
 </div>
