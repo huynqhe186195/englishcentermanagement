@@ -91,23 +91,22 @@ public class IndexModel : PageModel
 
     private async Task LoadDataAsync()
     {
-        var campusPaged = await _apiClient.GetAsync<PagedResult<CampusSimpleDto>>("campuses?pageNumber=1&pageSize=200");
+        var campusPaged = await _apiClient.GetAsync<PagedResult<CampusDetailDto>>("campuses?pageNumber=1&pageSize=100");
         var campusRevenue = await _apiClient.GetAsync<List<RevenueByCampusItemDto>>("financialDashboard/revenue-by-campus")
             ?? new List<RevenueByCampusItemDto>();
-        var campusDetails = await _apiClient.GetAsync<PagedResult<CampusDetailDto>>("campuses?pageNumber=1&pageSize=200");
-        var detailLookup = (campusDetails?.Items ?? new List<CampusDetailDto>()).ToDictionary(x => x.Id, x => x);
 
-        var campusItems = (campusPaged?.Items ?? new List<CampusSimpleDto>()).ToList();
+        var campusItems = (campusPaged?.Items ?? new List<CampusDetailDto>()).ToList();
         if (!campusItems.Any() && campusRevenue.Any())
         {
             // Fallback: if campuses endpoint returns empty for current session/scope,
             // still render rows from revenue endpoint to avoid blank page.
             campusItems = campusRevenue
-                .Select(x => new CampusSimpleDto
+                .Select(x => new CampusDetailDto
                 {
                     Id = x.CampusId,
                     CampusCode = x.CampusCode,
-                    Name = x.CampusName
+                    Name = x.CampusName,
+                    Status = 1
                 })
                 .ToList();
         }
@@ -115,15 +114,14 @@ public class IndexModel : PageModel
         foreach (var c in campusItems)
         {
             var revenue = campusRevenue.FirstOrDefault(x => x.CampusId == c.Id);
-            detailLookup.TryGetValue(c.Id, out var detail);
             Campuses.Add(new CampusRowVm
             {
                 Id = c.Id,
                 CampusName = c.Name,
                 CampusCode = c.CampusCode,
-                Address = detail?.Address,
-                Phone = detail?.Phone,
-                Status = detail?.Status ?? 1,
+                Address = c.Address,
+                Phone = c.Phone,
+                Status = c.Status,
                 Revenue = revenue?.CollectedRevenue ?? 0,
                 InvoiceCount = revenue?.InvoiceCount ?? 0
             });
