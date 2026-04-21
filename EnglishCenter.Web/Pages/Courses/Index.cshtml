@@ -42,50 +42,37 @@
 
     <section class="courses-list">
         <div class="landing-container courses-grid">
-            <article class="course-card">
-                <div class="course-level">Beginner</div>
-                <h3>English Foundation</h3>
-                <p>Dành cho người mới bắt đầu, xây nền tảng từ vựng - ngữ pháp - phát âm.</p>
-                <ul>
-                    <li>Thời lượng: 12 tuần</li>
-                    <li>Lịch học linh hoạt</li>
-                    <li>Kiểm tra đầu vào miễn phí</li>
-                </ul>
-                <div class="course-footer">
-                    <span class="course-price">2.900.000đ</span>
-                    <a href="/Account/Login">Đăng ký</a>
+            @if (Model.Courses.Any())
+            {
+                @foreach (var course in Model.Courses)
+                {
+                    <article class="course-card">
+                        <div class="course-level">@(string.IsNullOrWhiteSpace(course.Level) ? "General" : course.Level)</div>
+                        <h3>@course.Name</h3>
+                        <p>@(string.IsNullOrWhiteSpace(course.Description) ? "Khóa học chuẩn quốc tế giúp học viên phát triển toàn diện kỹ năng tiếng Anh." : course.Description)</p>
+                        <ul>
+                            <li>Mã khóa học: @course.CourseCode</li>
+                            <li>Tổng số buổi: @course.TotalSessions</li>
+                            <li>
+                                Độ tuổi:
+                                @(course.AgeMin.HasValue || course.AgeMax.HasValue
+                                    ? $"{course.AgeMin?.ToString() ?? "?"} - {course.AgeMax?.ToString() ?? "?"} tuổi"
+                                    : "Mọi độ tuổi")
+                            </li>
+                        </ul>
+                        <div class="course-footer">
+                            <span class="course-price">@course.DefaultFee.ToString("N0")đ</span>
+                            <a href="/Account/Login">Đăng ký</a>
+                        </div>
+                    </article>
+                }
+            }
+            else
+            {
+                <div class="course-empty">
+                    Hiện chưa có dữ liệu khóa học từ hệ thống. Vui lòng thử lại sau.
                 </div>
-            </article>
-
-            <article class="course-card">
-                <div class="course-level">Intermediate</div>
-                <h3>Communication Mastery</h3>
-                <p>Tăng phản xạ giao tiếp thực tế trong công việc, học tập và phỏng vấn.</p>
-                <ul>
-                    <li>Thời lượng: 10 tuần</li>
-                    <li>Workshop mỗi tuần</li>
-                    <li>Feedback 1-1 từ giảng viên</li>
-                </ul>
-                <div class="course-footer">
-                    <span class="course-price">3.600.000đ</span>
-                    <a href="/Account/Login">Đăng ký</a>
-                </div>
-            </article>
-
-            <article class="course-card">
-                <div class="course-level">IELTS</div>
-                <h3>IELTS Target 6.5+</h3>
-                <p>Luyện đề chuyên sâu theo format mới nhất, bám sát tiêu chí chấm điểm.</p>
-                <ul>
-                    <li>Thời lượng: 14 tuần</li>
-                    <li>Mock test định kỳ</li>
-                    <li>Cam kết đầu ra theo lộ trình</li>
-                </ul>
-                <div class="course-footer">
-                    <span class="course-price">5.200.000đ</span>
-                    <a href="/Account/Login">Đăng ký</a>
-                </div>
-            </article>
+            }
         </div>
     </section>
 </div>
