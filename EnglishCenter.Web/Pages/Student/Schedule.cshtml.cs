@@ -82,4 +82,16 @@ public class ScheduleModel : PageModel
         var duration = (int)(et - st).TotalMinutes;
         return Math.Clamp(duration * 56 / 60, 48, 180);
     }
+
+    public string DayLabel(DateOnly day) => day.DayOfWeek switch
+    {
+        DayOfWeek.Monday => "T2",
+        DayOfWeek.Tuesday => "T3",
+        DayOfWeek.Wednesday => "T4",
+        DayOfWeek.Thursday => "T5",
+        DayOfWeek.Friday => "T6",
+        DayOfWeek.Saturday => "T7",
+        _ => "CN"
+    };
+
 }
