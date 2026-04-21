@@ -30,7 +30,7 @@ public class AttendanceReportModel : PageModel
     public List<CalendarDayVm> CalendarDays { get; set; } = new();
     public List<int> YearOptions { get; set; } = new();
     public List<WeekOptionVm> WeekOptions { get; set; } = new();
-    public string DisplayWeekLabel { get; set; } = string.Empty;
+    public string DisplayMonthLabel { get; set; } = DateTime.UtcNow.ToString("MM/yyyy");
 
     public int ExcusedAbsentCount => Report.Sessions.Count(x => (x.AttendanceStatusText ?? string.Empty).Contains("Có phép", StringComparison.OrdinalIgnoreCase));
     public int UnexcusedAbsentCount => Math.Max(Report.AbsentCount - ExcusedAbsentCount, 0);
@@ -76,8 +76,9 @@ public class AttendanceReportModel : PageModel
         WeekOptions = BuildWeekOptions(Report.Sessions, selectedYear);
         var selectedWeekStart = ResolveSelectedWeekStart(WeekOptions, WeekStart, selectedYear);
         WeekStart = selectedWeekStart.ToString("yyyy-MM-dd");
-        DisplayWeekLabel = $"{selectedWeekStart:dd/MM} đến {selectedWeekStart.AddDays(6):dd/MM}";
-        CalendarDays = BuildWeekCalendar(Report.Sessions, selectedWeekStart);
+        var displayMonth = new DateTime(selectedWeekStart.Year, selectedWeekStart.Month, 1);
+        DisplayMonthLabel = displayMonth.ToString("MM/yyyy");
+        CalendarDays = BuildCalendar(Report.Sessions, displayMonth);
     }
 
     private static int ResolveSelectedYear(List<StudentAttendanceReportSessionItemDto> sessions, int? requestedYear)
@@ -146,8 +147,12 @@ public class AttendanceReportModel : PageModel
         return GetWeekStart(firstDay);
     }
 
-    private static List<CalendarDayVm> BuildWeekCalendar(List<StudentAttendanceReportSessionItemDto> sessions, DateTime weekStart)
+    private static List<CalendarDayVm> BuildCalendar(List<StudentAttendanceReportSessionItemDto> sessions, DateTime displayMonth)
     {
+        var monthStart = new DateTime(displayMonth.Year, displayMonth.Month, 1);
+        var startOffset = ((int)monthStart.DayOfWeek + 6) % 7;
+        var calendarStart = monthStart.AddDays(-startOffset);
+
         var map = sessions
             .GroupBy(x => x.SessionDate)
             .ToDictionary(
@@ -155,15 +160,15 @@ public class AttendanceReportModel : PageModel
                 g => g.OrderBy(x => x.StartTime).ToList());
 
         var result = new List<CalendarDayVm>();
-        for (var i = 0; i < 7; i++)
+        for (var i = 0; i < 35; i++)
         {
-            var day = DateOnly.FromDateTime(weekStart.AddDays(i));
+            var day = DateOnly.FromDateTime(calendarStart.AddDays(i));
             map.TryGetValue(day, out var daySessions);
 
             result.Add(new CalendarDayVm
             {
                 Date = day,
-                IsCurrentMonth = true,
+                IsCurrentMonth = day.Month == monthStart.Month,
                 Sessions = daySessions ?? new List<StudentAttendanceReportSessionItemDto>()
             });
         }
