@@ -142,4 +142,42 @@ public class UserRoleService
 
         _permissionCacheService.RemovePermissions(request.UserId);
     }
+
+    public async Task<RoleUserImpactResultDto> GetUsersByRoleAsync(long roleId, int pageNumber = 1, int pageSize = 10)
+    {
+        var roleExists = await _context.Roles
+            .AnyAsync(x => x.Id == roleId && !x.IsDeleted);
+
+        if (!roleExists)
+        {
+            throw new NotFoundException("Role not found.");
+        }
+
+        pageNumber = pageNumber < 1 ? 1 : pageNumber;
+        pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
+
+        var query = from ur in _context.UserRoles
+                    join u in _context.Users on ur.UserId equals u.Id
+                    where ur.RoleId == roleId && !u.IsDeleted
+                    orderby u.FullName
+                    select new RoleUserImpactDto
+                    {
+                        UserId = u.Id,
+                        UserName = u.UserName,
+                        FullName = u.FullName
+                    };
+
+        var totalUsers = await query.CountAsync();
+        var users = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new RoleUserImpactResultDto
+        {
+            RoleId = roleId,
+            TotalUsers = totalUsers,
+            Users = users
+        };
+    }
 }

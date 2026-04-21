@@ -26,6 +26,13 @@ public class UserRolesController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("role/{roleId:long}")]
+    public async Task<IActionResult> GetUsersByRole(long roleId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    {
+        var result = await _userRoleService.GetUsersByRoleAsync(roleId, pageNumber, pageSize);
+        return Ok(result);
+    }
+
     [HttpPost("assign")]
     public async Task<IActionResult> Assign([FromBody] AssignRoleToUserRequestDto request)
     {
