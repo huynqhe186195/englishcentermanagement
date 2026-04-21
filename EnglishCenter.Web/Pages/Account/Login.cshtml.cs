@@ -92,7 +92,7 @@ public class LoginModel : PageModel
             HttpContext.Session.SetString("CampusId", loginResp.CampusId?.ToString() ?? Input.CampusId.ToString());
 
             // redirect based on role
-            if (roles.Contains("SUPER_ADMIN", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Admin/Index");
+            if (roles.Contains("SUPER_ADMIN", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/SuperAdmins/Dashboard");
             if (roles.Contains("CENTER_ADMIN", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Admin/Index");
             if (roles.Contains("TEACHER", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Teacher/Index");
             if (roles.Contains("STAFF", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Admin/Index");
