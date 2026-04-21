@@ -33,7 +33,7 @@
         <header class="student-topbar schedule-topbar">
             <h2>Lịch học</h2>
             <div class="schedule-week-filter-wrap">
-                <a class="schedule-nav-btn" href="?FromDate=@Model.PrevWeekStart.ToString("yyyy-MM-dd")">‹</a>
+                <a class="schedule-nav-btn" href="?FromDate=@Model.PrevWeekStart.ToString("yyyy-MM-dd")&Month=@Model.Month">‹</a>
 
                 <form method="get" class="schedule-week-combo">
                     <select name="FromDate" onchange="this.form.submit()">
@@ -44,7 +44,7 @@
                     </select>
                 </form>
 
-                <a class="schedule-nav-btn" href="?FromDate=@Model.NextWeekStart.ToString("yyyy-MM-dd")">›</a>
+                <a class="schedule-nav-btn" href="?FromDate=@Model.NextWeekStart.ToString("yyyy-MM-dd")&Month=@Model.Month">›</a>
 
                 <form method="get" class="schedule-month-filter">
                     <select name="Month" onchange="this.form.submit()">
@@ -90,11 +90,12 @@
                             <div class="schedule-day-col">
                                 @foreach (var item in Model.DayItems(day))
                                 {
-                                    <div class="schedule-item" style="top:@Model.PositionTop(item)px;height:@Model.ItemHeight(item)px;">
+                                    <a class="schedule-item @(Model.AttendanceCssClass(item.SessionId))" href="?FromDate=@Model.WeekStart.ToString("yyyy-MM-dd")&Month=@Model.Month&SessionId=@item.SessionId" style="top:@Model.PositionTop(item)px;height:@Model.ItemHeight(item)px;">
                                         <b>@(item.Topic ?? "Class Session")</b>
                                         <small>@item.StartTime - @item.EndTime</small>
                                         <small>Phòng @(item.RoomId?.ToString() ?? "--")</small>
-                                    </div>
+                                        <small class="schedule-attendance-status">@Model.ResolveAttendanceStatusText(item.SessionId)</small>
+                                    </a>
                                 }
                             </div>
                         }
@@ -120,10 +121,32 @@
                     <ul class="schedule-upcoming-list">
                         @foreach (var item in Model.Items.Take(5))
                         {
-                            <li><strong>@item.SessionDate</strong> • @(item.Topic ?? "Class") <span>@item.StartTime</span></li>
+                            <li>
+                                <strong>@item.SessionDate</strong> • @(item.Topic ?? "Class")
+                                <span>@item.StartTime</span>
+                                <small class="schedule-list-status @Model.AttendanceCssClass(item.SessionId)">@Model.ResolveAttendanceStatusText(item.SessionId)</small>
+                            </li>
                         }
                     </ul>
                 </div>
+
+                @if (Model.SelectedSessionDetail != null)
+                {
+                    <div class="schedule-event-card">
+                        <div class="schedule-side-title">Chi tiết buổi học</div>
+                        <div class="schedule-session-detail">
+                            <h4>@Model.SelectedSessionDetail.Topic</h4>
+                            <p><strong>Ngày:</strong> @Model.SelectedSessionDetail.SessionDate</p>
+                            <p><strong>Giờ:</strong> @Model.SelectedSessionDetail.StartTime - @Model.SelectedSessionDetail.EndTime</p>
+                            <p><strong>Phòng:</strong> @Model.SelectedSessionDetail.RoomText</p>
+                            <p><strong>Giảng viên:</strong> @Model.SelectedSessionDetail.TeacherText</p>
+                            <p><strong>Trạng thái buổi:</strong> @Model.SelectedSessionDetail.SessionStatusText</p>
+                            <p><strong>Điểm danh:</strong> <span class="schedule-list-status @Model.AttendanceCssClass(Model.SelectedSessionDetail.SessionId)">@Model.SelectedSessionDetail.AttendanceStatusText</span></p>
+                            <p><strong>Ghi chú buổi:</strong> @(string.IsNullOrWhiteSpace(Model.SelectedSessionDetail.Note) ? "-" : Model.SelectedSessionDetail.Note)</p>
+                            <p><strong>Ghi chú điểm danh:</strong> @(string.IsNullOrWhiteSpace(Model.SelectedSessionDetail.AttendanceNote) ? "-" : Model.SelectedSessionDetail.AttendanceNote)</p>
+                        </div>
+                    </div>
+                }
             </aside>
         </section>
     </main>

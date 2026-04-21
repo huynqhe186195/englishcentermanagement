@@ -9,6 +9,7 @@ public class TimetableItemDto
     public string StartTime { get; set; } = string.Empty; // HH:mm
     public string EndTime { get; set; } = string.Empty;
     public long? TeacherId { get; set; }
+    public string? TeacherName { get; set; }
     public long? RoomId { get; set; }
     public string? Topic { get; set; }
     public string? Note { get; set; }

@@ -1734,6 +1734,8 @@ body {
     background: #dbeafe;
     border: 1px solid #93c5fd;
     overflow: hidden;
+    text-decoration: none;
+    display: block;
 }
 
 .schedule-item b {
@@ -1746,6 +1748,26 @@ body {
     display: block;
     color: #334155;
     font-size: .72rem;
+}
+
+.schedule-item.is-present {
+    background: #dcfce7;
+    border-color: #86efac;
+}
+
+.schedule-item.is-absent {
+    background: #fee2e2;
+    border-color: #fca5a5;
+}
+
+.schedule-item.is-notmarked {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+}
+
+.schedule-attendance-status {
+    margin-top: 4px;
+    font-weight: 700;
 }
 
 .schedule-side {
@@ -1792,6 +1814,47 @@ body {
     float: right;
     color: #1d4ed8;
     font-weight: 700;
+}
+
+.schedule-list-status {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: .7rem;
+    font-weight: 700;
+}
+
+.schedule-list-status.is-present {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.schedule-list-status.is-absent {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.schedule-list-status.is-notmarked {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.schedule-session-detail {
+    margin: 10px 12px 14px;
+    padding: 10px;
+    border: 1px solid #dbe4f0;
+    border-radius: 10px;
+    background: #f8fafc;
+}
+
+.schedule-session-detail h4 {
+    margin: 0 0 10px;
+}
+
+.schedule-session-detail p {
+    margin: 0 0 6px;
+    color: #334155;
 }
 
 @media (max-width: 1200px) {

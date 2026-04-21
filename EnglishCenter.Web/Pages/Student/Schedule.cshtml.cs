@@ -19,12 +19,15 @@ public class ScheduleModel : PageModel
 
     [BindProperty(SupportsGet = true)] public string? FromDate { get; set; }
     [BindProperty(SupportsGet = true)] public string? Month { get; set; }
+    [BindProperty(SupportsGet = true)] public long? SessionId { get; set; }
 
     public List<EnrollmentDto> Enrollments { get; set; } = new();
     public List<TimetableItemDto> Items { get; set; } = new();
     public List<DateOnly> WeekDays { get; set; } = new();
     public List<WeekOptionVm> WeekOptions { get; set; } = new();
     public List<MonthOptionVm> MonthOptions { get; set; } = new();
+    public Dictionary<long, StudentAttendanceReportSessionItemDto> AttendanceBySessionId { get; set; } = new();
+    public SessionDetailVm? SelectedSessionDetail { get; set; }
 
     public DateOnly WeekStart { get; set; }
     public DateOnly WeekEnd { get; set; }
@@ -173,6 +176,11 @@ public class ScheduleModel : PageModel
 
         Items = allItems.Where(x => DateOnly.TryParse(x.SessionDate, out var d) && d >= WeekStart && d <= WeekEnd).ToList();
 
+        if (studentIdFromTrustedSource && Enrollments.Any())
+        {
+            AttendanceBySessionId = await LoadAttendanceBySessionAsync(studentId, Enrollments.Select(x => x.ClassId).Distinct().ToList());
+        }
+
         if (!Items.Any() && allItems.Any() && !selectedMonthStart.HasValue && string.IsNullOrWhiteSpace(FromDate))
         {
             if (DateOnly.TryParse(allItems[0].SessionDate, out var firstDate))
@@ -189,6 +197,7 @@ public class ScheduleModel : PageModel
             DataSourceNote += " | chưa có buổi học từ API cho tài khoản hiện tại";
         }
 
+        SelectedSessionDetail = BuildSelectedSessionDetail(allItems);
         WeekDays = Enumerable.Range(0, 7).Select(x => WeekStart.AddDays(x)).ToList();
     }
 
@@ -220,6 +229,78 @@ public class ScheduleModel : PageModel
             .ThenBy(x => x.StartTime)
             .ToList();
     }
+
+    private async Task<Dictionary<long, StudentAttendanceReportSessionItemDto>> LoadAttendanceBySessionAsync(long studentId, List<long> classIds)
+    {
+        var result = new Dictionary<long, StudentAttendanceReportSessionItemDto>();
+
+        foreach (var classId in classIds.Distinct())
+        {
+            var url = $"students/{studentId}/attendance-report?ClassId={classId}&SendWarningEmail=false";
+            var report = await _apiClient.GetAsync<StudentAttendanceReportDto>(url);
+            if (report?.Sessions == null) continue;
+
+            foreach (var session in report.Sessions)
+            {
+                result[session.SessionId] = session;
+            }
+        }
+
+        return result;
+    }
+
+    private SessionDetailVm? BuildSelectedSessionDetail(List<TimetableItemDto> allItems)
+    {
+        if (!SessionId.HasValue) return null;
+        var session = allItems.FirstOrDefault(x => x.SessionId == SessionId.Value);
+        if (session == null) return null;
+
+        AttendanceBySessionId.TryGetValue(session.SessionId, out var attendance);
+
+        return new SessionDetailVm
+        {
+            SessionId = session.SessionId,
+            Topic = session.Topic ?? "Class Session",
+            SessionDate = session.SessionDate,
+            StartTime = session.StartTime,
+            EndTime = session.EndTime,
+            RoomText = session.RoomId?.ToString() ?? "--",
+            TeacherText = !string.IsNullOrWhiteSpace(session.TeacherName)
+                ? session.TeacherName!
+                : (session.TeacherId.HasValue ? $"GV #{session.TeacherId}" : "Chưa phân công"),
+            SessionStatusText = SessionStatusText(session.Status),
+            AttendanceStatusText = ResolveAttendanceStatusText(session.SessionId),
+            Note = session.Note,
+            AttendanceNote = attendance?.Note
+        };
+    }
+
+    public string ResolveAttendanceStatusText(long sessionId)
+    {
+        if (AttendanceBySessionId.TryGetValue(sessionId, out var session))
+        {
+            return string.IsNullOrWhiteSpace(session.AttendanceStatusText) ? "NotMarked" : session.AttendanceStatusText;
+        }
+
+        return "NotMarked";
+    }
+
+    public string AttendanceCssClass(long sessionId)
+    {
+        var text = ResolveAttendanceStatusText(sessionId).ToLowerInvariant();
+        if (text.Contains("present") || text.Contains("có mặt")) return "is-present";
+        if (text.Contains("absent") || text.Contains("vắng")) return "is-absent";
+        return "is-notmarked";
+    }
+
+    private static string SessionStatusText(int status)
+        => status switch
+        {
+            2 => "Completed",
+            1 => "Ongoing",
+            0 => "Planned",
+            _ => $"Status {status}"
+        };
 
     public List<TimetableItemDto> DayItems(DateOnly day)
         => Items.Where(x => x.SessionDate == day.ToString("yyyy-MM-dd")).ToList();
@@ -259,5 +340,20 @@ public class ScheduleModel : PageModel
     {
         public string Value { get; set; } = string.Empty;
         public string Label { get; set; } = string.Empty;
+    }
+
+    public class SessionDetailVm
+    {
+        public long SessionId { get; set; }
+        public string Topic { get; set; } = string.Empty;
+        public string SessionDate { get; set; } = string.Empty;
+        public string StartTime { get; set; } = string.Empty;
+        public string EndTime { get; set; } = string.Empty;
+        public string RoomText { get; set; } = string.Empty;
+        public string TeacherText { get; set; } = string.Empty;
+        public string SessionStatusText { get; set; } = string.Empty;
+        public string AttendanceStatusText { get; set; } = string.Empty;
+        public string? Note { get; set; }
+        public string? AttendanceNote { get; set; }
     }
 }
