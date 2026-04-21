@@ -1,0 +1,91 @@
+@page
+@model EnglishCenter.Web.Pages.Courses.IndexModel
+@{
+    ViewData["Title"] = "Khóa học";
+    ViewData["HideChrome"] = true;
+}
+
+<div class="courses-page">
+    <header class="landing-header">
+        <div class="landing-container landing-nav">
+            <a class="landing-brand" href="/Index">
+                <span class="landing-brand-icon">✦</span>
+                <span>English Center</span>
+            </a>
+
+            <nav class="landing-menu">
+                <a href="/Index">Về chúng tôi</a>
+                <a class="active" href="/Courses/Index">Khóa học</a>
+                <a href="#">Giáo viên</a>
+                <a href="#">Liên hệ</a>
+            </nav>
+
+            <a class="landing-register-btn" href="/Account/Login">Đăng ký ngay</a>
+        </div>
+    </header>
+
+    <section class="courses-hero">
+        <div class="landing-container">
+            <div class="courses-hero-box">
+                <div>
+                    <div class="landing-pill">📚 Danh sách khóa học nổi bật</div>
+                    <h1>Chọn khóa học phù hợp với mục tiêu của bạn</h1>
+                    <p>
+                        Lộ trình từ cơ bản đến nâng cao, tập trung kỹ năng giao tiếp - luyện thi
+                        với giáo viên giàu kinh nghiệm và giáo trình chuẩn quốc tế.
+                    </p>
+                </div>
+                <a class="btn-primary-landing" href="/Account/Login">Tư vấn miễn phí</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="courses-list">
+        <div class="landing-container courses-grid">
+            <article class="course-card">
+                <div class="course-level">Beginner</div>
+                <h3>English Foundation</h3>
+                <p>Dành cho người mới bắt đầu, xây nền tảng từ vựng - ngữ pháp - phát âm.</p>
+                <ul>
+                    <li>Thời lượng: 12 tuần</li>
+                    <li>Lịch học linh hoạt</li>
+                    <li>Kiểm tra đầu vào miễn phí</li>
+                </ul>
+                <div class="course-footer">
+                    <span class="course-price">2.900.000đ</span>
+                    <a href="/Account/Login">Đăng ký</a>
+                </div>
+            </article>
+
+            <article class="course-card">
+                <div class="course-level">Intermediate</div>
+                <h3>Communication Mastery</h3>
+                <p>Tăng phản xạ giao tiếp thực tế trong công việc, học tập và phỏng vấn.</p>
+                <ul>
+                    <li>Thời lượng: 10 tuần</li>
+                    <li>Workshop mỗi tuần</li>
+                    <li>Feedback 1-1 từ giảng viên</li>
+                </ul>
+                <div class="course-footer">
+                    <span class="course-price">3.600.000đ</span>
+                    <a href="/Account/Login">Đăng ký</a>
+                </div>
+            </article>
+
+            <article class="course-card">
+                <div class="course-level">IELTS</div>
+                <h3>IELTS Target 6.5+</h3>
+                <p>Luyện đề chuyên sâu theo format mới nhất, bám sát tiêu chí chấm điểm.</p>
+                <ul>
+                    <li>Thời lượng: 14 tuần</li>
+                    <li>Mock test định kỳ</li>
+                    <li>Cam kết đầu ra theo lộ trình</li>
+                </ul>
+                <div class="course-footer">
+                    <span class="course-price">5.200.000đ</span>
+                    <a href="/Account/Login">Đăng ký</a>
+                </div>
+            </article>
+        </div>
+    </section>
+</div>
