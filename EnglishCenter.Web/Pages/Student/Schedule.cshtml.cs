@@ -27,6 +27,7 @@ public class ScheduleModel : PageModel
     public List<WeekOptionVm> WeekOptions { get; set; } = new();
     public List<MonthOptionVm> MonthOptions { get; set; } = new();
     public Dictionary<long, StudentAttendanceReportSessionItemDto> AttendanceBySessionId { get; set; } = new();
+    public Dictionary<long, string> TeacherNamesById { get; set; } = new();
     public SessionDetailVm? SelectedSessionDetail { get; set; }
 
     public DateOnly WeekStart { get; set; }
@@ -120,6 +121,8 @@ public class ScheduleModel : PageModel
                 DataSourceNote += " | fallback: classes/{classId}/timetable";
             }
         }
+
+        TeacherNamesById = await LoadTeacherNamesByIdAsync(allItems);
 
         var weekStarts = allItems
             .Select(x => DateOnly.TryParse(x.SessionDate, out var d) ? d.AddDays(-(((int)d.DayOfWeek + 6) % 7)) : (DateOnly?)null)
@@ -249,6 +252,35 @@ public class ScheduleModel : PageModel
         return result;
     }
 
+    private async Task<Dictionary<long, string>> LoadTeacherNamesByIdAsync(List<TimetableItemDto> allItems)
+    {
+        var teacherIds = allItems
+            .Where(x => x.TeacherId.HasValue)
+            .Select(x => x.TeacherId!.Value)
+            .Distinct()
+            .ToHashSet();
+
+        if (!teacherIds.Any()) return new Dictionary<long, string>();
+
+        var data = await _apiClient.GetAsync<PagedResult<TeacherLookupDto>>("teachers?PageNumber=1&PageSize=500");
+        var teachers = data?.Items ?? new List<TeacherLookupDto>();
+
+        return teachers
+            .Where(x => teacherIds.Contains(x.Id))
+            .GroupBy(x => x.Id)
+            .ToDictionary(
+                g => g.Key,
+                g =>
+                {
+                    var t = g.First();
+                    return !string.IsNullOrWhiteSpace(t.FullName)
+                        ? t.FullName
+                        : (!string.IsNullOrWhiteSpace(t.Name)
+                            ? t.Name
+                            : (!string.IsNullOrWhiteSpace(t.TeacherName) ? t.TeacherName : $"GV #{t.Id}"));
+                });
+    }
+
     private SessionDetailVm? BuildSelectedSessionDetail(List<TimetableItemDto> allItems)
     {
         if (!SessionId.HasValue) return null;
@@ -265,9 +297,7 @@ public class ScheduleModel : PageModel
             StartTime = session.StartTime,
             EndTime = session.EndTime,
             RoomText = session.RoomId?.ToString() ?? "--",
-            TeacherText = !string.IsNullOrWhiteSpace(session.TeacherName)
-                ? session.TeacherName!
-                : (session.TeacherId.HasValue ? $"GV #{session.TeacherId}" : "Chưa phân công"),
+            TeacherText = ResolveTeacherText(session),
             SessionStatusText = SessionStatusText(session.Status),
             AttendanceStatusText = ResolveAttendanceStatusText(session.SessionId),
             Note = session.Note,
@@ -283,6 +313,21 @@ public class ScheduleModel : PageModel
         }
 
         return "NotMarked";
+    }
+
+    private string ResolveTeacherText(TimetableItemDto session)
+    {
+        if (!string.IsNullOrWhiteSpace(session.TeacherName))
+        {
+            return session.TeacherName!;
+        }
+
+        if (session.TeacherId.HasValue && TeacherNamesById.TryGetValue(session.TeacherId.Value, out var teacherName))
+        {
+            return teacherName;
+        }
+
+        return session.TeacherId.HasValue ? $"GV #{session.TeacherId}" : "Chưa phân công";
     }
 
     public string AttendanceCssClass(long sessionId)
@@ -355,5 +400,13 @@ public class ScheduleModel : PageModel
         public string AttendanceStatusText { get; set; } = string.Empty;
         public string? Note { get; set; }
         public string? AttendanceNote { get; set; }
+    }
+
+    public class TeacherLookupDto
+    {
+        public long Id { get; set; }
+        public string FullName { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string TeacherName { get; set; } = string.Empty;
     }
 }
