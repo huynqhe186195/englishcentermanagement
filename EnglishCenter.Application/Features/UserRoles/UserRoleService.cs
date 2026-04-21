@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using EnglishCenter.Application.Common.Exceptions;
 using EnglishCenter.Application.Common.Interfaces;
+using EnglishCenter.Application.Commons.Helpers;
 using EnglishCenter.Application.Features.UserRoles.Dtos;
+using EnglishCenter.Domain.Constants;
 using EnglishCenter.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,17 +17,28 @@ public class UserRoleService
 {
     private readonly IApplicationDbContext _context;
     private readonly IPermissionCacheService _permissionCacheService;
+    private readonly ICurrentUserContext _currentUserContext;
+    private readonly CampusScopeHelper _campusScopeHelper;
 
     public UserRoleService(
         IApplicationDbContext context,
-        IPermissionCacheService permissionCacheService)
+        IPermissionCacheService permissionCacheService,
+        ICurrentUserContext currentUserContext,
+        CampusScopeHelper campusScopeHelper)
     {
         _context = context;
         _permissionCacheService = permissionCacheService;
+        _currentUserContext = currentUserContext;
+        _campusScopeHelper = campusScopeHelper;
     }
 
     public async Task<List<UserRoleDto>> GetRolesByUserIdAsync(long userId)
     {
+        if (!_currentUserContext.IsSuperAdmin)
+        {
+            await _campusScopeHelper.EnsureUserInScopeAsync(userId);
+        }
+
         var userExists = await _context.Users
             .AnyAsync(x => x.Id == userId && !x.IsDeleted);
 
@@ -50,6 +63,8 @@ public class UserRoleService
 
     public async Task AssignRoleAsync(AssignRoleToUserRequestDto request)
     {
+        await EnsureRoleAssignmentAllowedAsync(request.UserId, new List<long> { request.RoleId });
+
         var userExists = await _context.Users
             .AnyAsync(x => x.Id == request.UserId && !x.IsDeleted);
 
@@ -87,6 +102,12 @@ public class UserRoleService
 
     public async Task RemoveRoleAsync(long userId, long roleId)
     {
+        if (!_currentUserContext.IsSuperAdmin)
+        {
+            await _campusScopeHelper.EnsureUserInScopeAsync(userId);
+            await EnsureRoleAssignmentAllowedAsync(userId, new List<long> { roleId });
+        }
+
         var entity = await _context.UserRoles
             .FirstOrDefaultAsync(x => x.UserId == userId && x.RoleId == roleId);
 
@@ -103,6 +124,8 @@ public class UserRoleService
 
     public async Task ReplaceRolesAsync(ReplaceUserRolesRequestDto request)
     {
+        await EnsureRoleAssignmentAllowedAsync(request.UserId, request.RoleIds);
+
         var userExists = await _context.Users
             .AnyAsync(x => x.Id == request.UserId && !x.IsDeleted);
 
@@ -179,5 +202,36 @@ public class UserRoleService
             TotalUsers = totalUsers,
             Users = users
         };
+    }
+
+    private async Task EnsureRoleAssignmentAllowedAsync(long targetUserId, List<long> roleIds)
+    {
+        if (_currentUserContext.IsSuperAdmin)
+        {
+            return;
+        }
+
+        await _campusScopeHelper.EnsureUserInScopeAsync(targetUserId);
+
+        if (_currentUserContext.IsCenterAdmin)
+        {
+            var distinctRoleIds = roleIds.Distinct().ToList();
+            if (!distinctRoleIds.Any())
+            {
+                return;
+            }
+
+            var requestedRoleCodes = await _context.Roles
+                .Where(x => distinctRoleIds.Contains(x.Id) && !x.IsDeleted)
+                .Select(x => x.Code)
+                .ToListAsync();
+
+            var hasUnallowedRole = requestedRoleCodes.Any(roleCode => !RoleAssignmentConstants.CampusAdminAssignableRoles.Contains(roleCode));
+            if (hasUnallowedRole)
+            {
+                throw new BusinessException(
+                    $"Center admin can only assign roles: {string.Join(", ", RoleAssignmentConstants.CampusAdminAssignableRoles)}.");
+            }
+        }
     }
 }
