@@ -62,7 +62,7 @@ public class ScheduleModel : PageModel
             FullName = me.FullName;
         }
 
-        var enrollmentData = await _apiClient.GetAsync<PagedResult<EnrollmentDto>>("enrollments?PageNumber=1&PageSize=200");
+        var enrollmentData = await _apiClient.GetAsync<PagedResult<EnrollmentDto>>("enrollments?PageNumber=1&PageSize=500");
         var allEnrollments = enrollmentData?.Items?.ToList() ?? new List<EnrollmentDto>();
 
         Enrollments = allEnrollments
@@ -71,35 +71,44 @@ public class ScheduleModel : PageModel
                 || x.StudentName.Contains(FullName, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        long studentId = 0;
+        long studentId = Enrollments.FirstOrDefault()?.StudentId ?? 0;
 
-        var studentsData = await _apiClient.GetAsync<PagedResult<StudentSimpleDto>>($"students?PageNumber=1&PageSize=200&Keyword={Uri.EscapeDataString(FullName)}");
-        var matchedStudent = studentsData?.Items?.FirstOrDefault(x =>
-            x.FullName.Equals(FullName, StringComparison.OrdinalIgnoreCase)
-            || x.FullName.Contains(FullName, StringComparison.OrdinalIgnoreCase));
+        if (studentId == 0 && !string.IsNullOrWhiteSpace(FullName))
+        {
+            var studentsData = await _apiClient.GetAsync<PagedResult<StudentSimpleDto>>($"students?PageNumber=1&PageSize=500&Keyword={Uri.EscapeDataString(FullName)}");
+            var matchedStudent = studentsData?.Items?.FirstOrDefault(x =>
+                x.FullName.Equals(FullName, StringComparison.OrdinalIgnoreCase)
+                || x.FullName.Contains(FullName, StringComparison.OrdinalIgnoreCase));
+            studentId = matchedStudent?.Id ?? 0;
+            if (studentId > 0) DataSourceNote = "student-id: students endpoint";
+        }
 
-        if (matchedStudent != null)
-        {
-            studentId = matchedStudent.Id;
-            DataSourceNote = "student-id: students endpoint";
-        }
-        else if (Enrollments.Any())
-        {
-            studentId = Enrollments[0].StudentId;
-            DataSourceNote = "student-id: enrollments endpoint";
-        }
-        else if (me != null)
+        if (studentId == 0 && me != null)
         {
             studentId = me.UserId;
             DataSourceNote = "student-id: fallback from auth/me";
         }
 
         var allItems = new List<TimetableItemDto>();
+
         if (studentId > 0)
         {
-            var allUrl = $"students/{studentId}/timetable?PageNumber=1&PageSize=500&SortBy=SessionDate&SortDirection=asc";
-            var allData = await _apiClient.GetAsync<PagedResult<TimetableItemDto>>(allUrl);
-            allItems = allData?.Items?.OrderBy(x => x.SessionDate).ThenBy(x => x.StartTime).ToList() ?? new List<TimetableItemDto>();
+            allItems = await LoadStudentTimetableAsync(studentId);
+            if (allItems.Any())
+            {
+                DataSourceNote = string.IsNullOrWhiteSpace(DataSourceNote)
+                    ? "timetable: students/{id}/timetable"
+                    : DataSourceNote + " | timetable: students/{id}/timetable";
+            }
+        }
+
+        if (!allItems.Any() && Enrollments.Any())
+        {
+            allItems = await LoadClassTimetableFallbackAsync(Enrollments.Select(x => x.ClassId).Distinct().ToList());
+            if (allItems.Any())
+            {
+                DataSourceNote += " | fallback: classes/{classId}/timetable";
+            }
         }
 
         var weekStarts = allItems
@@ -137,7 +146,41 @@ public class ScheduleModel : PageModel
             }
         }
 
+        if (!Items.Any())
+        {
+            DataSourceNote += " | chưa có buổi học từ API cho tài khoản hiện tại";
+        }
+
         WeekDays = Enumerable.Range(0, 7).Select(x => WeekStart.AddDays(x)).ToList();
+    }
+
+    private async Task<List<TimetableItemDto>> LoadStudentTimetableAsync(long studentId)
+    {
+        var allUrl = $"students/{studentId}/timetable?PageNumber=1&PageSize=500&SortBy=SessionDate&SortDirection=asc";
+        var allData = await _apiClient.GetAsync<PagedResult<TimetableItemDto>>(allUrl);
+        return allData?.Items?.OrderBy(x => x.SessionDate).ThenBy(x => x.StartTime).ToList() ?? new List<TimetableItemDto>();
+    }
+
+    private async Task<List<TimetableItemDto>> LoadClassTimetableFallbackAsync(List<long> classIds)
+    {
+        var result = new List<TimetableItemDto>();
+
+        foreach (var classId in classIds)
+        {
+            var url = $"classes/{classId}/timetable?PageNumber=1&PageSize=200&SortBy=SessionDate&SortDirection=asc";
+            var data = await _apiClient.GetAsync<PagedResult<TimetableItemDto>>(url);
+            if (data?.Items != null)
+            {
+                result.AddRange(data.Items);
+            }
+        }
+
+        return result
+            .GroupBy(x => x.SessionId)
+            .Select(g => g.First())
+            .OrderBy(x => x.SessionDate)
+            .ThenBy(x => x.StartTime)
+            .ToList();
     }
 
     public List<TimetableItemDto> DayItems(DateOnly day)
