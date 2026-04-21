@@ -19,13 +19,18 @@ public class ScheduleModel : PageModel
 
     [BindProperty(SupportsGet = true)] public string? FromDate { get; set; }
     [BindProperty(SupportsGet = true)] public string? ToDate { get; set; }
+    [BindProperty(SupportsGet = true)] public string? Month { get; set; }
 
     public List<EnrollmentDto> Enrollments { get; set; } = new();
     public List<TimetableItemDto> Items { get; set; } = new();
     public List<DateOnly> WeekDays { get; set; } = new();
+    public List<string> AvailableMonths { get; set; } = new();
 
     public DateOnly WeekStart { get; set; }
     public DateOnly WeekEnd { get; set; }
+    public DateOnly PrevWeekStart => WeekStart.AddDays(-7);
+    public DateOnly NextWeekStart => WeekStart.AddDays(7);
+
     public string DataSourceNote { get; set; } = string.Empty;
 
     public async Task OnGetAsync()
@@ -33,8 +38,14 @@ public class ScheduleModel : PageModel
         var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
         var monday = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
 
-        WeekStart = DateOnly.TryParse(FromDate, out var from) ? from : monday;
-        WeekEnd = DateOnly.TryParse(ToDate, out var to) ? to : WeekStart.AddDays(6);
+        WeekStart = monday;
+        WeekEnd = WeekStart.AddDays(6);
+
+        if (!string.IsNullOrWhiteSpace(FromDate) && DateOnly.TryParse(FromDate, out var from))
+        {
+            WeekStart = from;
+            WeekEnd = WeekStart.AddDays(6);
+        }
 
         var me = await _apiClient.GetAsync<CurrentUserDto>("auth/me");
         if (me != null)
@@ -75,25 +86,42 @@ public class ScheduleModel : PageModel
             DataSourceNote = "student-id: fallback from auth/me";
         }
 
+        var allItems = new List<TimetableItemDto>();
         if (studentId > 0)
         {
-            var weeklyUrl = $"students/{studentId}/timetable?PageNumber=1&PageSize=200&FromDate={WeekStart:yyyy-MM-dd}&ToDate={WeekEnd:yyyy-MM-dd}";
-            var weeklyData = await _apiClient.GetAsync<PagedResult<TimetableItemDto>>(weeklyUrl);
-            Items = weeklyData?.Items?.OrderBy(x => x.SessionDate).ThenBy(x => x.StartTime).ToList() ?? new List<TimetableItemDto>();
+            var allUrl = $"students/{studentId}/timetable?PageNumber=1&PageSize=500&SortBy=SessionDate&SortDirection=asc";
+            var allData = await _apiClient.GetAsync<PagedResult<TimetableItemDto>>(allUrl);
+            allItems = allData?.Items?.OrderBy(x => x.SessionDate).ThenBy(x => x.StartTime).ToList() ?? new List<TimetableItemDto>();
+        }
 
-            if (!Items.Any())
+        AvailableMonths = allItems
+            .Select(x => DateOnly.TryParse(x.SessionDate, out var d) ? d.ToString("yyyy-MM") : null)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Distinct()
+            .Cast<string>()
+            .ToList();
+
+        if (!string.IsNullOrWhiteSpace(Month) && DateOnly.TryParse($"{Month}-01", out var monthStart))
+        {
+            var monthItems = allItems.Where(x => DateOnly.TryParse(x.SessionDate, out var d) && d.Year == monthStart.Year && d.Month == monthStart.Month).ToList();
+            if (monthItems.Any() && DateOnly.TryParse(monthItems[0].SessionDate, out var firstMonthDate))
             {
-                var fallbackUrl = $"students/{studentId}/timetable?PageNumber=1&PageSize=200&SortBy=SessionDate&SortDirection=asc";
-                var fallback = await _apiClient.GetAsync<PagedResult<TimetableItemDto>>(fallbackUrl);
-                var allItems = fallback?.Items?.OrderBy(x => x.SessionDate).ThenBy(x => x.StartTime).ToList() ?? new List<TimetableItemDto>();
+                WeekStart = firstMonthDate.AddDays(-(((int)firstMonthDate.DayOfWeek + 6) % 7));
+                WeekEnd = WeekStart.AddDays(6);
+                DataSourceNote += " | filtered by selected month";
+            }
+        }
 
-                if (allItems.Any() && DateOnly.TryParse(allItems[0].SessionDate, out var firstDate))
-                {
-                    WeekStart = firstDate.AddDays(-(((int)firstDate.DayOfWeek + 6) % 7));
-                    WeekEnd = WeekStart.AddDays(6);
-                    Items = allItems.Where(x => DateOnly.TryParse(x.SessionDate, out var d) && d >= WeekStart && d <= WeekEnd).ToList();
-                    DataSourceNote += " | week auto-shifted to first available session";
-                }
+        Items = allItems.Where(x => DateOnly.TryParse(x.SessionDate, out var d) && d >= WeekStart && d <= WeekEnd).ToList();
+
+        if (!Items.Any() && allItems.Any())
+        {
+            if (DateOnly.TryParse(allItems[0].SessionDate, out var firstDate))
+            {
+                WeekStart = firstDate.AddDays(-(((int)firstDate.DayOfWeek + 6) % 7));
+                WeekEnd = WeekStart.AddDays(6);
+                Items = allItems.Where(x => DateOnly.TryParse(x.SessionDate, out var d) && d >= WeekStart && d <= WeekEnd).ToList();
+                DataSourceNote += " | week auto-shifted to first available session";
             }
         }
 
