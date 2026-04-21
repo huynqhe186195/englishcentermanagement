@@ -2,39 +2,95 @@
 @model EnglishCenter.Web.Pages.Student.IndexModel
 @{
     ViewData["Title"] = "Student Dashboard";
+    ViewData["HideChrome"] = true;
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <h2>Welcome, @Model.FullName ?? @Model.UserName</h2>
-        <p class="text-muted">This is your student dashboard. Access your enrollments, timetable and academic summary.</p>
+<div class="student-shell">
+    <aside class="student-sidebar">
+        <div class="student-brand">EduCenter</div>
 
-        <div class="mt-4 d-flex gap-2">
-            <a class="btn btn-lg btn-primary" asp-page="/Enrollments/Index">My Enrollments</a>
-            <a class="btn btn-lg btn-outline-light text-primary" style="background:#f3f4f6;" asp-page="/Classes/Index">Browse Classes</a>
-            <a class="btn btn-lg btn-outline-secondary" asp-page="/Account/Logout">Logout</a>
+        <div class="student-profile">
+            <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200"
+                 alt="student avatar" />
+            <h4>@(string.IsNullOrWhiteSpace(Model.FullName) ? Model.UserName : Model.FullName)</h4>
+            <span>Học viên</span>
         </div>
-    </div>
-</div>
 
-<div class="row mt-4">
-    <div class="col-md-6">
-        <div class="card stat-card mb-3 shadow-sm">
-            <div class="card-body">
-                <h6 class="card-subtitle text-muted">Next Session</h6>
-                <h5 class="mt-2">--</h5>
-                <p class="text-muted small">Open your enrollments to see session details.</p>
+        <nav class="student-menu">
+            <a class="active" href="/Student/Index">Dashboard</a>
+            <a href="/Enrollments/Index">Khóa học của tôi</a>
+            <a href="/Student/AttendanceReport">Điểm danh</a>
+            <a href="/Student/AcademicSummary">Điểm số</a>
+            <a href="#">Bài tập</a>
+            <a href="#">Thông báo</a>
+            <a href="#">Hồ sơ cá nhân</a>
+        </nav>
+
+        <a class="student-logout" href="/Account/Logout">Đăng xuất</a>
+    </aside>
+
+    <main class="student-main">
+        <header class="student-topbar">
+            <h2>Dashboard</h2>
+            <input type="text" placeholder="Tìm kiếm khóa học, tài liệu..." />
+            <div class="student-topbar-user">👩‍🎓</div>
+        </header>
+
+        <section class="student-welcome">
+            <h1>Chào buổi sáng, @(string.IsNullOrWhiteSpace(Model.FullName) ? "bạn" : Model.FullName)! 👋</h1>
+            <p>Bạn có 1 buổi học IELTS vào tối nay và 2 bài tập cần nộp trong tuần này. Hãy tiếp tục cố gắng nhé!</p>
+        </section>
+
+        <section class="student-stats">
+            <article class="student-stat-card">
+                <h6>Khóa học đang học</h6>
+                <strong>3</strong>
+                <span>↗ Tăng 1 so với tháng trước</span>
+            </article>
+            <article class="student-stat-card">
+                <h6>Điểm chuyên cần</h6>
+                <strong>92%</strong>
+                <span>Xuất sắc</span>
+            </article>
+            <article class="student-stat-card">
+                <h6>Bài kiểm tra sắp tới</h6>
+                <strong>2</strong>
+                <span>Thứ 5, 24/04</span>
+            </article>
+            <article class="student-stat-card">
+                <h6>Thông báo mới</h6>
+                <strong>3</strong>
+                <span>Cần xem ngay</span>
+            </article>
+        </section>
+
+        <section class="student-content-grid">
+            <div class="student-courses">
+                <div class="student-section-title">Khóa học của tôi</div>
+
+                <article class="student-course-item">
+                    <h4>IELTS Preparation 6.0+</h4>
+                    <p>GV. Trần Văn Minh • Tiến độ 65%</p>
+                </article>
+                <article class="student-course-item">
+                    <h4>Business English Advanced</h4>
+                    <p>GV. Lê Kim Ngân • Tiến độ 40%</p>
+                </article>
+                <article class="student-course-item">
+                    <h4>English Communication</h4>
+                    <p>GV. Nguyễn Tuấn Anh • Tiến độ 85%</p>
+                </article>
             </div>
-        </div>
-    </div>
 
-    <div class="col-md-6">
-        <div class="card stat-card mb-3 shadow-sm">
-            <div class="card-body">
-                <h6 class="card-subtitle text-muted">Attendance Rate</h6>
-                <h5 class="mt-2">--</h5>
-                <p class="text-muted small">Your overall attendance rate will appear here.</p>
+            <div class="student-schedule">
+                <div class="student-section-title">Lịch học tuần này</div>
+                <ul>
+                    <li><strong>Thứ 2</strong> Không có lịch học</li>
+                    <li><strong>Thứ 3</strong> IELTS Preparation 6.0+ • 18:00 - 20:00</li>
+                    <li><strong>Thứ 5</strong> Business English • 19:30 - 21:00</li>
+                    <li><strong>Thứ 6</strong> English Communication • 18:00 - 19:30</li>
+                </ul>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 </div>
