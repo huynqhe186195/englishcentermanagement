@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using EnglishCenter.Web.Models;
 using EnglishCenter.Web.Services;
+using System.Globalization;
 
 namespace EnglishCenter.Web.Pages.Student;
 
@@ -20,9 +21,14 @@ public class AttendanceReportModel : PageModel
     [BindProperty(SupportsGet = true)]
     public long? ClassId { get; set; }
 
+    [BindProperty(SupportsGet = true)]
+    public string? Month { get; set; }
+
     public List<EnrollmentDto> Enrollments { get; set; } = new();
     public StudentAttendanceReportDto Report { get; set; } = new();
     public List<CalendarDayVm> CalendarDays { get; set; } = new();
+    public List<MonthOptionVm> MonthOptions { get; set; } = new();
+    public string DisplayMonthLabel { get; set; } = DateTime.UtcNow.ToString("MM/yyyy");
 
     public int ExcusedAbsentCount => Report.Sessions.Count(x => (x.AttendanceStatusText ?? string.Empty).Contains("Có phép", StringComparison.OrdinalIgnoreCase));
     public int UnexcusedAbsentCount => Math.Max(Report.AbsentCount - ExcusedAbsentCount, 0);
@@ -61,16 +67,59 @@ public class AttendanceReportModel : PageModel
             Report = await _apiClient.GetAsync<StudentAttendanceReportDto>(url) ?? new StudentAttendanceReportDto();
         }
 
-        CalendarDays = BuildCalendar(Report.Sessions);
+        var displayMonth = ResolveDisplayMonth(Report.Sessions, Month);
+        Month = displayMonth.ToString("yyyy-MM");
+        DisplayMonthLabel = displayMonth.ToString("MM/yyyy");
+        MonthOptions = BuildMonthOptions(Report.Sessions, displayMonth);
+        CalendarDays = BuildCalendar(Report.Sessions, displayMonth);
     }
 
-    private static List<CalendarDayVm> BuildCalendar(List<StudentAttendanceReportSessionItemDto> sessions)
+    private static DateTime ResolveDisplayMonth(List<StudentAttendanceReportSessionItemDto> sessions, string? requestedMonth)
     {
-        var current = sessions.Any()
-            ? sessions[0].SessionDate.ToDateTime(TimeOnly.MinValue)
-            : DateTime.UtcNow;
+        if (!string.IsNullOrWhiteSpace(requestedMonth)
+            && DateTime.TryParseExact(requestedMonth + "-01", "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
+        {
+            return parsed;
+        }
 
-        var monthStart = new DateTime(current.Year, current.Month, 1);
+        if (sessions.Any())
+        {
+            var latestSessionDate = sessions.Max(x => x.SessionDate);
+            return latestSessionDate.ToDateTime(TimeOnly.MinValue);
+        }
+
+        return DateTime.UtcNow;
+    }
+
+    private static List<MonthOptionVm> BuildMonthOptions(List<StudentAttendanceReportSessionItemDto> sessions, DateTime displayMonth)
+    {
+        var options = sessions
+            .Select(x => new DateTime(x.SessionDate.Year, x.SessionDate.Month, 1))
+            .Distinct()
+            .OrderByDescending(x => x)
+            .Select(x => new MonthOptionVm
+            {
+                Value = x.ToString("yyyy-MM"),
+                Label = x.ToString("MM/yyyy")
+            })
+            .ToList();
+
+        var displayMonthValue = displayMonth.ToString("yyyy-MM");
+        if (!options.Any(x => x.Value == displayMonthValue))
+        {
+            options.Insert(0, new MonthOptionVm
+            {
+                Value = displayMonthValue,
+                Label = displayMonth.ToString("MM/yyyy")
+            });
+        }
+
+        return options;
+    }
+
+    private static List<CalendarDayVm> BuildCalendar(List<StudentAttendanceReportSessionItemDto> sessions, DateTime displayMonth)
+    {
+        var monthStart = new DateTime(displayMonth.Year, displayMonth.Month, 1);
         var startOffset = ((int)monthStart.DayOfWeek + 6) % 7;
         var calendarStart = monthStart.AddDays(-startOffset);
 
@@ -102,5 +151,11 @@ public class AttendanceReportModel : PageModel
         public DateOnly Date { get; set; }
         public bool IsCurrentMonth { get; set; }
         public List<StudentAttendanceReportSessionItemDto> Sessions { get; set; } = new();
+    }
+
+    public class MonthOptionVm
+    {
+        public string Value { get; set; } = string.Empty;
+        public string Label { get; set; } = string.Empty;
     }
 }
