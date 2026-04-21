@@ -13,5 +13,6 @@ public interface IJwtTokenService
         string userName,
         string fullName,
         IEnumerable<string> roles,
-        IEnumerable<string> permissions);
+        IEnumerable<string> permissions,
+        long? campusId = null);
 }

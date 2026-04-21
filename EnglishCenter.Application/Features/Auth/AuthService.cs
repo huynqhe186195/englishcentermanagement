@@ -3,6 +3,7 @@ using EnglishCenter.Application.Common.Exceptions;
 using EnglishCenter.Application.Common.Interfaces;
 using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Application.Features.Auth.Dtos;
+using EnglishCenter.Domain.Constants;
 using EnglishCenter.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -191,6 +192,33 @@ public class AuthService
             throw new BusinessException("Invalid campus for this account.");
         }
 
+        var isStudent = roles.Contains(RoleConstants.Student);
+        if (isStudent)
+        {
+            var eligibleEnrollments = _context.Enrollments
+                .Where(e =>
+                    !e.IsDeleted &&
+                    e.Student.UserId == user.Id &&
+                    (e.Status == EnrollmentStatusConstants.Active
+                     || e.Status == EnrollmentStatusConstants.Suspended
+                     || e.Status == EnrollmentStatusConstants.Completed));
+
+            var hasAnyEligibleEnrollment = await eligibleEnrollments.AnyAsync();
+            if (hasAnyEligibleEnrollment)
+            {
+                var isValidStudentCampus = await eligibleEnrollments
+                    .AnyAsync(e =>
+                        e.Class.CampusId == request.CampusId);
+
+                if (!isValidStudentCampus)
+                {
+                    throw new BusinessException("Invalid campus for this student account.");
+                }
+            }
+        }
+
+        var tokenCampusId = user.CampusId ?? request.CampusId;
+
         var permissions = await _permissionCacheService.GetPermissionsAsync(user.Id);
 
         var (accessToken, expiresAtUtc) = _jwtTokenService.GenerateToken(
@@ -198,7 +226,8 @@ public class AuthService
             user.UserName,
             user.FullName,
             roles,
-            permissions);
+            permissions,
+            tokenCampusId);
 
         var refreshToken = GenerateRefreshToken();
 
@@ -223,7 +252,7 @@ public class AuthService
             AccessToken = accessToken,
             RefreshToken = refreshToken,
             ExpiresAtUtc = expiresAtUtc,
-            CampusId = user.CampusId,
+            CampusId = tokenCampusId,
             Roles = roles
         };
     }
@@ -265,12 +294,37 @@ public class AuthService
 
         var permissions = await _permissionCacheService.GetPermissionsAsync(user.Id);
 
+        var tokenCampusId = user.CampusId;
+        if (!tokenCampusId.HasValue && roles.Contains(RoleConstants.Student))
+        {
+            var studentCampusId = await (
+                from e in _context.Enrollments
+                where !e.IsDeleted
+                      && e.Student.UserId == user.Id
+                      && e.Class.CampusId.HasValue
+                      && (e.Status == EnrollmentStatusConstants.Active
+                          || e.Status == EnrollmentStatusConstants.Suspended
+                          || e.Status == EnrollmentStatusConstants.Completed)
+                select e.Class.CampusId!.Value
+            ).FirstOrDefaultAsync();
+
+            if (studentCampusId > 0)
+            {
+                tokenCampusId = studentCampusId;
+            }
+            else if (request.CampusId.HasValue && request.CampusId.Value > 0)
+            {
+                tokenCampusId = request.CampusId.Value;
+            }
+        }
+
         var (accessToken, expiresAtUtc) = _jwtTokenService.GenerateToken(
             user.Id,
             user.UserName,
             user.FullName,
             roles,
-            permissions);
+            permissions,
+            tokenCampusId);
 
         var newRefreshToken = GenerateRefreshToken();
 
@@ -299,7 +353,7 @@ public class AuthService
             AccessToken = accessToken,
             RefreshToken = newRefreshToken,
             ExpiresAtUtc = expiresAtUtc,
-            CampusId = user.CampusId,
+            CampusId = tokenCampusId,
             Roles = roles
         };
     }
