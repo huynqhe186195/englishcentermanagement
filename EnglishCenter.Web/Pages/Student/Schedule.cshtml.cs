@@ -18,13 +18,13 @@ public class ScheduleModel : PageModel
     public string FullName { get; set; } = string.Empty;
 
     [BindProperty(SupportsGet = true)] public string? FromDate { get; set; }
-    [BindProperty(SupportsGet = true)] public string? ToDate { get; set; }
     [BindProperty(SupportsGet = true)] public string? Month { get; set; }
 
     public List<EnrollmentDto> Enrollments { get; set; } = new();
     public List<TimetableItemDto> Items { get; set; } = new();
     public List<DateOnly> WeekDays { get; set; } = new();
-    public List<string> AvailableMonths { get; set; } = new();
+    public List<WeekOptionVm> WeekOptions { get; set; } = new();
+    public List<MonthOptionVm> MonthOptions { get; set; } = new();
 
     public DateOnly WeekStart { get; set; }
     public DateOnly WeekEnd { get; set; }
@@ -38,12 +38,20 @@ public class ScheduleModel : PageModel
         var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
         var monday = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
 
-        WeekStart = monday;
+        WeekStart = DateOnly.TryParse(FromDate, out var from) ? from : monday;
         WeekEnd = WeekStart.AddDays(6);
 
-        if (!string.IsNullOrWhiteSpace(FromDate) && DateOnly.TryParse(FromDate, out var from))
+        MonthOptions = Enumerable.Range(1, 12)
+            .Select(m => new MonthOptionVm
+            {
+                Value = new DateOnly(today.Year, m, 1).ToString("yyyy-MM"),
+                Label = $"Tháng {m:00}/{today.Year}"
+            })
+            .ToList();
+
+        if (!string.IsNullOrWhiteSpace(Month) && DateOnly.TryParse($"{Month}-01", out var monthStart))
         {
-            WeekStart = from;
+            WeekStart = monthStart.AddDays(-(((int)monthStart.DayOfWeek + 6) % 7));
             WeekEnd = WeekStart.AddDays(6);
         }
 
@@ -94,23 +102,27 @@ public class ScheduleModel : PageModel
             allItems = allData?.Items?.OrderBy(x => x.SessionDate).ThenBy(x => x.StartTime).ToList() ?? new List<TimetableItemDto>();
         }
 
-        AvailableMonths = allItems
-            .Select(x => DateOnly.TryParse(x.SessionDate, out var d) ? d.ToString("yyyy-MM") : null)
-            .Where(x => !string.IsNullOrWhiteSpace(x))
+        var weekStarts = allItems
+            .Select(x => DateOnly.TryParse(x.SessionDate, out var d) ? d.AddDays(-(((int)d.DayOfWeek + 6) % 7)) : (DateOnly?)null)
+            .Where(x => x.HasValue)
+            .Select(x => x!.Value)
             .Distinct()
-            .Cast<string>()
+            .OrderBy(x => x)
             .ToList();
 
-        if (!string.IsNullOrWhiteSpace(Month) && DateOnly.TryParse($"{Month}-01", out var monthStart))
+        if (!weekStarts.Contains(WeekStart))
         {
-            var monthItems = allItems.Where(x => DateOnly.TryParse(x.SessionDate, out var d) && d.Year == monthStart.Year && d.Month == monthStart.Month).ToList();
-            if (monthItems.Any() && DateOnly.TryParse(monthItems[0].SessionDate, out var firstMonthDate))
-            {
-                WeekStart = firstMonthDate.AddDays(-(((int)firstMonthDate.DayOfWeek + 6) % 7));
-                WeekEnd = WeekStart.AddDays(6);
-                DataSourceNote += " | filtered by selected month";
-            }
+            weekStarts.Add(WeekStart);
+            weekStarts = weekStarts.Distinct().OrderBy(x => x).ToList();
         }
+
+        WeekOptions = weekStarts
+            .Select(x => new WeekOptionVm
+            {
+                Value = x.ToString("yyyy-MM-dd"),
+                Label = $"Tuần {x:dd/MM} - {x.AddDays(6):dd/MM}"
+            })
+            .ToList();
 
         Items = allItems.Where(x => DateOnly.TryParse(x.SessionDate, out var d) && d >= WeekStart && d <= WeekEnd).ToList();
 
@@ -154,4 +166,16 @@ public class ScheduleModel : PageModel
         DayOfWeek.Saturday => "T7",
         _ => "CN"
     };
+
+    public class WeekOptionVm
+    {
+        public string Value { get; set; } = string.Empty;
+        public string Label { get; set; } = string.Empty;
+    }
+
+    public class MonthOptionVm
+    {
+        public string Value { get; set; } = string.Empty;
+        public string Label { get; set; } = string.Empty;
+    }
 }

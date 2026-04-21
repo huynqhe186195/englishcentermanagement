@@ -34,15 +34,24 @@
             <h2>Lịch học</h2>
             <div class="schedule-week-filter-wrap">
                 <a class="schedule-nav-btn" href="?FromDate=@Model.PrevWeekStart.ToString("yyyy-MM-dd")">‹</a>
-                <span class="schedule-week-filter">@Model.WeekStart.ToString("dd/MM") - @Model.WeekEnd.ToString("dd/MM/yyyy")</span>
+
+                <form method="get" class="schedule-week-combo">
+                    <select name="FromDate" onchange="this.form.submit()">
+                        @foreach (var w in Model.WeekOptions)
+                        {
+                            <option value="@w.Value" selected="@(w.Value == Model.WeekStart.ToString("yyyy-MM-dd"))">@w.Label</option>
+                        }
+                    </select>
+                </form>
+
                 <a class="schedule-nav-btn" href="?FromDate=@Model.NextWeekStart.ToString("yyyy-MM-dd")">›</a>
 
                 <form method="get" class="schedule-month-filter">
                     <select name="Month" onchange="this.form.submit()">
-                        <option value="">Chọn tháng có lịch</option>
-                        @foreach (var m in Model.AvailableMonths)
+                        <option value="">Chọn tháng</option>
+                        @foreach (var m in Model.MonthOptions)
                         {
-                            <option value="@m" selected="@(Model.Month == m)">@m</option>
+                            <option value="@m.Value" selected="@(Model.Month == m.Value)">@m.Label</option>
                         }
                     </select>
                 </form>
