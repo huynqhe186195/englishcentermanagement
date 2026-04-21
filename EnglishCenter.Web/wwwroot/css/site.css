@@ -1041,3 +1041,138 @@ body {
         align-items: flex-start;
     }
 }
+
+.my-course-card-head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.my-course-meta-icons {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    font-size: .92rem;
+    opacity: .95;
+}
+
+.my-course-progress-row {
+    display: grid;
+    grid-template-columns: 1.5fr .8fr;
+    gap: 16px;
+    padding: 14px 18px 4px;
+}
+
+.my-course-progress-wrap {
+    min-width: 0;
+}
+
+.my-course-skills-grid {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 14px;
+}
+
+.my-course-skills-grid label {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    font-size: .86rem;
+    color: #334155;
+    margin-bottom: 4px;
+}
+
+.my-course-skill-bar {
+    height: 5px;
+    background: #e2e8f0;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.my-course-skill-bar i {
+    display: block;
+    height: 100%;
+    background: #111827;
+}
+
+.my-course-side-notes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.my-course-reminder,
+.my-course-test {
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: .9rem;
+    line-height: 1.35;
+}
+
+.my-course-reminder {
+    color: #c2410c;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+}
+
+.my-course-test {
+    color: #334155;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.my-course-tabs {
+    display: inline-flex;
+    gap: 6px;
+    background: #f1f5f9;
+    border-radius: 9px;
+    padding: 3px;
+}
+
+.my-course-tabs span {
+    font-size: .84rem;
+    color: #64748b;
+    padding: 5px 10px;
+    border-radius: 7px;
+    font-weight: 700;
+}
+
+.my-course-tabs span.active {
+    background: #fff;
+    color: #0f172a;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, .08);
+}
+
+.my-course-buttons {
+    display: inline-flex;
+    gap: 8px;
+}
+
+.my-course-actions {
+    margin-top: 14px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 12px;
+}
+
+@media (max-width: 1200px) {
+    .my-course-meta-icons {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .my-course-progress-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .my-course-skills-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .my-course-actions {
+        gap: 10px;
+    }
+}

@@ -10,8 +10,7 @@
         <div class="student-brand">English Center</div>
 
         <div class="student-profile">
-            <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200"
-                 alt="student avatar" />
+            <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200" alt="student avatar" />
             <h4>@(string.IsNullOrWhiteSpace(Model.FullName) ? Model.UserName : Model.FullName)</h4>
             <span>Mã HV: @(string.IsNullOrWhiteSpace(Model.UserName) ? "HV-000" : Model.UserName)</span>
         </div>
@@ -42,65 +41,79 @@
         </header>
 
         <section class="my-courses-stat-grid">
-            <article class="my-courses-stat my-courses-stat--blue">
-                <p>Đang học</p>
-                <strong>@Model.ActiveCount <small>khóa</small></strong>
-            </article>
-            <article class="my-courses-stat my-courses-stat--green">
-                <p>Đã hoàn thành</p>
-                <strong>@Model.CompletedCount <small>khóa</small></strong>
-            </article>
-            <article class="my-courses-stat my-courses-stat--purple">
-                <p>Tổng giờ học</p>
-                <strong>@Model.TotalHoursLabel <small>giờ</small></strong>
-            </article>
+            <article class="my-courses-stat my-courses-stat--blue"><p>Đang học</p><strong>@Model.ActiveCount <small>khóa</small></strong></article>
+            <article class="my-courses-stat my-courses-stat--green"><p>Đã hoàn thành</p><strong>@Model.CompletedCount <small>khóa</small></strong></article>
+            <article class="my-courses-stat my-courses-stat--purple"><p>Tổng giờ học</p><strong>@Model.TotalHoursLabel <small>giờ</small></strong></article>
         </section>
 
-        @if (Model.Courses.Any())
+        @if (Model.CardCourses.Any())
         {
             <section class="my-course-list">
-                @for (var i = 0; i < Model.Courses.Count; i++)
+                @for (var i = 0; i < Model.CardCourses.Count; i++)
                 {
-                    var course = Model.Courses[i];
+                    var course = Model.CardCourses[i];
                     var themeClass = i % 2 == 0 ? "my-course-card--violet" : "my-course-card--teal";
-                    var statusText = course.Status == 1 ? "Đang học" : "Đã hoàn thành";
-                    var progress = Model.GetProgress(course, i);
-
                     <article class="my-course-card @themeClass">
                         <div class="my-course-card-head">
                             <div class="my-course-card-title-wrap">
-                                <h3>@course.ClassName</h3>
-                                <span class="my-course-badge">@statusText</span>
+                                <h3>@course.CourseName</h3>
+                                <span class="my-course-badge">@course.StatusText</span>
                             </div>
-                            <small>Ngày đăng ký: @course.EnrollDate</small>
+                            <div class="my-course-meta-icons">
+                                <span>👨‍🏫 @course.TeacherName</span>
+                                <span>👥 @course.StudentsText</span>
+                                <span>📍 @course.RoomText</span>
+                                <span>🗓 @course.ScheduleText</span>
+                            </div>
                         </div>
 
                         <div class="my-course-card-body">
-                            <div class="my-course-card-meta">
-                                <span>👨‍🏫 GV phụ trách: đang cập nhật</span>
-                                <span>🏫 Phòng: #@course.ClassId</span>
-                                <span>👥 Mã ghi danh: #@course.Id</span>
-                            </div>
+                            <div class="my-course-progress-row">
+                                <div class="my-course-progress-wrap">
+                                    <div class="my-course-progress-title">
+                                        <span>Tiến độ khóa học</span>
+                                        <strong>@course.ProgressPercent% (@course.CompletedSessions/@course.TotalSessions buổi)</strong>
+                                    </div>
+                                    <div class="my-course-progress-bar"><i style="width:@course.ProgressPercent%"></i></div>
 
-                            <div class="my-course-progress">
-                                <div class="my-course-progress-title">
-                                    <span>Tiến độ khóa học</span>
-                                    <strong>@progress%</strong>
+                                    <div class="my-course-skills-grid">
+                                        <div>
+                                            <label>Listening <b>@course.Listening%</b></label>
+                                            <div class="my-course-skill-bar"><i style="width:@course.Listening%"></i></div>
+                                        </div>
+                                        <div>
+                                            <label>Reading <b>@course.Reading%</b></label>
+                                            <div class="my-course-skill-bar"><i style="width:@course.Reading%"></i></div>
+                                        </div>
+                                        <div>
+                                            <label>Writing <b>@course.Writing%</b></label>
+                                            <div class="my-course-skill-bar"><i style="width:@course.Writing%"></i></div>
+                                        </div>
+                                        <div>
+                                            <label>Speaking <b>@course.Speaking%</b></label>
+                                            <div class="my-course-skill-bar"><i style="width:@course.Speaking%"></i></div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="my-course-progress-bar">
-                                    <i style="width:@progress%"></i>
+
+                                <div class="my-course-side-notes">
+                                    <div class="my-course-reminder">🕒 Buổi học tiếp theo<br /><b>@course.NextLessonText</b></div>
+                                    <div class="my-course-test">📝 Bài kiểm tra sắp tới<br /><b>@course.UpcomingTestText</b></div>
                                 </div>
                             </div>
 
                             <div class="my-course-actions">
-                                <div class="my-course-reminder">🕒 Buổi học tiếp theo: Thứ 3, Thứ 5 • 18:00-20:00</div>
-                                <a class="btn btn-sm btn-outline-light my-course-btn" href="#">Xem chi tiết</a>
+                                <div class="my-course-tabs">
+                                    <span class="active">Tổng quan</span>
+                                    <span>Bài học</span>
+                                    <span>Bài tập</span>
+                                    <span>Điểm số</span>
+                                </div>
+                                <div class="my-course-buttons">
+                                    <a class="btn btn-sm btn-outline-secondary" href="#">Tài liệu học</a>
+                                    <a class="btn btn-sm btn-primary" href="#">Xem chi tiết</a>
+                                </div>
                             </div>
-
-                            @if (!string.IsNullOrWhiteSpace(course.Note))
-                            {
-                                <div class="my-course-note">Ghi chú: @course.Note</div>
-                            }
                         </div>
                     </article>
                 }
@@ -108,9 +121,7 @@
         }
         else
         {
-            <div class="my-course-empty">
-                Chưa có dữ liệu khóa học từ API. Hãy đăng ký khóa học để bắt đầu nhé.
-            </div>
+            <div class="my-course-empty">Chưa có dữ liệu khóa học từ API. Hãy đăng ký khóa học để bắt đầu nhé.</div>
         }
     </main>
 </div>
