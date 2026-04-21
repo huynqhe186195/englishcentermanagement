@@ -21,7 +21,22 @@ public class IndexModel : PageModel
         var campusRevenue = await _apiClient.GetAsync<List<RevenueByCampusItemDto>>("financialDashboard/revenue-by-campus")
             ?? new List<RevenueByCampusItemDto>();
 
-        foreach (var c in campusPaged?.Items ?? new List<CampusSimpleDto>())
+        var campusItems = (campusPaged?.Items ?? new List<CampusSimpleDto>()).ToList();
+        if (!campusItems.Any() && campusRevenue.Any())
+        {
+            // Fallback: if campuses endpoint returns empty for current session/scope,
+            // still render rows from revenue endpoint to avoid blank page.
+            campusItems = campusRevenue
+                .Select(x => new CampusSimpleDto
+                {
+                    Id = x.CampusId,
+                    CampusCode = x.CampusCode,
+                    Name = x.CampusName
+                })
+                .ToList();
+        }
+
+        foreach (var c in campusItems)
         {
             var revenue = campusRevenue.FirstOrDefault(x => x.CampusId == c.Id);
             Campuses.Add(new CampusRowVm
