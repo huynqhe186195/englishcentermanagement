@@ -9,6 +9,7 @@ public class CourseSimpleDto
 public class CampusSimpleDto
 {
     public long Id { get; set; }
+    public string CampusCode { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
 }
 
