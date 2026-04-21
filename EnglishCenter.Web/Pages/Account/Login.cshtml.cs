@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net.Http.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using EnglishCenter.Web.Models;
 
 namespace EnglishCenter.Web.Pages.Account;
 
@@ -45,12 +46,20 @@ public class LoginModel : PageModel
             }
 
             var json = await response.Content.ReadAsStringAsync();
-            var apiResponse = JsonSerializer.Deserialize<ApiResponse<LoginResponse>>(
+            var wrappedResponse = JsonSerializer.Deserialize<ApiResponse<LoginResponse>>(
                 json,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
             );
 
-            var loginResp = apiResponse?.Data;
+            var loginResp = wrappedResponse?.Data;
+            if (loginResp == null)
+            {
+                loginResp = JsonSerializer.Deserialize<LoginResponse>(
+                    json,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
+            }
+
             if (loginResp == null)
             {
                 ErrorMessage = "Invalid server response.";
@@ -66,9 +75,9 @@ public class LoginModel : PageModel
 
             // redirect based on role
             var roles = loginResp.Roles ?? new List<string>();
-            if (roles.Contains("SUPER_ADMIN")) return RedirectToPage("/Admin/Index");
-            if (roles.Contains("TEACHER")) return RedirectToPage("/Teacher/Index");
-            if (roles.Contains("STUDENT")) return RedirectToPage("/Student/Index");
+            if (roles.Contains("SUPER_ADMIN", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Admin/Index");
+            if (roles.Contains("TEACHER", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Teacher/Index");
+            if (roles.Contains("STUDENT", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Student/Index");
 
             return RedirectToPage("/Index");
         }
@@ -128,13 +137,6 @@ public class LoginInput
     public long CampusId { get; set; }
 }
 
-public class ApiResponse<T>
-{
-    public bool Success { get; set; }
-    public string? Message { get; set; }
-    public T? Data { get; set; }
-}
-
 public class PagedResult<T>
 {
     public List<T> Items { get; set; } = new();
@@ -146,16 +148,4 @@ public class CampusOption
     public long Id { get; set; }
     public string CampusCode { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-}
-
-public class LoginResponse
-{
-    public int UserId { get; set; }
-    public string? UserName { get; set; }
-    public string? FullName { get; set; }
-    public string? AccessToken { get; set; }
-    public string? RefreshToken { get; set; }
-    public DateTime ExpiresAtUtc { get; set; }
-    public long? CampusId { get; set; }
-    public List<string>? Roles { get; set; }
 }
