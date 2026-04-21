@@ -94,6 +94,16 @@ public class IdentitySeeder
                 Status = 1,
                 IsDeleted = false,
                 CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                UserName = "student02",
+                FullName = "Student Two",
+                Email = "student02@englishcenter.local",
+                PasswordHash = _passwordHasherService.HashPassword("123456"),
+                Status = 1,
+                IsDeleted = false,
+                CreatedAt = DateTime.UtcNow
             }
         };
 
