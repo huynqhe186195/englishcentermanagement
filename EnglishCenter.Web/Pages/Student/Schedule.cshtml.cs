@@ -49,10 +49,10 @@ public class ScheduleModel : PageModel
             })
             .ToList();
 
+        DateOnly? selectedMonthStart = null;
         if (!string.IsNullOrWhiteSpace(Month) && DateOnly.TryParse($"{Month}-01", out var monthStart))
         {
-            WeekStart = monthStart.AddDays(-(((int)monthStart.DayOfWeek + 6) % 7));
-            WeekEnd = WeekStart.AddDays(6);
+            selectedMonthStart = monthStart;
         }
 
         var me = await _apiClient.GetAsync<CurrentUserDto>("auth/me");
@@ -125,6 +125,37 @@ public class ScheduleModel : PageModel
             .Distinct()
             .OrderBy(x => x)
             .ToList();
+
+        if (selectedMonthStart.HasValue)
+        {
+            var monthWeeks = allItems
+                .Where(x => DateOnly.TryParse(x.SessionDate, out var d)
+                    && d.Year == selectedMonthStart.Value.Year
+                    && d.Month == selectedMonthStart.Value.Month)
+                .Select(x => DateOnly.Parse(x.SessionDate).AddDays(-(((int)DateOnly.Parse(x.SessionDate).DayOfWeek + 6) % 7)))
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
+
+            if (monthWeeks.Any())
+            {
+                weekStarts = monthWeeks;
+                if (string.IsNullOrWhiteSpace(FromDate))
+                {
+                    WeekStart = monthWeeks[0];
+                    WeekEnd = WeekStart.AddDays(6);
+                }
+                DataSourceNote += " | week options filtered by selected month";
+            }
+            else
+            {
+                var firstWeekOfMonth = selectedMonthStart.Value.AddDays(-(((int)selectedMonthStart.Value.DayOfWeek + 6) % 7));
+                weekStarts = new List<DateOnly> { firstWeekOfMonth };
+                WeekStart = firstWeekOfMonth;
+                WeekEnd = WeekStart.AddDays(6);
+                DataSourceNote += " | selected month has no sessions";
+            }
+        }
 
         if (!weekStarts.Contains(WeekStart))
         {
