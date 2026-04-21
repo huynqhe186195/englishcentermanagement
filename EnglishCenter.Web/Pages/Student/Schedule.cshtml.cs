@@ -62,6 +62,12 @@ public class ScheduleModel : PageModel
             FullName = me.FullName;
         }
 
+        long studentId = me?.StudentId ?? 0;
+        if (studentId > 0)
+        {
+            DataSourceNote = "student-id: auth/me.StudentId";
+        }
+
         var enrollmentData = await _apiClient.GetAsync<PagedResult<EnrollmentDto>>("enrollments?PageNumber=1&PageSize=100");
         var allEnrollments = enrollmentData?.Items?.ToList() ?? new List<EnrollmentDto>();
 
@@ -71,12 +77,13 @@ public class ScheduleModel : PageModel
                 || x.StudentName.Contains(FullName, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        long studentId = Enrollments.FirstOrDefault()?.StudentId ?? 0;
-
-        // Với role Student, endpoint /students thường bị 403 nên ưu tiên lấy StudentId từ enrollments.
-        if (studentId > 0)
+        if (studentId == 0)
         {
-            DataSourceNote = "student-id: enrollments endpoint";
+            studentId = Enrollments.FirstOrDefault()?.StudentId ?? 0;
+            if (studentId > 0)
+            {
+                DataSourceNote = "student-id: enrollments endpoint fallback";
+            }
         }
 
         var studentIdFromTrustedSource = studentId > 0;

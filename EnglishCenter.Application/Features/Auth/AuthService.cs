@@ -404,12 +404,19 @@ public class AuthService
             throw new NotFoundException("User not found.");
         }
 
+        var studentId = await _context.Students
+            .AsNoTracking()
+            .Where(x => x.UserId == user.Id && !x.IsDeleted)
+            .Select(x => (long?)x.Id)
+            .FirstOrDefaultAsync();
+
         return new CurrentUserDto
         {
             UserId = user.Id,
             UserName = user.UserName,
             FullName = user.FullName,
             Email = user.Email,
+            StudentId = studentId,
             Roles = _currentUserService.Roles,
             Permissions = _currentUserService.Permissions
         };
