@@ -26,51 +26,28 @@
                 <thead>
                     <tr>
                         <th>Campus Name</th>
-                        <th>Address</th>
-                        <th>Manager</th>
-                        <th>Students</th>
+                        <th>Campus Code</th>
                         <th>Revenue</th>
-                        <th>Status</th>
-                        <th class="text-end">Actions</th>
+                        <th>Invoices</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>District 1</td>
-                        <td>123 Nguyen Hue, HCMC</td>
-                        <td>Nguyen Van A</td>
-                        <td>1,250</td>
-                        <td>$14,200</td>
-                        <td><span class="badge badge-soft-success">Active</span></td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary">View</button>
-                            <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Thu Duc</td>
-                        <td>25 Vo Van Ngan, HCMC</td>
-                        <td>Tran Thi B</td>
-                        <td>1,020</td>
-                        <td>$11,600</td>
-                        <td><span class="badge badge-soft-success">Active</span></td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary">View</button>
-                            <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Binh Thanh</td>
-                        <td>88 Dien Bien Phu, HCMC</td>
-                        <td>Le Van C</td>
-                        <td>980</td>
-                        <td>$10,450</td>
-                        <td><span class="badge badge-soft-danger">Inactive</span></td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary">View</button>
-                            <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                        </td>
-                    </tr>
+                    @if (!Model.Campuses.Any())
+                    {
+                        <tr><td colspan="4" class="text-center text-muted py-4">No campuses found.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var c in Model.Campuses)
+                        {
+                            <tr>
+                                <td>@c.CampusName</td>
+                                <td>@c.CampusCode</td>
+                                <td>@c.Revenue.ToString("N0")</td>
+                                <td>@c.InvoiceCount</td>
+                            </tr>
+                        }
+                    }
                 </tbody>
             </table>
         </div>

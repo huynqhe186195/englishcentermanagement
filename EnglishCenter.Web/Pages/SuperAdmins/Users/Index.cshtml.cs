@@ -20,6 +20,13 @@ public class IndexModel : PageModel
     [BindProperty(SupportsGet = true)]
     public long? RoleId { get; set; }
 
+    [BindProperty(SupportsGet = true)]
+    public int PageNumber { get; set; } = 1;
+
+    public int PageSize { get; set; } = 10;
+    public int TotalPages { get; set; }
+    public int TotalRecords { get; set; }
+
     public List<RoleDto> Roles { get; set; } = new();
     public List<CampusSimpleDto> Campuses { get; set; } = new();
     public List<UserListItemVm> Users { get; set; } = new();
@@ -32,7 +39,7 @@ public class IndexModel : PageModel
         var campusPaged = await _apiClient.GetAsync<PagedResult<CampusSimpleDto>>("campuses?pageNumber=1&pageSize=200");
         Campuses = campusPaged?.Items?.OrderBy(x => x.Name).ToList() ?? new List<CampusSimpleDto>();
 
-        var url = $"users?pageNumber=1&pageSize=100";
+        var url = $"users?pageNumber={PageNumber}&pageSize={PageSize}";
         if (!string.IsNullOrWhiteSpace(Keyword))
         {
             url += $"&keyword={Uri.EscapeDataString(Keyword.Trim())}";
@@ -40,6 +47,8 @@ public class IndexModel : PageModel
 
         var userPaged = await _apiClient.GetAsync<PagedResult<UserDto>>(url);
         var userItems = userPaged?.Items ?? new List<UserDto>();
+        TotalPages = userPaged?.TotalPages ?? 1;
+        TotalRecords = userPaged?.TotalRecords ?? 0;
 
         foreach (var user in userItems)
         {
