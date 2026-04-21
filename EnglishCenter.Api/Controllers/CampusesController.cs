@@ -19,6 +19,7 @@ public class CampusesController : ControllerBase
         _campusService = campusService;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetPaged([FromQuery] GetCampusesPagingRequestDto request)
     {
@@ -26,6 +27,7 @@ public class CampusesController : ControllerBase
         return Ok(ApiResponse<PagedResult<CampusDto>>.SuccessResponse(result, "Get campuses successfully"));
     }
 
+    [AllowAnonymous]
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(long id)
     {
