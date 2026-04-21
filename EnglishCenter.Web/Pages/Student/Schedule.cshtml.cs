@@ -62,7 +62,7 @@ public class ScheduleModel : PageModel
             FullName = me.FullName;
         }
 
-        var enrollmentData = await _apiClient.GetAsync<PagedResult<EnrollmentDto>>("enrollments?PageNumber=1&PageSize=500");
+        var enrollmentData = await _apiClient.GetAsync<PagedResult<EnrollmentDto>>("enrollments?PageNumber=1&PageSize=100");
         var allEnrollments = enrollmentData?.Items?.ToList() ?? new List<EnrollmentDto>();
 
         Enrollments = allEnrollments
@@ -71,43 +71,12 @@ public class ScheduleModel : PageModel
                 || x.StudentName.Contains(FullName, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        long studentId = 0;
+        long studentId = Enrollments.FirstOrDefault()?.StudentId ?? 0;
 
-        // Ưu tiên map bằng students endpoint (StudentId chuẩn)
-        if (!string.IsNullOrWhiteSpace(UserName))
+        // Với role Student, endpoint /students thường bị 403 nên ưu tiên lấy StudentId từ enrollments.
+        if (studentId > 0)
         {
-            var byUserName = await _apiClient.GetAsync<PagedResult<StudentLookupDto>>($"students?PageNumber=1&PageSize=500&Keyword={Uri.EscapeDataString(UserName)}");
-            var matchByCode = byUserName?.Items?.FirstOrDefault(x =>
-                (!string.IsNullOrWhiteSpace(x.StudentCode) && x.StudentCode.Equals(UserName, StringComparison.OrdinalIgnoreCase))
-                || x.FullName.Equals(FullName, StringComparison.OrdinalIgnoreCase));
-            if (matchByCode != null)
-            {
-                studentId = matchByCode.Id;
-                DataSourceNote = "student-id: students endpoint by UserName/StudentCode";
-            }
-        }
-
-        if (studentId == 0 && !string.IsNullOrWhiteSpace(FullName))
-        {
-            var byFullName = await _apiClient.GetAsync<PagedResult<StudentLookupDto>>($"students?PageNumber=1&PageSize=500&Keyword={Uri.EscapeDataString(FullName)}");
-            var matchedStudent = byFullName?.Items?.FirstOrDefault(x =>
-                x.FullName.Equals(FullName, StringComparison.OrdinalIgnoreCase)
-                || x.FullName.Contains(FullName, StringComparison.OrdinalIgnoreCase));
-            if (matchedStudent != null)
-            {
-                studentId = matchedStudent.Id;
-                DataSourceNote = "student-id: students endpoint by FullName";
-            }
-        }
-
-        // fallback cuối cùng: từ enrollments nếu có
-        if (studentId == 0)
-        {
-            studentId = Enrollments.FirstOrDefault()?.StudentId ?? 0;
-            if (studentId > 0)
-            {
-                DataSourceNote = "student-id: enrollments endpoint fallback";
-            }
+            DataSourceNote = "student-id: enrollments endpoint";
         }
 
         var studentIdFromTrustedSource = studentId > 0;
@@ -130,7 +99,7 @@ public class ScheduleModel : PageModel
         }
         else
         {
-            DataSourceNote += " | không resolve được student-id hợp lệ từ enrollments/students";
+            DataSourceNote += " | không resolve được student-id từ enrollments (có thể do API trả 400/không có quyền)";
         }
 
         if (!allItems.Any() && Enrollments.Any())
@@ -241,13 +210,6 @@ public class ScheduleModel : PageModel
         _ => "CN"
     };
 
-
-    public class StudentLookupDto
-    {
-        public long Id { get; set; }
-        public string StudentCode { get; set; } = string.Empty;
-        public string FullName { get; set; } = string.Empty;
-    }
 
     public class WeekOptionVm
     {
