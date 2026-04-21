@@ -83,15 +83,11 @@ public class ScheduleModel : PageModel
             if (studentId > 0) DataSourceNote = "student-id: students endpoint";
         }
 
-        if (studentId == 0 && me != null)
-        {
-            studentId = me.UserId;
-            DataSourceNote = "student-id: fallback from auth/me";
-        }
+        var studentIdFromTrustedSource = studentId > 0;
 
         var allItems = new List<TimetableItemDto>();
 
-        if (studentId > 0)
+        if (studentIdFromTrustedSource)
         {
             allItems = await LoadStudentTimetableAsync(studentId);
             if (allItems.Any())
@@ -100,6 +96,14 @@ public class ScheduleModel : PageModel
                     ? "timetable: students/{id}/timetable"
                     : DataSourceNote + " | timetable: students/{id}/timetable";
             }
+            else
+            {
+                DataSourceNote += " | students/{id}/timetable empty";
+            }
+        }
+        else
+        {
+            DataSourceNote += " | không resolve được student-id hợp lệ từ enrollments/students";
         }
 
         if (!allItems.Any() && Enrollments.Any())
