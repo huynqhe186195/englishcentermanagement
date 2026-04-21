@@ -153,7 +153,7 @@ public class ScheduleModel : PageModel
                 weekStarts = new List<DateOnly> { firstWeekOfMonth };
                 WeekStart = firstWeekOfMonth;
                 WeekEnd = WeekStart.AddDays(6);
-                DataSourceNote += " | selected month has no sessions";
+                DataSourceNote += " | selected month has no sessions (no auto-shift)";
             }
         }
 
@@ -173,7 +173,7 @@ public class ScheduleModel : PageModel
 
         Items = allItems.Where(x => DateOnly.TryParse(x.SessionDate, out var d) && d >= WeekStart && d <= WeekEnd).ToList();
 
-        if (!Items.Any() && allItems.Any())
+        if (!Items.Any() && allItems.Any() && !selectedMonthStart.HasValue && string.IsNullOrWhiteSpace(FromDate))
         {
             if (DateOnly.TryParse(allItems[0].SessionDate, out var firstDate))
             {
