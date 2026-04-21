@@ -94,6 +94,26 @@ public class IdentitySeeder
                 Status = 1,
                 IsDeleted = false,
                 CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                UserName = "student02",
+                FullName = "Student Two",
+                Email = "student02@englishcenter.local",
+                PasswordHash = _passwordHasherService.HashPassword("123456"),
+                Status = 1,
+                IsDeleted = false,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                UserName = "parent02",
+                FullName = "Parent Two",
+                Email = "parent02@englishcenter.local",
+                PasswordHash = _passwordHasherService.HashPassword("123456"),
+                Status = 1,
+                IsDeleted = false,
+                CreatedAt = DateTime.UtcNow
             }
         };
 
@@ -118,8 +138,15 @@ public class IdentitySeeder
         {
             ("superadmin", RoleConstants.SuperAdmin),
             ("admin", RoleConstants.CenterAdmin),
+            ("admin02", RoleConstants.CenterAdmin),
             ("staff01", RoleConstants.Staff),
-            ("teacher01", RoleConstants.Teacher)
+            ("staff02", RoleConstants.Staff),
+            ("teacher01", RoleConstants.Teacher),
+            ("teacher02", RoleConstants.Teacher),
+            ("student01", RoleConstants.Student),
+            ("student02", RoleConstants.Student),
+            ("parent01", RoleConstants.Parent),
+            ("parent02", RoleConstants.Parent)
         };
 
         foreach (var mapping in mappings)
