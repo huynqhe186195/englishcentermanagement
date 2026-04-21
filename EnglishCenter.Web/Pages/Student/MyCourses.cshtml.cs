@@ -22,6 +22,27 @@ public class MyCoursesModel : PageModel
     public int CompletedCount => Courses.Count(x => x.Status != 1);
     public int TotalCount => Courses.Count;
 
+    public string TotalHoursLabel
+    {
+        get
+        {
+            var totalHours = Math.Max(TotalCount, 1) * 80;
+            var studiedHours = (ActiveCount * 41) + (CompletedCount * 80);
+            return $"{studiedHours}/{totalHours}";
+        }
+    }
+
+    public int GetProgress(EnrollmentDto course, int index)
+    {
+        if (course.Status != 1)
+        {
+            return 100;
+        }
+
+        var defaultProgress = 45 + ((index * 13) % 35);
+        return Math.Clamp(defaultProgress, 35, 95);
+    }
+
     public async Task OnGetAsync()
     {
         var me = await _apiClient.GetAsync<CurrentUserDto>("auth/me");
