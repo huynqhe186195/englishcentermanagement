@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using EnglishCenter.Web.Services;
 using EnglishCenter.Web.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EnglishCenter.Web.Pages.Admin;
 
@@ -16,6 +17,22 @@ public class IndexModel : PageModel
     public IEnumerable<ClassDashboardDto> TopClasses { get; set; } = Enumerable.Empty<ClassDashboardDto>();
     public IEnumerable<StudentAtRiskDto> StudentsAtRisk { get; set; } = Enumerable.Empty<StudentAtRiskDto>();
     public IEnumerable<RoomUtilizationDto> Rooms { get; set; } = Enumerable.Empty<RoomUtilizationDto>();
+    public List<RevenueByCampusItemDto> RevenueByCampus { get; set; } = new();
+    public List<ClassDashboardByCampusItemDto> ClassByCampus { get; set; } = new();
+    public List<TeacherWorkloadByCampusItemDto> TeacherByCampus { get; set; } = new();
+    public List<RoomUtilizationByCampusItemDto> RoomByCampus { get; set; } = new();
+    public RevenueSummaryDto RevenueSummary { get; set; } = new();
+
+    [BindProperty(SupportsGet = true)]
+    public long? CampusId { get; set; }
+
+    public RevenueByCampusItemDto? SelectedRevenueCampus { get; set; }
+    public ClassDashboardByCampusItemDto? SelectedClassCampus { get; set; }
+    public TeacherWorkloadByCampusItemDto? SelectedTeacherCampus { get; set; }
+    public RoomUtilizationByCampusItemDto? SelectedRoomCampus { get; set; }
+    public string DrilldownTitle => CampusId.HasValue
+        ? $"Drill-down campus #{CampusId}"
+        : "Global dashboard (all campuses)";
 
     public int TotalClasses { get; set; }
     public int TotalStudents { get; set; }
@@ -32,6 +49,27 @@ public class IndexModel : PageModel
 
         var roomsData = await _apiClient.GetAsync<PagedResult<RoomUtilizationDto>>("academicDashboard/room-utilization?PageNumber=1&PageSize=5");
         if (roomsData != null) Rooms = roomsData.Items;
+
+        RevenueSummary = await _apiClient.GetAsync<RevenueSummaryDto>("financialDashboard/revenue-summary") ?? new RevenueSummaryDto();
+        RevenueByCampus = await _apiClient.GetAsync<List<RevenueByCampusItemDto>>("financialDashboard/revenue-by-campus") ?? new List<RevenueByCampusItemDto>();
+        ClassByCampus = await _apiClient.GetAsync<List<ClassDashboardByCampusItemDto>>("financialDashboard/class-dashboard-by-campus") ?? new List<ClassDashboardByCampusItemDto>();
+        TeacherByCampus = await _apiClient.GetAsync<List<TeacherWorkloadByCampusItemDto>>("financialDashboard/teacher-workload-by-campus") ?? new List<TeacherWorkloadByCampusItemDto>();
+        RoomByCampus = await _apiClient.GetAsync<List<RoomUtilizationByCampusItemDto>>("financialDashboard/room-utilization-by-campus") ?? new List<RoomUtilizationByCampusItemDto>();
+
+        if (CampusId.HasValue)
+        {
+            SelectedRevenueCampus = RevenueByCampus.FirstOrDefault(x => x.CampusId == CampusId.Value);
+            SelectedClassCampus = ClassByCampus.FirstOrDefault(x => x.CampusId == CampusId.Value);
+            SelectedTeacherCampus = TeacherByCampus.FirstOrDefault(x => x.CampusId == CampusId.Value);
+            SelectedRoomCampus = RoomByCampus.FirstOrDefault(x => x.CampusId == CampusId.Value);
+        }
+        else
+        {
+            SelectedRevenueCampus = RevenueByCampus.OrderByDescending(x => x.CollectedRevenue).FirstOrDefault();
+            SelectedClassCampus = ClassByCampus.OrderByDescending(x => x.ActiveEnrollments).FirstOrDefault();
+            SelectedTeacherCampus = TeacherByCampus.OrderByDescending(x => x.TeacherCount).FirstOrDefault();
+            SelectedRoomCampus = RoomByCampus.OrderByDescending(x => x.RoomCount).FirstOrDefault();
+        }
 
         // counts: call paged endpoints with PageSize=1 and read TotalRecords
         var classesCount = await _apiClient.GetAsync<PagedResult<object>>("classes?PageNumber=1&PageSize=1");
