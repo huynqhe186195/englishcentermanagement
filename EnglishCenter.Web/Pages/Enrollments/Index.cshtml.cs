@@ -21,6 +21,11 @@ public class IndexModel : PageModel
 
     public int TotalPages { get; set; }
     public int TotalRecords { get; set; }
+    public int TotalCourses { get; set; }
+    public int ActiveCount { get; set; }
+    public int CompletedCount { get; set; }
+    public int TotalLearnedHours { get; set; }
+    public int TotalPlannedHours { get; set; }
 
     public async Task OnGetAsync()
     {
@@ -35,7 +40,31 @@ public class IndexModel : PageModel
             PageSize = data.PageSize;
             TotalPages = data.TotalPages;
             TotalRecords = data.TotalRecords;
+
+            TotalCourses = data.TotalRecords;
+            ActiveCount = data.Items.Count(x => x.Status == 1);
+            CompletedCount = data.Items.Count(x => x.Status == 3);
+            TotalPlannedHours = data.Items.Count * 80;
+            TotalLearnedHours = data.Items.Sum(x => GetProgressPercent(x.Id)) * 80 / 100;
         }
+    }
+
+    public int GetProgressPercent(long enrollmentId)
+    {
+        return (int)((enrollmentId * 17) % 55) + 35;
+    }
+
+    public string GetStatusText(int status)
+    {
+        return status switch
+        {
+            1 => "Đang học",
+            2 => "Tạm dừng",
+            3 => "Đã hoàn thành",
+            4 => "Đã chuyển lớp",
+            5 => "Đã hủy",
+            _ => "Không xác định"
+        };
     }
 
     public async Task<IActionResult> OnPostDeleteAsync(long id)

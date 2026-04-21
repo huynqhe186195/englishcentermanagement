@@ -1,10 +1,66 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "English Center";
+    ViewData["HideChrome"] = true;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="landing-page">
+    <header class="landing-header">
+        <div class="landing-container landing-nav">
+            <a class="landing-brand" href="#">
+                <span class="landing-brand-icon">✦</span>
+                <span>English Center</span>
+            </a>
+
+            <nav class="landing-menu">
+                <a href="#">Về chúng tôi</a>
+                <a href="/Courses/Index">Khóa học</a>
+                <a href="#">Giáo viên</a>
+                <a href="#">Liên hệ</a>
+            </nav>
+
+            <a class="landing-register-btn" href="/Account/Login">Đăng ký ngay</a>
+        </div>
+    </header>
+
+    <section class="landing-hero">
+        <div class="landing-container landing-grid">
+            <div class="landing-copy">
+                <div class="landing-pill">✨ Trung tâm Tiếng Anh hàng đầu Việt Nam</div>
+                <h1 class="landing-title">
+                    Học Tiếng Anh
+                    <span class="gradient-text">Cùng Chuyên Gia</span>
+                </h1>
+                <p class="landing-description">
+                    Tự tin giao tiếp, mở rộng cơ hội nghề nghiệp và vươn tầm thế giới
+                    với các khóa học chuẩn quốc tế tại English Center.
+                </p>
+                <div class="landing-cta">
+                    <a class="btn-primary-landing" href="/Account/Login">Đăng ký học ngay</a>
+                    <a class="btn-secondary-landing" href="#">Xem các khóa học</a>
+                </div>
+                <div class="landing-social-proof">
+                    <div class="avatars">🧑‍🎓👩‍🎓👨‍🎓👩‍🏫</div>
+                    <div>Hơn <strong>500+</strong> học viên đã đăng ký</div>
+                </div>
+            </div>
+
+            <div class="landing-visual">
+                <div class="image-card">
+                    <img src="https://images.pexels.com/photos/3184325/pexels-photo-3184325.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                         onerror="this.onerror=null;this.src='/images/landing-hero.svg';"
+                         alt="English Center students" />
+                </div>
+                <div class="floating-badge badge-top">
+                    <div class="badge-title">Cam kết</div>
+                    <div class="badge-sub">Đầu ra IELTS</div>
+                </div>
+                <div class="floating-badge badge-bottom">
+                    <div class="badge-title">⭐ 4.9/5</div>
+                    <div class="badge-sub">Đánh giá học viên</div>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>

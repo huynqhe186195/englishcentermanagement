@@ -36,10 +36,17 @@ public class ApiClient : IApiClient
         var refreshToken = _httpContextAccessor.HttpContext?.Session.GetString("RefreshToken");
         if (string.IsNullOrEmpty(refreshToken)) return false;
 
+        var campusIdRaw = _httpContextAccessor.HttpContext?.Session.GetString("CampusId");
+        long? campusId = null;
+        if (long.TryParse(campusIdRaw, out var parsedCampusId) && parsedCampusId > 0)
+        {
+            campusId = parsedCampusId;
+        }
+
         try
         {
             var client = _httpClientFactory.CreateClient("Api");
-            var resp = await client.PostAsJsonAsync("auth/refresh-token", new { RefreshToken = refreshToken });
+            var resp = await client.PostAsJsonAsync("auth/refresh-token", new { RefreshToken = refreshToken, CampusId = campusId });
             if (!resp.IsSuccessStatusCode) return false;
 
             var json = await resp.Content.ReadAsStringAsync();

@@ -1,0 +1,78 @@
+@page
+@model EnglishCenter.Web.Pages.Courses.IndexModel
+@{
+    ViewData["Title"] = "Khóa học";
+    ViewData["HideChrome"] = true;
+}
+
+<div class="courses-page">
+    <header class="landing-header">
+        <div class="landing-container landing-nav">
+            <a class="landing-brand" href="/Index">
+                <span class="landing-brand-icon">✦</span>
+                <span>English Center</span>
+            </a>
+
+            <nav class="landing-menu">
+                <a href="/Index">Về chúng tôi</a>
+                <a class="active" href="/Courses/Index">Khóa học</a>
+                <a href="#">Giáo viên</a>
+                <a href="#">Liên hệ</a>
+            </nav>
+
+            <a class="landing-register-btn" href="/Account/Login">Đăng ký ngay</a>
+        </div>
+    </header>
+
+    <section class="courses-hero">
+        <div class="landing-container">
+            <div class="courses-hero-box">
+                <div>
+                    <div class="landing-pill">📚 Danh sách khóa học nổi bật</div>
+                    <h1>Chọn khóa học phù hợp với mục tiêu của bạn</h1>
+                    <p>
+                        Lộ trình từ cơ bản đến nâng cao, tập trung kỹ năng giao tiếp - luyện thi
+                        với giáo viên giàu kinh nghiệm và giáo trình chuẩn quốc tế.
+                    </p>
+                </div>
+                <a class="btn-primary-landing" href="/Account/Login">Tư vấn miễn phí</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="courses-list">
+        <div class="landing-container courses-grid">
+            @if (Model.Courses.Any())
+            {
+                @foreach (var course in Model.Courses)
+                {
+                    <article class="course-card">
+                        <div class="course-level">@(string.IsNullOrWhiteSpace(course.Level) ? "General" : course.Level)</div>
+                        <h3>@course.Name</h3>
+                        <p>@(string.IsNullOrWhiteSpace(course.Description) ? "Khóa học chuẩn quốc tế giúp học viên phát triển toàn diện kỹ năng tiếng Anh." : course.Description)</p>
+                        <ul>
+                            <li>Mã khóa học: @course.CourseCode</li>
+                            <li>Tổng số buổi: @course.TotalSessions</li>
+                            <li>
+                                Độ tuổi:
+                                @(course.AgeMin.HasValue || course.AgeMax.HasValue
+                                    ? $"{course.AgeMin?.ToString() ?? "?"} - {course.AgeMax?.ToString() ?? "?"} tuổi"
+                                    : "Mọi độ tuổi")
+                            </li>
+                        </ul>
+                        <div class="course-footer">
+                            <span class="course-price">@course.DefaultFee.ToString("N0")đ</span>
+                            <a href="/Account/Login">Đăng ký</a>
+                        </div>
+                    </article>
+                }
+            }
+            else
+            {
+                <div class="course-empty">
+                    Hiện chưa có dữ liệu khóa học từ hệ thống. Vui lòng thử lại sau.
+                </div>
+            }
+        </div>
+    </section>
+</div>

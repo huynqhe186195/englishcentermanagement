@@ -21,14 +21,14 @@ public class CoursesController : ControllerBase
     public async Task<IActionResult> GetPaged([FromQuery] GetCoursesPagingRequestDto request)
     {
         var result = await _courseService.GetPagedAsync(request);
-        return Ok();
+        return Ok(result);
     }
 
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(long id)
     {
         var result = await _courseService.GetByIdAsync(id);
-        return Ok();
+        return Ok(result);
     }
 
     [HttpPost]

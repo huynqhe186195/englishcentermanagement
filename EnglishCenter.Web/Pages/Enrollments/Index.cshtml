@@ -1,56 +1,91 @@
 @page
 @model EnglishCenter.Web.Pages.Enrollments.IndexModel
 @{
-    ViewData["Title"] = "Enrollments";
+    ViewData["Title"] = "Khóa học của tôi";
+    ViewData["HideChrome"] = true;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Enrollments</h2>
-    <a class="btn btn-primary" asp-page="Create">Create Enrollment</a>
+<div class="student-shell">
+    <aside class="student-sidebar">
+        <div class="student-brand">English Center</div>
+        <div class="student-profile compact">
+            <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200" alt="student avatar" />
+            <h4>Nguyễn Thị Mai</h4>
+            <span>HV2024-0042</span>
+        </div>
+        <nav class="student-menu">
+            <a href="/Student/Index">Dashboard</a>
+            <a class="active" href="/Enrollments/Index">Khóa học của tôi</a>
+            <a href="/Student/AttendanceReport">Điểm danh</a>
+            <a href="/Student/AcademicSummary">Điểm số</a>
+            <a href="#">Bài tập</a>
+            <a href="#">Thông báo</a>
+            <a href="#">Hồ sơ cá nhân</a>
+        </nav>
+        <a class="student-logout" href="/Account/Logout">Đăng xuất</a>
+    </aside>
+
+    <main class="student-main">
+        <div class="my-course-header">
+            <h2>Khóa học của tôi</h2>
+            <form method="get" class="my-course-filter">
+                <input class="form-control" name="Keyword" value="@Model.Keyword" placeholder="Tìm kiếm khóa học..." />
+                <button class="btn btn-outline-primary" type="submit">Tìm</button>
+            </form>
+        </div>
+
+        <section class="student-stats my-course-stats">
+            <article class="student-stat-card">
+                <h6>Đang học</h6>
+                <strong>@Model.ActiveCount</strong>
+                <span>@Model.TotalCourses khóa</span>
+            </article>
+            <article class="student-stat-card">
+                <h6>Đã hoàn thành</h6>
+                <strong>@Model.CompletedCount</strong>
+                <span>@Model.TotalCourses khóa</span>
+            </article>
+            <article class="student-stat-card">
+                <h6>Tổng giờ học</h6>
+                <strong>@Model.TotalLearnedHours/@Model.TotalPlannedHours</strong>
+                <span>giờ</span>
+            </article>
+        </section>
+
+        <section class="my-course-list">
+            @if (Model.Items.Any())
+            {
+                @foreach (var item in Model.Items)
+                {
+                    <article class="my-course-card">
+                        <div class="my-course-card-top">
+                            <h3>@item.ClassName</h3>
+                            <span class="my-course-status status-@item.Status">@Model.GetStatusText(item.Status)</span>
+                        </div>
+                        <p>GV phụ trách: @item.StudentName</p>
+
+                        <div class="my-course-progress">
+                            <div class="my-course-progress-bar">
+                                <span style="width: @Model.GetProgressPercent(item.Id)%"></span>
+                            </div>
+                            <strong>@Model.GetProgressPercent(item.Id)%</strong>
+                        </div>
+
+                        <div class="my-course-actions">
+                            <a class="btn btn-sm btn-outline-secondary" asp-page="Details" asp-route-id="@item.Id">Xem chi tiết</a>
+                        </div>
+                    </article>
+                }
+            }
+            else
+            {
+                <div class="course-empty">Chưa có khóa học nào được tìm thấy.</div>
+            }
+        </section>
+    </main>
 </div>
 
-<form method="get" class="row g-2 mb-3">
-    <div class="col-auto">
-        <input class="form-control" name="Keyword" value="@Model.Keyword" placeholder="Search by student or class" />
-    </div>
-    <div class="col-auto">
-        <button class="btn btn-outline-primary" type="submit">Filter</button>
-    </div>
-</form>
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Student</th>
-            <th>Class</th>
-            <th>Enroll Date</th>
-            <th>Status</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model.Items)
-    {
-        <tr>
-            <td>@item.Id</td>
-            <td>@item.StudentName</td>
-            <td>@item.ClassName</td>
-            <td>@item.EnrollDate</td>
-            <td>@(item.Status==1?"Active":"Inactive")</td>
-            <td>
-                <a class="btn btn-sm btn-outline-primary" asp-page="Details" asp-route-id="@item.Id">Details</a>
-                <a class="btn btn-sm btn-outline-secondary" asp-page="Edit" asp-route-id="@item.Id">Edit</a>
-                <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id" style="display:inline" onsubmit="return confirm('Delete this enrollment?');">
-                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                </form>
-            </td>
-        </tr>
-    }
-    </tbody>
-</table>
-
-<nav>
+<nav class="mt-3">
     <ul class="pagination">
         @for (int i = 1; i <= Model.TotalPages; i++)
         {

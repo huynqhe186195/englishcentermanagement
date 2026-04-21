@@ -22,7 +22,8 @@ public class JwtTokenService : IJwtTokenService
         string userName,
         string fullName,
         IEnumerable<string> roles,
-        IEnumerable<string> permissions)
+        IEnumerable<string> permissions,
+        long? campusId = null)
     {
         var claims = new List<Claim>
         {
@@ -41,6 +42,11 @@ public class JwtTokenService : IJwtTokenService
         foreach (var permission in permissions.Distinct())
         {
             claims.Add(new Claim("permission", permission));
+        }
+
+        if (campusId.HasValue)
+        {
+            claims.Add(new Claim("campus_id", campusId.Value.ToString()));
         }
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
