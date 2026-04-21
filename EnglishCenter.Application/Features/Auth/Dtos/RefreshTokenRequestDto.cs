@@ -9,4 +9,5 @@ namespace EnglishCenter.Application.Features.Auth.Dtos;
 public class RefreshTokenRequestDto
 {
     public string RefreshToken { get; set; } = string.Empty;
+    public long? CampusId { get; set; }
 }
