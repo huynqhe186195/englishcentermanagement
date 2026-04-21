@@ -2,12 +2,14 @@ using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Application.Commons.Models.Response;
 using EnglishCenter.Application.Features.Users;
 using EnglishCenter.Application.Features.Users.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EnglishCenter.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = "RequireSuperAdmin")]
 public class UsersController : ControllerBase
 {
     private readonly UserService _userService;
