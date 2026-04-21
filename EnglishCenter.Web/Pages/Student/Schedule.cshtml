@@ -1,0 +1,106 @@
+@page
+@model EnglishCenter.Web.Pages.Student.ScheduleModel
+@{
+    ViewData["Title"] = "Lịch học";
+    ViewData["HideChrome"] = true;
+}
+
+<div class="student-shell schedule-shell">
+    <aside class="student-sidebar">
+        <div class="student-brand">English Center</div>
+
+        <div class="student-profile">
+            <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200" alt="student avatar" />
+            <h4>@(string.IsNullOrWhiteSpace(Model.FullName) ? Model.UserName : Model.FullName)</h4>
+            <span>Mã HV: @(string.IsNullOrWhiteSpace(Model.UserName) ? "HV-000" : Model.UserName)</span>
+        </div>
+
+        <nav class="student-menu">
+            <a href="/Student/Index">Dashboard</a>
+            <a href="/Student/MyCourses">Khóa học của tôi</a>
+            <a class="active" href="/Student/Schedule">Lịch học</a>
+            <a href="/Student/AcademicSummary">Điểm số</a>
+            <a href="/Student/AttendanceReport">Điểm danh</a>
+            <a href="#">Bài tập</a>
+            <a href="#">Thông báo</a>
+            <a href="#">Hồ sơ cá nhân</a>
+        </nav>
+
+        <a class="student-logout" href="/Account/Logout">Đăng xuất</a>
+    </aside>
+
+    <main class="student-main schedule-main">
+        <header class="student-topbar schedule-topbar">
+            <h2>Lịch học</h2>
+            <form method="get" class="schedule-week-filter">
+                <input type="hidden" name="FromDate" value="@Model.WeekStart.ToString("yyyy-MM-dd")" />
+                <input type="hidden" name="ToDate" value="@Model.WeekEnd.ToString("yyyy-MM-dd")" />
+                <span>@Model.WeekStart:dd/MM - @Model.WeekEnd:dd/MM/yyyy</span>
+            </form>
+        </header>
+
+        <section class="schedule-grid">
+            <div class="schedule-board-card">
+                <div class="schedule-head-row">
+                    <div class="schedule-time-col">Giờ</div>
+                    @foreach (var day in Model.WeekDays)
+                    {
+                        <div class="schedule-day-head @(day == DateOnly.FromDateTime(DateTime.UtcNow.Date) ? "is-today" : string.Empty)">
+                            <small>@day.DayOfWeek.ToString()[..2]</small>
+                            <strong>@day:dd</strong>
+                        </div>
+                    }
+                </div>
+
+                <div class="schedule-body">
+                    <div class="schedule-time-col-lines">
+                        @for (var h = 8; h <= 21; h++)
+                        {
+                            <span>@h:00</span>
+                        }
+                    </div>
+
+                    <div class="schedule-day-columns">
+                        @foreach (var day in Model.WeekDays)
+                        {
+                            <div class="schedule-day-col">
+                                @foreach (var item in Model.DayItems(day))
+                                {
+                                    <div class="schedule-item" style="top:@Model.PositionTop(item)px;height:@Model.ItemHeight(item)px;">
+                                        <b>@(item.Topic ?? "Class Session")</b>
+                                        <small>@item.StartTime - @item.EndTime</small>
+                                        <small>Phòng @(item.RoomId?.ToString() ?? "--")</small>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <aside class="schedule-side">
+                <div class="schedule-event-card">
+                    <div class="schedule-side-title">Sự kiện hôm nay</div>
+                    @foreach (var item in Model.DayItems(DateOnly.FromDateTime(DateTime.UtcNow.Date)).Take(2))
+                    {
+                        <div class="schedule-side-item">
+                            <h4>@(item.Topic ?? "Lớp học")</h4>
+                            <p>@item.StartTime - @item.EndTime • Phòng @(item.RoomId?.ToString() ?? "--")</p>
+                            <button class="btn btn-sm btn-warning">Vào học</button>
+                        </div>
+                    }
+                </div>
+
+                <div class="schedule-event-card">
+                    <div class="schedule-side-title">Lịch sắp tới</div>
+                    <ul class="schedule-upcoming-list">
+                        @foreach (var item in Model.Items.Take(5))
+                        {
+                            <li><strong>@item.SessionDate</strong> • @(item.Topic ?? "Class") <span>@item.StartTime</span></li>
+                        }
+                    </ul>
+                </div>
+            </aside>
+        </section>
+    </main>
+</div>
