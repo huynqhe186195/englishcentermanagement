@@ -1,0 +1,238 @@
+@page
+@model EnglishCenter.Web.Pages.Admin.Users.IndexModel
+@{
+    ViewData["Title"] = "Campus Users";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="page-title mb-1">Campus Users</h2>
+        <p class="text-muted mb-0">Quản lý người dùng trong campus hiện tại (CENTER_ADMIN).</p>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success">@successMessage</div>
+}
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@if (!Model.IsCenterAdmin)
+{
+    <div class="alert alert-warning">
+        Chức năng này chỉ dành cho CENTER_ADMIN. Tài khoản hiện tại không có quyền truy cập.
+    </div>
+}
+else
+{
+    <div class="card shadow-sm mb-4" id="create-user-form">
+        <div class="card-header bg-white fw-semibold">Create User</div>
+        <div class="card-body">
+            <form method="post" asp-page-handler="Create" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">UserName</label>
+                    <input asp-for="CreateInput.UserName" class="form-control" required />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Password</label>
+                    <input asp-for="CreateInput.PasswordHash" class="form-control" required />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Full Name</label>
+                    <input asp-for="CreateInput.FullName" class="form-control" required />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Email</label>
+                    <input asp-for="CreateInput.Email" type="email" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Phone</label>
+                    <input asp-for="CreateInput.PhoneNumber" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Status</label>
+                    <select asp-for="CreateInput.Status" class="form-select">
+                        <option value="1">Active</option>
+                        <option value="0">Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.EditingUser != null)
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Edit User - @Model.EditingUser.UserName</span>
+                <a class="btn btn-sm btn-outline-secondary" asp-page="./Index">Cancel</a>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-page-handler="Update" class="row g-3">
+                    <input asp-for="UpdateInput.Id" type="hidden" value="@Model.EditingUser.Id" />
+                    <div class="col-md-4">
+                        <label class="form-label">Full Name</label>
+                        <input asp-for="UpdateInput.FullName" class="form-control" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Email</label>
+                        <input asp-for="UpdateInput.Email" type="email" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Phone</label>
+                        <input asp-for="UpdateInput.PhoneNumber" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Password (optional)</label>
+                        <input asp-for="UpdateInput.PasswordHash" class="form-control" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Status</label>
+                        <select asp-for="UpdateInput.Status" class="form-select">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <span class="fw-semibold">Campus User List</span>
+            <span class="text-muted small">Total: @Model.TotalRecords</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Full Name</th>
+                            <th>UserName</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Users.Any())
+                        {
+                            <tr><td colspan="5" class="text-center text-muted py-4">No users found.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var user in Model.Users)
+                            {
+                                <tr>
+                                    <td>@user.FullName</td>
+                                    <td>@user.UserName</td>
+                                    <td>@(string.IsNullOrWhiteSpace(user.Email) ? "-" : user.Email)</td>
+                                    <td>
+                                        <span class="badge @(user.Status == 1 ? "bg-success" : "bg-secondary")">
+                                            @(user.Status == 1 ? "Active" : "Inactive")
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a class="btn btn-sm btn-outline-primary" asp-page="./Index" asp-route-EditId="@user.Id">Edit</a>
+                                        <a class="btn btn-sm btn-outline-secondary" asp-page="./Index" asp-route-RoleUserId="@user.Id">Roles</a>
+                                        <form method="post" asp-page-handler="Delete" asp-route-id="@user.Id" class="d-inline"
+                                              onsubmit="return confirm('Delete user @user.UserName?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="mt-3">
+            <ul class="pagination pagination-sm">
+                @for (var p = 1; p <= Model.TotalPages; p++)
+                {
+                    <li class="page-item @(p == Model.PageNumber ? "active" : string.Empty)">
+                        <a class="page-link" href="?PageNumber=@p">@p</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+
+    if (Model.RoleTargetUser != null)
+    {
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Manage Roles - @Model.RoleTargetUser.UserName</span>
+                <a class="btn btn-sm btn-outline-secondary" asp-page="./Index">Close</a>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info small">
+                    Whitelist cho CENTER_ADMIN: STAFF / TEACHER / PARENT / STUDENT.
+                </div>
+
+                <h6>Current Roles</h6>
+                @if (!Model.CurrentRoles.Any())
+                {
+                    <p class="text-muted">User chưa có role.</p>
+                }
+                else
+                {
+                    <div class="mb-3 d-flex flex-wrap gap-2">
+                        @foreach (var role in Model.CurrentRoles)
+                        {
+                            <form method="post" asp-page-handler="RemoveRole" class="d-inline">
+                                <input type="hidden" name="removeUserId" value="@Model.RoleTargetUser.Id" />
+                                <input type="hidden" name="removeRoleId" value="@role.RoleId" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    @role.RoleCode (#@role.RoleId) ✕
+                                </button>
+                            </form>
+                        }
+                    </div>
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h6>Assign 1 role (RoleId)</h6>
+                        <form method="post" asp-page-handler="AssignRole" class="row g-2">
+                            <input type="hidden" asp-for="AssignInput.UserId" value="@Model.RoleTargetUser.Id" />
+                            <div class="col-8">
+                                <input asp-for="AssignInput.RoleId" type="number" min="1" class="form-control" placeholder="Nhập RoleId" required />
+                            </div>
+                            <div class="col-4">
+                                <button type="submit" class="btn btn-outline-primary w-100">Assign</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Replace roles (comma RoleIds)</h6>
+                        <form method="post" asp-page-handler="ReplaceRoles" class="row g-2">
+                            <input type="hidden" asp-for="ReplaceInput.UserId" value="@Model.RoleTargetUser.Id" />
+                            <div class="col-8">
+                                <input asp-for="ReplaceRoleIdsText" class="form-control" placeholder="Ví dụ: 2,3,4" />
+                            </div>
+                            <div class="col-4">
+                                <button type="submit" class="btn btn-outline-warning w-100">Replace</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

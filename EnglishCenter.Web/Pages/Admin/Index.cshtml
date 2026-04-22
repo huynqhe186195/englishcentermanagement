@@ -16,7 +16,7 @@
     <div class="col-md-3">
         <div class="card text-white bg-success mb-3">
             <div class="card-body">
-                <h5 class="card-title">Total Students</h5>
+                <h5 class="card-title">Total Campus Users</h5>
                 <p class="card-text display-6">@Model.TotalStudents</p>
             </div>
         </div>
@@ -39,207 +39,230 @@
     </div>
 </div>
 
-<div class="card mt-3 mb-3 shadow-sm">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div>
-                <h5 class="mb-1">Global Financial Overview</h5>
-                <small class="text-muted">@Model.DrilldownTitle</small>
-            </div>
-            <div class="d-flex gap-2">
-                <a class="btn btn-outline-secondary btn-sm" href="/Admin/Index">All Campuses</a>
-                <form method="get" class="d-flex gap-2">
-                    <select class="form-select form-select-sm" name="CampusId" onchange="this.form.submit()">
-                        <option value="">Select campus</option>
-                        @foreach (var c in Model.RevenueByCampus.OrderBy(x => x.CampusName))
-                        {
-                            <option value="@c.CampusId" selected="@(Model.CampusId == c.CampusId)">@c.CampusName (@c.CampusCode)</option>
-                        }
-                    </select>
-                </form>
-            </div>
+<div class="card mt-2 mb-3 shadow-sm">
+    <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h5 class="mb-1">Campus Administration</h5>
+            <small class="text-muted">Quản trị user/role trong campus của bạn.</small>
         </div>
-
-        <div class="row g-2 mt-2">
-            <div class="col-md-3">
-                <div class="border rounded p-2 h-100">
-                    <small class="text-muted">Total Expected</small>
-                    <div class="fw-bold">@Model.RevenueSummary.TotalExpectedRevenue.ToString("N0")</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="border rounded p-2 h-100">
-                    <small class="text-muted">Total Collected</small>
-                    <div class="fw-bold">@Model.RevenueSummary.TotalCollectedRevenue.ToString("N0")</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="border rounded p-2 h-100">
-                    <small class="text-muted">Paid Invoices</small>
-                    <div class="fw-bold">@Model.RevenueSummary.PaidInvoices / @Model.RevenueSummary.TotalInvoices</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="border rounded p-2 h-100">
-                    <small class="text-muted">Refunded</small>
-                    <div class="fw-bold">@Model.RevenueSummary.TotalRefundedAmount.ToString("N0")</div>
-                </div>
-            </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-primary btn-sm" href="/Admin/Users">Campus Users</a>
+            <a class="btn btn-outline-secondary btn-sm" href="/Admin/Dashboard">Quick Actions</a>
         </div>
     </div>
 </div>
 
-<div class="row g-3 mb-3">
-    <div class="col-md-6 col-xl-3">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h6 class="text-muted mb-2">Revenue by Campus</h6>
-                @if (Model.SelectedRevenueCampus != null)
-                {
-                    <div class="fw-bold">@Model.SelectedRevenueCampus.CampusName</div>
-                    <div>Collected: @Model.SelectedRevenueCampus.CollectedRevenue.ToString("N0")</div>
-                    <div>Expected: @Model.SelectedRevenueCampus.ExpectedRevenue.ToString("N0")</div>
-                    <div>Invoices: @Model.SelectedRevenueCampus.InvoiceCount</div>
-                }
-            </div>
-        </div>
+@if (!Model.HasGlobalDashboardAccess)
+{
+    <div class="alert alert-info mb-4">
+        Tài khoản hiện tại không có quyền xem Global Financial/Academic dashboard.
+        Hệ thống đã ẩn các khối dữ liệu toàn hệ thống để tránh gọi API bị 403.
     </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h6 class="text-muted mb-2">Academic by Campus</h6>
-                @if (Model.SelectedClassCampus != null)
-                {
-                    <div class="fw-bold">@Model.SelectedClassCampus.CampusName</div>
-                    <div>Classes: @Model.SelectedClassCampus.ClassCount</div>
-                    <div>Active Enrollments: @Model.SelectedClassCampus.ActiveEnrollments</div>
-                    <div>Attendance: @Model.SelectedClassCampus.AttendanceRate.ToString("0.##")%</div>
-                }
+}
+else
+{
+    <div class="card mt-3 mb-3 shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <h5 class="mb-1">Global Financial Overview</h5>
+                    <small class="text-muted">@Model.DrilldownTitle</small>
+                </div>
+                <div class="d-flex gap-2">
+                    <a class="btn btn-outline-secondary btn-sm" href="/Admin/Index">All Campuses</a>
+                    <form method="get" class="d-flex gap-2">
+                        <select class="form-select form-select-sm" name="CampusId" onchange="this.form.submit()">
+                            <option value="">Select campus</option>
+                            @foreach (var c in Model.RevenueByCampus.OrderBy(x => x.CampusName))
+                            {
+                                <option value="@c.CampusId" selected="@(Model.CampusId == c.CampusId)">@c.CampusName (@c.CampusCode)</option>
+                            }
+                        </select>
+                    </form>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h6 class="text-muted mb-2">Teachers by Campus</h6>
-                @if (Model.SelectedTeacherCampus != null)
-                {
-                    <div class="fw-bold">@Model.SelectedTeacherCampus.CampusName</div>
-                    <div>Teachers: @Model.SelectedTeacherCampus.TeacherCount</div>
-                    <div>Total Sessions: @Model.SelectedTeacherCampus.TotalSessions</div>
-                    <div>Today Sessions: @Model.SelectedTeacherCampus.TodaySessions</div>
-                }
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h6 class="text-muted mb-2">Rooms by Campus</h6>
-                @if (Model.SelectedRoomCampus != null)
-                {
-                    <div class="fw-bold">@Model.SelectedRoomCampus.CampusName</div>
-                    <div>Rooms: @Model.SelectedRoomCampus.RoomCount</div>
-                    <div>Total Sessions: @Model.SelectedRoomCampus.TotalSessions</div>
-                    <div>Upcoming: @Model.SelectedRoomCampus.UpcomingSessions</div>
-                }
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="card shadow-sm mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <strong>Cross-campus Drill-down</strong>
-        <small class="text-muted">Click campus to drill into KPI cards above</small>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-sm mb-0">
-            <thead>
-                <tr>
-                    <th>Campus</th>
-                    <th>Collected Revenue</th>
-                    <th>Expected Revenue</th>
-                    <th>Invoices</th>
-                    <th>Classes</th>
-                    <th>Active Enrollments</th>
-                    <th>Attendance %</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var row in Model.RevenueByCampus.OrderByDescending(x => x.CollectedRevenue))
-                {
-                    var academic = Model.ClassByCampus.FirstOrDefault(x => x.CampusId == row.CampusId);
-                    <tr class="@(Model.CampusId == row.CampusId ? "table-primary" : string.Empty)">
-                        <td>@row.CampusName (@row.CampusCode)</td>
-                        <td>@row.CollectedRevenue.ToString("N0")</td>
-                        <td>@row.ExpectedRevenue.ToString("N0")</td>
-                        <td>@row.InvoiceCount</td>
-                        <td>@(academic?.ClassCount ?? 0)</td>
-                        <td>@(academic?.ActiveEnrollments ?? 0)</td>
-                        <td>@((academic?.AttendanceRate ?? 0).ToString("0.##"))%</td>
-                        <td><a class="btn btn-sm btn-outline-primary" href="/Admin/Index?CampusId=@row.CampusId">Drill down</a></td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col-md-8">
-        <div class="dashboard-hero mb-4">
-            <h4 class="mb-1">Top Classes</h4>
-            <p class="mb-0 opacity-85">Overview of classes with highest activity and attendance</p>
-        </div>
-        <table class="table table-hover shadow-sm rounded">
-            <thead>
-                <tr>
-                    <th>Class</th>
-                    <th>Active</th>
-                    <th>Upcoming Sessions</th>
-                    <th>Attendance %</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.TopClasses)
-                {
-                    <tr>
-                        <td>@item.ClassName (@item.ClassCode)</td>
-                        <td>@item.ActiveEnrollments</td>
-                        <td>@item.UpcomingSessions</td>
-                        <td>@String.Format("{0:0.##}%", item.AttendanceRate)</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-
-    <div class="col-md-4">
-        <h4>Students At Risk</h4>
-        <ul class="list-group">
-            @foreach (var s in Model.StudentsAtRisk)
-            {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>@s.FullName</strong><br />
-                        <small class="text-muted">@s.StudentCode</small>
+            <div class="row g-2 mt-2">
+                <div class="col-md-3">
+                    <div class="border rounded p-2 h-100">
+                        <small class="text-muted">Total Expected</small>
+                        <div class="fw-bold">@Model.RevenueSummary.TotalExpectedRevenue.ToString("N0")</div>
                     </div>
-                    <span class="badge bg-danger">@s.AttendanceRate%</span>
-                </li>
-            }
-        </ul>
-
-        <h4 class="mt-4">Rooms Utilization</h4>
-        <ul class="list-group">
-            @foreach (var r in Model.Rooms)
-            {
-                <li class="list-group-item">
-                    <div>@r.Name (@r.RoomCode)</div>
-                    <small class="text-muted">Capacity: @r.Capacity - Upcoming: @r.UpcomingSessions</small>
-                </li>
-            }
-        </ul>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-2 h-100">
+                        <small class="text-muted">Total Collected</small>
+                        <div class="fw-bold">@Model.RevenueSummary.TotalCollectedRevenue.ToString("N0")</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-2 h-100">
+                        <small class="text-muted">Paid Invoices</small>
+                        <div class="fw-bold">@Model.RevenueSummary.PaidInvoices / @Model.RevenueSummary.TotalInvoices</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded p-2 h-100">
+                        <small class="text-muted">Refunded</small>
+                        <div class="fw-bold">@Model.RevenueSummary.TotalRefundedAmount.ToString("N0")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-6 col-xl-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Revenue by Campus</h6>
+                    @if (Model.SelectedRevenueCampus != null)
+                    {
+                        <div class="fw-bold">@Model.SelectedRevenueCampus.CampusName</div>
+                        <div>Collected: @Model.SelectedRevenueCampus.CollectedRevenue.ToString("N0")</div>
+                        <div>Expected: @Model.SelectedRevenueCampus.ExpectedRevenue.ToString("N0")</div>
+                        <div>Invoices: @Model.SelectedRevenueCampus.InvoiceCount</div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Academic by Campus</h6>
+                    @if (Model.SelectedClassCampus != null)
+                    {
+                        <div class="fw-bold">@Model.SelectedClassCampus.CampusName</div>
+                        <div>Classes: @Model.SelectedClassCampus.ClassCount</div>
+                        <div>Active Enrollments: @Model.SelectedClassCampus.ActiveEnrollments</div>
+                        <div>Attendance: @Model.SelectedClassCampus.AttendanceRate.ToString("0.##")%</div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Teachers by Campus</h6>
+                    @if (Model.SelectedTeacherCampus != null)
+                    {
+                        <div class="fw-bold">@Model.SelectedTeacherCampus.CampusName</div>
+                        <div>Teachers: @Model.SelectedTeacherCampus.TeacherCount</div>
+                        <div>Total Sessions: @Model.SelectedTeacherCampus.TotalSessions</div>
+                        <div>Today Sessions: @Model.SelectedTeacherCampus.TodaySessions</div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Rooms by Campus</h6>
+                    @if (Model.SelectedRoomCampus != null)
+                    {
+                        <div class="fw-bold">@Model.SelectedRoomCampus.CampusName</div>
+                        <div>Rooms: @Model.SelectedRoomCampus.RoomCount</div>
+                        <div>Total Sessions: @Model.SelectedRoomCampus.TotalSessions</div>
+                        <div>Upcoming: @Model.SelectedRoomCampus.UpcomingSessions</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <strong>Cross-campus Drill-down</strong>
+            <small class="text-muted">Click campus to drill into KPI cards above</small>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th>Campus</th>
+                        <th>Collected Revenue</th>
+                        <th>Expected Revenue</th>
+                        <th>Invoices</th>
+                        <th>Classes</th>
+                        <th>Active Enrollments</th>
+                        <th>Attendance %</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.RevenueByCampus.OrderByDescending(x => x.CollectedRevenue))
+                    {
+                        var academic = Model.ClassByCampus.FirstOrDefault(x => x.CampusId == row.CampusId);
+                        <tr class="@(Model.CampusId == row.CampusId ? "table-primary" : string.Empty)">
+                            <td>@row.CampusName (@row.CampusCode)</td>
+                            <td>@row.CollectedRevenue.ToString("N0")</td>
+                            <td>@row.ExpectedRevenue.ToString("N0")</td>
+                            <td>@row.InvoiceCount</td>
+                            <td>@(academic?.ClassCount ?? 0)</td>
+                            <td>@(academic?.ActiveEnrollments ?? 0)</td>
+                            <td>@((academic?.AttendanceRate ?? 0).ToString("0.##"))%</td>
+                            <td><a class="btn btn-sm btn-outline-primary" href="/Admin/Index?CampusId=@row.CampusId">Drill down</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <div class="dashboard-hero mb-4">
+                <h4 class="mb-1">Top Classes</h4>
+                <p class="mb-0 opacity-85">Overview of classes with highest activity and attendance</p>
+            </div>
+            <table class="table table-hover shadow-sm rounded">
+                <thead>
+                    <tr>
+                        <th>Class</th>
+                        <th>Active</th>
+                        <th>Upcoming Sessions</th>
+                        <th>Attendance %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.TopClasses)
+                    {
+                        <tr>
+                            <td>@item.ClassName (@item.ClassCode)</td>
+                            <td>@item.ActiveEnrollments</td>
+                            <td>@item.UpcomingSessions</td>
+                            <td>@String.Format("{0:0.##}%", item.AttendanceRate)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-md-4">
+            <h4>Students At Risk</h4>
+            <ul class="list-group">
+                @foreach (var s in Model.StudentsAtRisk)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>@s.FullName</strong><br />
+                            <small class="text-muted">@s.StudentCode</small>
+                        </div>
+                        <span class="badge bg-danger">@s.AttendanceRate%</span>
+                    </li>
+                }
+            </ul>
+
+            <h4 class="mt-4">Rooms Utilization</h4>
+            <ul class="list-group">
+                @foreach (var r in Model.Rooms)
+                {
+                    <li class="list-group-item">
+                        <div>@r.Name (@r.RoomCode)</div>
+                        <small class="text-muted">Capacity: @r.Capacity - Upcoming: @r.UpcomingSessions</small>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+}

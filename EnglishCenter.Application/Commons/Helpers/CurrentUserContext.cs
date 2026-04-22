@@ -19,7 +19,10 @@ public class CurrentUserContext : ICurrentUserContext
 
     public bool IsSuperAdmin => _currentUserService.IsInRole(RoleConstants.SuperAdmin);
 
-    public bool IsCenterAdmin => _currentUserService.IsInRole(RoleConstants.CenterAdmin);
+    public bool IsCenterAdmin =>
+        _currentUserService.IsInRole(RoleConstants.CenterAdmin)
+        || _currentUserService.IsInRole(RoleConstants.Manager)
+        || _currentUserService.IsInRole(RoleConstants.Admin);
 
     public bool IsInRole(string roleCode) => _currentUserService.IsInRole(roleCode);
 }
