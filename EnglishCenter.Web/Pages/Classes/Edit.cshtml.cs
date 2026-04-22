@@ -44,7 +44,7 @@ public class EditModel : PageModel
         // load lookup lists
         var courses = await _apiClient.GetAsync<PagedResult<CourseSimpleDto>>("courses?PageNumber=1&PageSize=1000");
         var campuses = await _apiClient.GetAsync<PagedResult<CampusSimpleDto>>("campuses?PageNumber=1&PageSize=1000");
-        var rooms = await _apiClient.GetAsync<PagedResult<RoomSimpleDto>>("rooms?PageNumber=1&PageSize=1000");
+        var rooms = await _apiClient.GetAsync<PagedResult<RoomSimpleDto>>("rooms?PageNumber=1&PageSize=100");
 
         Courses = courses?.Items.Select(c => new SelectListItem(c.Name, c.Id.ToString(), c.Id == Input.CourseId)).ToList() ?? new List<SelectListItem>();
         Campuses = campuses?.Items.Select(c => new SelectListItem(c.Name, c.Id.ToString(), c.Id == (Input.CampusId ?? 0))).ToList() ?? new List<SelectListItem>();

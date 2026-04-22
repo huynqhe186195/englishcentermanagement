@@ -31,7 +31,7 @@ public class CreateModel : PageModel
 
         // load lookup lists
         var courses = await _apiClient.GetAsync<PagedResult<CourseSimpleDto>>("courses?PageNumber=1&PageSize=1000");
-        var rooms = await _apiClient.GetAsync<PagedResult<RoomSimpleDto>>("rooms?PageNumber=1&PageSize=1000");
+        var rooms = await _apiClient.GetAsync<PagedResult<RoomSimpleDto>>("rooms?PageNumber=1&PageSize=100");
 
         Courses = courses?.Items.Select(c => new SelectListItem(c.Name, c.Id.ToString())).ToList() ?? new List<SelectListItem>();
         Rooms = rooms?.Items.Select(r => new SelectListItem(r.Name, r.Id.ToString())).ToList() ?? new List<SelectListItem>();
