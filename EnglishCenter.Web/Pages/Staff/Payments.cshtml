@@ -1,0 +1,41 @@
+@page
+@model EnglishCenter.Web.Pages.Staff.PaymentsModel
+@{
+    ViewData["Title"] = "Staff - Payments";
+}
+
+<h2 class="mb-3">Payments</h2>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white fw-semibold">Tạo payment</div>
+    <div class="card-body">
+        <form method="post" asp-page-handler="Create" class="row g-2">
+            <div class="col-md-4"><select class="form-select" asp-for="CreateInput.InvoiceId" asp-items="Model.Invoices"></select></div>
+            <div class="col-md-2"><input class="form-control" asp-for="CreateInput.Amount" placeholder="Amount" /></div>
+            <div class="col-md-2">
+                <select class="form-select" asp-for="CreateInput.PaymentMethod">
+                    <option value="1">Cash</option>
+                    <option value="2">Bank transfer</option>
+                    <option value="3">E-wallet</option>
+                </select>
+            </div>
+            <div class="col-md-2"><input class="form-control" type="datetime-local" asp-for="CreateInput.PaymentDate" /></div>
+            <div class="col-md-1"><input class="form-control" asp-for="CreateInput.TransactionCode" placeholder="Txn" /></div>
+            <div class="col-md-1"><button class="btn btn-primary w-100">Tạo</button></div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead><tr><th>Id</th><th>InvoiceId</th><th>Amount</th><th>Method</th><th>Date</th></tr></thead>
+    <tbody>
+    @foreach (var x in Model.Items)
+    {
+        <tr>
+            <td>@x.Id</td><td>@x.InvoiceId</td><td>@x.Amount.ToString("N0")</td>
+            <td>@(x.PaymentMethod==1?"Cash":x.PaymentMethod==2?"Bank":"E-wallet")</td>
+            <td>@x.PaymentDate.ToString("yyyy-MM-dd HH:mm")</td>
+        </tr>
+    }
+    </tbody>
+</table>
