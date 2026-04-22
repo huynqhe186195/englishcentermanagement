@@ -1,55 +1,125 @@
-﻿@page
+@page
+@model EnglishCenter.Web.Pages.Teacher.AttendanceModel
 @{
-    ViewData["Title"] = "Attendance";
+    ViewData["Title"] = "Teacher Attendance";
+    ViewData["HideChrome"] = true;
 }
 
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-        <div class="row g-3">
-            <div class="col-md-3">
-                <label class="form-label">Session</label>
-                <select class="form-select">
-                    <option>Session 01 - TOEIC-MOR-01</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Date</label>
-                <input class="form-control" value="2026-05-22" readonly />
-            </div>
-            <div class="col-md-3 d-flex align-items-end">
-                <button class="btn btn-success">Save Attendance</button>
-            </div>
+<div class="student-shell teacher-shell attendance-shell">
+    <aside class="student-sidebar teacher-sidebar">
+        <div class="student-brand">English Center</div>
+        <div class="student-profile">
+            <img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=200" alt="teacher avatar" />
+            <h4>@(string.IsNullOrWhiteSpace(Model.FullName) ? Model.UserName : Model.FullName)</h4>
+            <span>Giáo viên</span>
         </div>
-    </div>
-</div>
+        <nav class="student-menu">
+            <a href="/Teacher/Dashboard">Dashboard</a>
+            <a href="/Teacher/Timetable">Thời khóa biểu</a>
+            <a href="/Teacher/MyClasses">Lớp phụ trách</a>
+            <a class="active" href="/Teacher/Attendance">Điểm danh</a>
+        </nav>
+        <a class="student-logout" href="/Account/Logout">Đăng xuất</a>
+    </aside>
 
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white fw-semibold">Session Roster</div>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>#</th>
-                    <th>Student Code</th>
-                    <th>Full Name</th>
-                    <th>Status</th>
-                    <th>Note</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>ST001</td>
-                    <td>Nguyen Van A</td>
-                    <td>
-                        <select class="form-select form-select-sm attendance-status">
-                            <option value="present">Present</option>
-                            <option value="absent">Absent</option>
-                        </select>
-                    </td>
-                    <td><input class="form-control form-control-sm" placeholder="Optional note" /></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <main class="student-main teacher-main attendance-main">
+        <header class="student-topbar attendance-topbar teacher-topbar">
+            <h2>Điểm danh</h2>
+            <form method="get" class="attendance-filter-form">
+                <select name="SessionId" onchange="this.form.submit()">
+                    @foreach (var s in Model.Sessions)
+                    {
+                        <option value="@s.SessionId" selected="@(s.SessionId == Model.SessionId)">
+                            @s.SessionDate - Class @s.ClassId - Session #@s.SessionNo (@s.StartTime-@s.EndTime)
+                        </option>
+                    }
+                </select>
+            </form>
+            <div class="student-topbar-user">✅</div>
+        </header>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Message))
+        {
+            <div class="teacher-alert">@Model.Message</div>
+        }
+
+        @if (!Model.TeacherId.HasValue)
+        {
+            <div class="teacher-alert">Không tìm thấy hồ sơ giáo viên cho tài khoản hiện tại.</div>
+        }
+        else if (!Model.Sessions.Any())
+        {
+            <div class="teacher-empty">Không có session nào thuộc quyền giảng dạy của bạn.</div>
+        }
+        else
+        {
+            <section class="attendance-stat-grid teacher-stats-inline">
+                <article class="attendance-stat-card"><p>Session hiện tại</p><strong>#@Model.SelectedSession?.SessionNo</strong></article>
+                <article class="attendance-stat-card attendance-stat-info"><p>Trạng thái</p><strong>@(Model.SelectedSession?.Status == 1 ? "Planned" : Model.SelectedSession?.Status == 2 ? "Completed" : "Cancelled")</strong></article>
+                <article class="attendance-stat-card @(Model.CanEditAttendance ? "attendance-stat-ok" : "attendance-stat-warn")"><p>Quyền sửa điểm danh</p><strong>@(Model.CanEditAttendance ? "Mở" : "Đóng")</strong></article>
+                <article class="attendance-stat-card"><p>Sĩ số session</p><strong>@Model.Roster.Count</strong></article>
+            </section>
+
+            <form method="post" asp-page-handler="Save" class="attendance-calendar-card">
+                <input type="hidden" name="SessionId" value="@Model.SessionId" />
+                <div class="teacher-card-title">Roster của session</div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                        <tr><th>#</th><th>Mã HV</th><th>Họ tên</th><th>Trạng thái</th><th>Ghi chú</th></tr>
+                        </thead>
+                        <tbody>
+                        @if (!Model.Roster.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">Session này không có học viên đủ điều kiện điểm danh.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @for (var i = 0; i < Model.Roster.Count; i++)
+                            {
+                                <tr>
+                                    <td>@(i + 1)</td>
+                                    <td>@Model.Roster[i].StudentCode</td>
+                                    <td>@Model.Roster[i].FullName</td>
+                                    <td>
+                                        <input type="hidden" asp-for="Items[i].StudentId" value="@Model.Roster[i].StudentId" />
+                                        <select asp-for="Items[i].Status" class="form-select form-select-sm" disabled="@(!Model.CanEditAttendance)">
+                                            <option value="0">Not Marked</option>
+                                            <option value="1">Present</option>
+                                            <option value="2">Absent</option>
+                                        </select>
+                                    </td>
+                                    <td><input asp-for="Items[i].Note" class="form-control form-control-sm" disabled="@(!Model.CanEditAttendance)" /></td>
+                                </tr>
+                            }
+                        }
+                        </tbody>
+                    </table>
+                </div>
+
+                @if (!Model.Roster.Any())
+                {
+                    <div class="alert alert-warning mt-3 mb-0">
+                        Roster lớp có <strong>@Model.ClassRosterCount</strong> học viên, nhưng chỉ <strong>@Model.ActiveEnrollmentCount</strong> học viên trạng thái Active.
+                        API điểm danh chỉ nhận học viên Active cho session hiện tại.
+                    </div>
+                }
+
+                <div class="mt-3">
+                    <button class="btn btn-success" type="submit" @(Model.CanEditAttendance && Model.Roster.Any() ? null : "disabled")>Lưu điểm danh</button>
+                </div>
+            </form>
+
+            <form method="post" asp-page-handler="Complete" class="attendance-course-card mt-3">
+                <input type="hidden" name="SessionId" value="@Model.SessionId" />
+                <label class="form-label fw-semibold">Ghi chú hoàn tất buổi học</label>
+                <div class="d-flex gap-2">
+                    <input asp-for="CompleteNote" class="form-control" placeholder="Optional" />
+                    <button class="btn btn-primary" type="submit" @(Model.SelectedSession?.Status == 2 ? "disabled" : null)>Complete session</button>
+                </div>
+            </form>
+        }
+    </main>
 </div>

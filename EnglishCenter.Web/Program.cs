@@ -87,6 +87,21 @@ app.Use(async (context, next) =>
         }
     }
 
+
+    if (path.StartsWith("/Teacher", StringComparison.OrdinalIgnoreCase))
+    {
+        if (!roles.Any())
+        {
+            context.Response.Redirect("/Account/Login");
+            return;
+        }
+
+        if (!hasRole("TEACHER"))
+        {
+            context.Response.Redirect("/Account/Login");
+            return;
+        }
+    }
     if (path.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase))
     {
         if (!roles.Any())

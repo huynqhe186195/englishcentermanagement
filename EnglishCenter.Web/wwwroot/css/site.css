@@ -2220,3 +2220,78 @@ body {
         align-items: flex-start;
     }
 }
+
+.teacher-shell {
+    background: #eef2f7;
+}
+
+.teacher-sidebar {
+    background: linear-gradient(180deg, #0f766e 0%, #0f172a 100%);
+}
+
+.teacher-main {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.teacher-topbar {
+    grid-template-columns: auto 1fr auto;
+}
+
+.teacher-filter-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+}
+
+.teacher-filter-form select,
+.teacher-filter-form input {
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    padding: 8px 10px;
+}
+
+.teacher-alert,
+.teacher-empty,
+.teacher-table-card {
+    background: #fff;
+    border: 1px solid #dbe4f0;
+    border-radius: 12px;
+    padding: 14px;
+}
+
+.teacher-alert {
+    background: #fffbeb;
+    border-color: #fcd34d;
+    color: #92400e;
+    font-weight: 600;
+}
+
+.teacher-card-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.teacher-stats .student-stat-card span {
+    color: #0f766e;
+}
+
+.teacher-stats-inline .attendance-stat-card strong {
+    font-size: 1.4rem;
+}
+
+@media (max-width: 991.98px) {
+    .teacher-topbar {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .teacher-filter-form {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+}

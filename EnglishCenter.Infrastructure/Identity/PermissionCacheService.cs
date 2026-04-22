@@ -1,4 +1,5 @@
 ﻿using EnglishCenter.Application.Common.Interfaces;
+using EnglishCenter.Application.Common.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -33,13 +34,28 @@ public class PermissionCacheService : IPermissionCacheService
 
         _logger.LogInformation("Permission cache miss for userId {UserId}", userId);
 
-        var permissions = await (
+        var roleCodes = await (
+            from ur in _context.UserRoles
+            join r in _context.Roles on ur.RoleId equals r.Id
+            where ur.UserId == userId && !r.IsDeleted
+            select r.Code
+        ).Distinct().ToListAsync();
+
+        var dbPermissions = await (
             from ur in _context.UserRoles
             join rp in _context.RolePermissions on ur.RoleId equals rp.RoleId
             join p in _context.Permissions on rp.PermissionId equals p.Id
             where ur.UserId == userId && !p.IsDeleted
             select p.Code
         ).Distinct().ToListAsync();
+
+        // Fallback/default permissions by role to prevent missing RolePermissions seed data
+        // from breaking authorization for valid role accounts.
+        var mappedPermissions = RolePermissionMapping.GetPermissionsByRoles(roleCodes);
+
+        var permissions = dbPermissions
+            .Union(mappedPermissions, StringComparer.OrdinalIgnoreCase)
+            .ToList();
 
         var cacheOptions = new MemoryCacheEntryOptions
         {

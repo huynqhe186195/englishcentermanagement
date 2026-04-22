@@ -1,34 +1,74 @@
-﻿@page
+@page
+@model EnglishCenter.Web.Pages.Teacher.DashboardModel
 @{
     ViewData["Title"] = "Teacher Dashboard";
+    ViewData["HideChrome"] = true;
 }
 
-<div class="row g-3 mb-4">
-    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">My Classes</div><h3>6</h3></div></div></div>
-    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Sessions Today</div><h3>3</h3></div></div></div>
-    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Attendance Pending</div><h3>1</h3></div></div></div>
-</div>
+<div class="student-shell teacher-shell">
+    <aside class="student-sidebar teacher-sidebar">
+        <div class="student-brand">English Center</div>
+        <div class="student-profile">
+            <img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=200" alt="teacher avatar" />
+            <h4>@(string.IsNullOrWhiteSpace(Model.FullName) ? Model.UserName : Model.FullName)</h4>
+            <span>Giáo viên</span>
+        </div>
+        <nav class="student-menu">
+            <a class="active" href="/Teacher/Dashboard">Dashboard</a>
+            <a href="/Teacher/Timetable">Thời khóa biểu</a>
+            <a href="/Teacher/MyClasses">Lớp phụ trách</a>
+            <a href="/Teacher/Attendance">Điểm danh</a>
+        </nav>
+        <a class="student-logout" href="/Account/Logout">Đăng xuất</a>
+    </aside>
 
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white fw-semibold">Today Sessions</div>
-    <div class="card-body p-0">
-        <table class="table mb-0 align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>Class</th>
-                    <th>Time</th>
-                    <th>Room</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>TOEIC-MOR-01</td>
-                    <td>18:00 - 19:30</td>
-                    <td>R101</td>
-                    <td><a asp-page="/Teacher/Attendance" class="btn btn-sm btn-primary">Take Attendance</a></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <main class="student-main teacher-main">
+        <header class="student-topbar teacher-topbar">
+            <h2>Dashboard</h2>
+            <input type="text" value="Quyền: timetable • roster • attendance • complete session • class summary" readonly />
+            <div class="student-topbar-user">👨‍🏫</div>
+        </header>
+
+        @if (!Model.TeacherId.HasValue)
+        {
+            <div class="teacher-alert">Không tìm thấy hồ sơ giáo viên cho tài khoản hiện tại.</div>
+        }
+        else
+        {
+            <section class="student-stats teacher-stats">
+                <article class="student-stat-card"><h6>Lớp phụ trách</h6><strong>@Model.Summary.TotalAssignedClasses</strong><span>Theo phân công hiện tại</span></article>
+                <article class="student-stat-card"><h6>Tổng buổi dạy</h6><strong>@Model.Summary.TotalSessions</strong><span>Tất cả sessions</span></article>
+                <article class="student-stat-card"><h6>Buổi hôm nay</h6><strong>@Model.Summary.TodaySessions</strong><span>Lịch trong ngày</span></article>
+                <article class="student-stat-card"><h6>Buổi sắp tới</h6><strong>@Model.Summary.UpcomingSessions</strong><span>Đã lên lịch</span></article>
+            </section>
+
+            <section class="teacher-table-card">
+                <div class="teacher-card-title">Lịch dạy hôm nay</div>
+                @if (!Model.TodaySessions.Any())
+                {
+                    <div class="teacher-empty">Hôm nay bạn không có buổi dạy.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light"><tr><th>Lớp</th><th>Giờ</th><th>Phòng</th><th>Trạng thái</th><th></th></tr></thead>
+                            <tbody>
+                            @foreach (var s in Model.TodaySessions)
+                            {
+                                <tr>
+                                    <td>Class @s.ClassId • Session #@s.SessionNo</td>
+                                    <td>@s.StartTime - @s.EndTime</td>
+                                    <td>@(s.RoomId?.ToString() ?? "--")</td>
+                                    <td>@(s.Status == 1 ? "Planned" : s.Status == 2 ? "Completed" : s.Status == 3 ? "Cancelled" : "Unknown")</td>
+                                    <td><a asp-page="/Teacher/Attendance" asp-route-sessionId="@s.SessionId" class="btn btn-sm btn-primary">Điểm danh</a></td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </section>
+        }
+    </main>
 </div>
