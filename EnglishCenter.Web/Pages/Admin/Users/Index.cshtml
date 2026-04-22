@@ -169,7 +169,7 @@ else
                                 <td>@user.FullName</td>
                                 <td>@user.UserName</td>
                                 <td>@(string.IsNullOrWhiteSpace(user.Email) ? "-" : user.Email)</td>
-                                <td><span class="badge text-bg-light border">@(Model.UserRoleBadges.TryGetValue(user.Id, out var roleCode) ? roleCode : "-")</span></td>
+                                <td><span class="admin-role-badge">@(Model.UserRoleBadges.TryGetValue(user.Id, out var roleCode) ? roleCode : "-")</span></td>
                                 <td>
                                     <span class="badge @(user.Status == 1 ? "text-bg-success" : "text-bg-secondary")">
                                         @(user.Status == 1 ? "Active" : "Inactive")
