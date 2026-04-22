@@ -35,7 +35,7 @@ public class IndexModel : PageModel
             url += $"&EntityName={Uri.EscapeDataString(Module.Trim())}";
         }
 
-        var paged = await _apiClient.GetAsync<PagedResult<AuditLogVm>>(url);
+        var paged = await _apiClient.GetAsync<Models.PagedResult<AuditLogVm>>(url);
         Logs = (List<AuditLogVm>)(paged?.Items ?? new List<AuditLogVm>());
     }
 
