@@ -2142,3 +2142,81 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* Admin role shared pages */
+.admin-page-header {
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid #e4e9f3;
+    background: linear-gradient(180deg, #ffffff, #f8fbff);
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    align-items: center;
+}
+
+.admin-page-header h1 {
+    margin: 8px 0 6px;
+    font-size: clamp(1.2rem, 2.2vw, 1.8rem);
+    font-weight: 800;
+}
+
+.admin-page-header p {
+    margin: 0;
+    color: #64748b;
+}
+
+.admin-badge-soft {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 5px 12px;
+    background: #e9efff;
+    color: #1e40af;
+    font-weight: 700;
+    font-size: .8rem;
+}
+
+.admin-page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.admin-stat-surface span {
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.admin-stat-surface h3 {
+    font-size: 2rem;
+    margin: 10px 0 6px;
+    font-weight: 800;
+}
+
+.admin-form-grid .form-label {
+    font-weight: 600;
+    color: #334155;
+}
+
+.admin-form-grid .form-control,
+.admin-form-grid .form-select {
+    border-radius: 12px;
+    border-color: #d9e2ef;
+    min-height: 42px;
+}
+
+.admin-pagination .page-link {
+    border-radius: 8px;
+    margin-right: 4px;
+}
+
+@media (max-width: 767.98px) {
+    .admin-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

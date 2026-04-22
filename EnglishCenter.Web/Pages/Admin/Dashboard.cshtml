@@ -1,52 +1,96 @@
-﻿@page
+@page
 @{
     ViewData["Title"] = "Admin Dashboard";
 }
 
-<div class="row g-3 mb-4">
-    <div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Students</div><h3>540</h3></div></div></div>
-    <div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Teachers</div><h3>28</h3></div></div></div>
-    <div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Classes</div><h3>41</h3></div></div></div>
-    <div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Sessions Today</div><h3>17</h3></div></div></div>
-</div>
+<section class="admin-page-header mb-4">
+    <div>
+        <span class="admin-badge-soft">Admin Workspace</span>
+        <h1>Campus Operations Hub</h1>
+        <p>Điều phối lớp học, người dùng và vận hành hằng ngày từ một không gian tập trung.</p>
+    </div>
+    <div class="admin-page-actions">
+        <a asp-page="/Admin/Users/Index" class="btn btn-primary">Manage Campus Users</a>
+        <a asp-page="/Admin/Index" class="btn btn-outline-primary">Open KPI Dashboard</a>
+    </div>
+</section>
 
-<div class="row g-4">
+<section class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <article class="admin-surface admin-stat-surface h-100">
+            <span>Students</span>
+            <h3>540</h3>
+            <small class="text-success">+12 tuần này</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="admin-surface admin-stat-surface h-100">
+            <span>Teachers</span>
+            <h3>28</h3>
+            <small class="text-primary">Ổn định chất lượng</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="admin-surface admin-stat-surface h-100">
+            <span>Classes</span>
+            <h3>41</h3>
+            <small class="text-info">6 lớp mới trong tháng</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="admin-surface admin-stat-surface h-100">
+            <span>Sessions Today</span>
+            <h3>17</h3>
+            <small class="text-warning">4 phiên cần theo dõi</small>
+        </article>
+    </div>
+</section>
+
+<section class="row g-3">
     <div class="col-lg-7">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold">Classes Requiring Attention</div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0 align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Class</th>
-                                <th>Teacher</th>
-                                <th>Students</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>IELTS-EVE-01</td>
-                                <td>Ms. Anna</td>
-                                <td>10/10</td>
-                                <td><span class="badge bg-warning text-dark">Need Room Change</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
+        <article class="admin-surface h-100">
+            <div class="admin-surface-head mb-2">
+                <div>
+                    <h2>Classes Requiring Attention</h2>
+                    <p>Những lớp đang có cảnh báo vận hành cần ưu tiên.</p>
                 </div>
             </div>
-        </div>
+            <div class="table-responsive">
+                <table class="table admin-modern-table mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Teacher</th>
+                            <th>Students</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>IELTS-EVE-01</td>
+                            <td>Ms. Anna</td>
+                            <td>10/10</td>
+                            <td><span class="badge text-bg-warning">Need Room Change</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </article>
     </div>
     <div class="col-lg-5">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold">Quick Actions</div>
-            <div class="card-body d-grid gap-2">
+        <article class="admin-surface h-100">
+            <div class="admin-surface-head mb-2">
+                <div>
+                    <h2>Quick Actions</h2>
+                    <p>Tác vụ phổ biến cho Admin trong ngày.</p>
+                </div>
+            </div>
+            <div class="d-grid gap-2">
                 <a asp-page="/Admin/Users/Index" class="btn btn-primary">Manage Campus Users</a>
                 <a asp-page="/Admin/Classes" class="btn btn-outline-primary">Manage Classes</a>
                 <a asp-page="/Admin/Sessions" class="btn btn-outline-primary">Manage Sessions</a>
                 <a asp-page="/Admin/Financial" class="btn btn-outline-success">View Financial Dashboard</a>
             </div>
-        </div>
+        </article>
     </div>
-</div>
+</section>
