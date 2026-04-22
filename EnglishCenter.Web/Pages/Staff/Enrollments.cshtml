@@ -1,0 +1,18 @@
+@page
+@{
+    ViewData["Title"] = "Staff - Enrollments";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Vận hành Enrollments</h2>
+    <a class="btn btn-primary" href="/Enrollments/Create">Tạo enrollment</a>
+</div>
+
+<div class="alert alert-info">
+    Nhân viên vận hành có thể quản lý enrollment tại module chuẩn để đồng nhất giao diện.
+</div>
+
+<div class="d-grid gap-2 col-md-4">
+    <a class="btn btn-outline-primary" href="/Enrollments/Index">Danh sách Enrollments</a>
+    <a class="btn btn-outline-secondary" href="/Enrollments/Transfer">Chuyển lớp (theo enrollment)</a>
+</div>
