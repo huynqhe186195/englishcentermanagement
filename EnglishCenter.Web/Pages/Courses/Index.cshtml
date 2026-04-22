@@ -6,6 +6,19 @@
 }
 
 <div class="courses-page">
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="landing-container mt-3">
+            <div class="alert alert-success mb-0">@successMessage</div>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="landing-container mt-3">
+            <div class="alert alert-danger mb-0">@errorMessage</div>
+        </div>
+    }
+
     <header class="landing-header">
         <div class="landing-container landing-nav">
             <a class="landing-brand" href="/Index">
@@ -20,7 +33,7 @@
                 <a href="#">Liên hệ</a>
             </nav>
 
-            <a class="landing-register-btn" href="/Account/Register">Đăng ký ngay</a>
+            <a class="landing-register-btn" href="@Model.GetCtaLink()">@Model.PrimaryCtaText</a>
         </div>
     </header>
 
@@ -35,7 +48,7 @@
                         với giáo viên giàu kinh nghiệm và giáo trình chuẩn quốc tế.
                     </p>
                 </div>
-                <a class="btn-primary-landing" href="/Account/Register">Tư vấn miễn phí</a>
+                <a class="btn-primary-landing" href="@Model.GetCtaLink()">@Model.PrimaryCtaText</a>
             </div>
         </div>
     </section>
@@ -62,7 +75,7 @@
                         </ul>
                         <div class="course-footer">
                             <span class="course-price">@course.DefaultFee.ToString("N0")đ</span>
-                            <a href="/Account/Register">Đăng ký</a>
+                            <a href="@Model.GetCtaLink(course.Id)">Đăng ký</a>
                         </div>
                     </article>
                 }
