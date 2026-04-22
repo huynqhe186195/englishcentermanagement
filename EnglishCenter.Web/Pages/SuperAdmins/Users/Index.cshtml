@@ -8,7 +8,58 @@
 <div class="page-header">
     <div>
         <h2 class="page-title">Users</h2>
-        <p class="page-subtitle">Danh sách người dùng (view-only) toàn hệ thống.</p>
+        <p class="page-subtitle">Quản lý tài khoản người dùng toàn hệ thống.</p>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success">@successMessage</div>
+}
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<div class="card sa-card mb-4">
+    <div class="card-header card-header-clean">
+        <h5 class="mb-0">Create Admin User (Role: ADMIN)</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" asp-page-handler="Create" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Username</label>
+                <input asp-for="CreateInput.UserName" class="form-control" required />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Password</label>
+                <input asp-for="CreateInput.Password" type="password" class="form-control" required />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Full Name</label>
+                <input asp-for="CreateInput.FullName" class="form-control" required />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Email</label>
+                <input asp-for="CreateInput.Email" type="email" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Phone Number</label>
+                <input asp-for="CreateInput.PhoneNumber" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Status</label>
+                <select asp-for="CreateInput.Status" class="form-select">
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-7 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">Create Admin User</button>
+            </div>
+        </form>
     </div>
 </div>
 
