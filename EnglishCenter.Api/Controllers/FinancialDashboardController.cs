@@ -1,11 +1,13 @@
 ﻿using EnglishCenter.Application.Features.FinancialDashboards;
 using EnglishCenter.Application.Features.FinancialDashboards.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EnglishCenter.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = "RequireCenterAdmin")]
 public class FinancialDashboardController : ControllerBase
 {
     private readonly FinancialDashboardService _financialDashboardService;

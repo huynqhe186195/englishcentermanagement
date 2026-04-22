@@ -118,16 +118,6 @@ public class IdentitySeeder
             },
             new()
             {
-                UserName = "teacher01",
-                FullName = "Teacher One",
-                Email = "teacher01@englishcenter.local",
-                PasswordHash = _passwordHasherService.HashPassword("123456"),
-                Status = 1,
-                IsDeleted = false,
-                CreatedAt = DateTime.UtcNow
-            },
-            new()
-            {
                 UserName = "student02",
                 FullName = "Student Two",
                 Email = "student02@englishcenter.local",
@@ -138,30 +128,9 @@ public class IdentitySeeder
             },
             new()
             {
-                UserName = "student01",
-                FullName = "Student One",
-                Email = "student01@englishcenter.local",
-                PasswordHash = _passwordHasherService.HashPassword("123456"),
-                Status = 1,
-                IsDeleted = false,
-                CreatedAt = DateTime.UtcNow
-            },
-            new()
-            {
                 UserName = "parent02",
                 FullName = "Parent Two",
                 Email = "parent02@englishcenter.local",
-                PasswordHash = _passwordHasherService.HashPassword("123456"),
-                Status = 1,
-                IsDeleted = false,
-                CreatedAt = DateTime.UtcNow
-            }
-            ,
-            new()
-            {
-                UserName = "parent01",
-                FullName = "Parent One",
-                Email = "parent01@englishcenter.local",
                 PasswordHash = _passwordHasherService.HashPassword("123456"),
                 Status = 1,
                 IsDeleted = false,

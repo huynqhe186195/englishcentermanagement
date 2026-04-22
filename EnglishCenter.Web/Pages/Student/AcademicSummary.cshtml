@@ -1,39 +1,131 @@
-@page "{studentId:long}"
+@page
 @model EnglishCenter.Web.Pages.Student.AcademicSummaryModel
 @{
-    ViewData["Title"] = "Academic Summary";
+    ViewData["Title"] = "Điểm số";
+    ViewData["HideChrome"] = true;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Academic Summary</h2>
-    <a class="btn btn-secondary" asp-page="/Student/Index">Back to Dashboard</a>
-</div>
+<div class="student-shell score-shell">
+    <aside class="student-sidebar">
+        <div class="student-brand">English Center</div>
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Enrollments</h5>
-                <p>Active: @Model.Summary.ActiveEnrollments</p>
-                <p>Suspended: @Model.Summary.SuspendedEnrollments</p>
-                <p>Completed: @Model.Summary.CompletedEnrollments</p>
-            </div>
+        <div class="student-profile">
+            <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200" alt="student avatar" />
+            <h4>@(string.IsNullOrWhiteSpace(Model.FullName) ? Model.UserName : Model.FullName)</h4>
+            <span>Mã HV: @(string.IsNullOrWhiteSpace(Model.UserName) ? "HV-000" : Model.UserName)</span>
         </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Attendance</h5>
-                <p>Total records: @Model.Summary.TotalAttendanceRecords</p>
-                <p>Present: @Model.Summary.PresentCount</p>
-                <p>Absent: @Model.Summary.AbsentCount</p>
-                <p>Attendance Rate: @Model.Summary.AttendanceRate%</p>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="mt-3">
-    <h4>Upcoming Sessions: @Model.Summary.UpcomingSessions</h4>
-    <a class="btn btn-outline-primary" asp-page="/Enrollments/Index">View Enrollments</a>
+        <nav class="student-menu">
+            <a href="/Student/Index">Dashboard</a>
+            <a href="/Student/MyCourses">Khóa học của tôi</a>
+            <a href="/Student/Schedule">Lịch học</a>
+            <a class="active" href="/Student/AcademicSummary">Điểm số</a>
+            <a href="/Student/AttendanceReport">Điểm danh</a>
+            <a href="#">Bài tập</a>
+            <a href="#">Thông báo</a>
+            <a href="/Student/Profile">Hồ sơ cá nhân</a>
+        </nav>
+
+        <a class="student-logout" href="/Account/Logout">Đăng xuất</a>
+    </aside>
+
+    <main class="student-main score-main">
+        <header class="student-topbar score-topbar">
+            <div>
+                <h2>Điểm số</h2>
+                <p>Quản lý và theo dõi kết quả học tập</p>
+            </div>
+            <div class="score-topbar-actions">
+                <select>
+                    <option>Tất cả khóa học</option>
+                </select>
+                <button class="btn btn-outline-secondary btn-sm">⤓ Xuất PDF</button>
+            </div>
+        </header>
+
+        <section class="score-stat-grid">
+            <article class="score-stat-card score-stat-card--blue">
+                <p>GPA tổng</p>
+                <strong>@Model.Gpa<span>/10</span></strong>
+                <small>@Model.RankLabel(Model.Gpa)</small>
+            </article>
+            <article class="score-stat-card">
+                <p>Bài kiểm tra đã làm</p>
+                <strong>@Model.TestsTaken</strong>
+                <small>Bài kiểm tra</small>
+            </article>
+            <article class="score-stat-card score-stat-card--green">
+                <p>Điểm cao nhất</p>
+                <strong>@Model.HighestScore</strong>
+                <small>Từ dữ liệu API</small>
+            </article>
+            <article class="score-stat-card score-stat-card--orange">
+                <p>Điểm thấp nhất</p>
+                <strong>@Model.LowestScore</strong>
+                <small>Từ dữ liệu API</small>
+            </article>
+        </section>
+
+        <section class="score-grid">
+            <div class="score-table-card">
+                <div class="score-card-title">Chi tiết điểm số</div>
+                <div class="table-responsive">
+                    <table class="table score-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Bài kiểm tra</th>
+                                <th>Môn học</th>
+                                <th>Hệ số</th>
+                                <th>Điểm</th>
+                                <th>Xếp loại</th>
+                                <th>Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var i = 0; i < Model.StudentScores.Count; i++)
+                            {
+                                var item = Model.StudentScores[i];
+                                var rank = Model.RankLabel(item.ScoreValue);
+                                <tr>
+                                    <td>@(i + 1)</td>
+                                    <td>@item.ExamTitle</td>
+                                    <td>IELTS Prep</td>
+                                    <td>@(item.ExamId % 2 == 0 ? "1.5" : "1.0")</td>
+                                    <td><strong>@item.ScoreValue</strong></td>
+                                    <td><span class="score-rank score-rank-@Model.RankClass(rank)">@rank</span></td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.Remark) ? "-" : item.Remark)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <aside class="score-side">
+                <div class="score-analysis-card">
+                    <div class="score-card-title">Phân tích theo kỹ năng</div>
+                    <div class="score-skill-item"><label>Listening <b>@Model.ListeningAvg</b></label><div><i style="width:@(Model.ListeningAvg * 10)%"></i></div></div>
+                    <div class="score-skill-item"><label>Reading <b>@Model.ReadingAvg</b></label><div><i style="width:@(Model.ReadingAvg * 10)%"></i></div></div>
+                    <div class="score-skill-item"><label>Writing <b>@Model.WritingAvg</b></label><div><i style="width:@(Model.WritingAvg * 10)%"></i></div></div>
+                    <div class="score-skill-item"><label>Speaking <b>@Model.SpeakingAvg</b></label><div><i style="width:@(Model.SpeakingAvg * 10)%"></i></div></div>
+                    <div class="score-band">IELTS Band dự kiến <strong>@Model.EstimatedBand</strong></div>
+                </div>
+
+                <div class="score-trend-card">
+                    <div class="score-card-title">Xu hướng điểm số</div>
+                    <p>Tiến trình 6 tuần gần nhất</p>
+                    <div class="score-trend-bars">
+                        @foreach (var point in Model.TrendPoints)
+                        {
+                            <div class="score-trend-point">
+                                <div class="score-trend-col"><i style="height:@(point.Value * 10)%"></i></div>
+                                <span>@point.Label</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </aside>
+        </section>
+    </main>
 </div>

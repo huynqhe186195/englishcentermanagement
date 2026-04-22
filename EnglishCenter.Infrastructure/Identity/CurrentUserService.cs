@@ -30,6 +30,15 @@ public class CurrentUserService : ICurrentUserService
     public string? UserName =>
         _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Name)?.Value;
 
+    public long? CampusId
+    {
+        get
+        {
+            var campusIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("campus_id")?.Value;
+            return long.TryParse(campusIdClaim, out var campusId) ? campusId : null;
+        }
+    }
+
     public string? IpAddress =>
         _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
 

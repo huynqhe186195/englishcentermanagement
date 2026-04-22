@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using EnglishCenter.Application.Features.Dashboards;
 using EnglishCenter.Application.Features.Dashboards.Dtos;
@@ -7,6 +8,7 @@ namespace EnglishCenter.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = "RequireCenterAdmin")]
 public class AcademicDashboardController : ControllerBase
 {
     private readonly AcademicDashboardService _academicDashboardService;

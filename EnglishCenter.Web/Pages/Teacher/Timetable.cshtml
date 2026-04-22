@@ -1,0 +1,72 @@
+@page
+@model EnglishCenter.Web.Pages.Teacher.TimetableModel
+@{
+    ViewData["Title"] = "Teacher Timetable";
+    ViewData["HideChrome"] = true;
+}
+
+<div class="student-shell teacher-shell">
+    <aside class="student-sidebar teacher-sidebar">
+        <div class="student-brand">English Center</div>
+        <div class="student-profile">
+            <img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=200" alt="teacher avatar" />
+            <h4>@(string.IsNullOrWhiteSpace(Model.FullName) ? Model.UserName : Model.FullName)</h4>
+            <span>Giáo viên</span>
+        </div>
+        <nav class="student-menu">
+            <a href="/Teacher/Dashboard">Dashboard</a>
+            <a class="active" href="/Teacher/Timetable">Thời khóa biểu</a>
+            <a href="/Teacher/MyClasses">Lớp phụ trách</a>
+            <a href="/Teacher/Attendance">Điểm danh</a>
+        </nav>
+        <a class="student-logout" href="/Account/Logout">Đăng xuất</a>
+    </aside>
+
+    <main class="student-main teacher-main">
+        <header class="student-topbar teacher-topbar">
+            <h2>Thời khóa biểu</h2>
+            <form method="get" class="teacher-filter-form">
+                <input type="date" name="FromDate" value="@Model.FromDate" />
+                <input type="date" name="ToDate" value="@Model.ToDate" />
+                <button class="btn btn-primary btn-sm">Lọc</button>
+            </form>
+            <div class="student-topbar-user">📅</div>
+        </header>
+
+        @if (!Model.TeacherId.HasValue)
+        {
+            <div class="teacher-alert">Không tìm thấy hồ sơ giáo viên cho tài khoản hiện tại.</div>
+        }
+        else
+        {
+            <section class="teacher-table-card">
+                <div class="teacher-card-title">Danh sách buổi dạy</div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light"><tr><th>Ngày</th><th>Giờ</th><th>Lớp</th><th>Phòng</th><th>Trạng thái</th><th></th></tr></thead>
+                        <tbody>
+                        @if (!Model.Sessions.Any())
+                        {
+                            <tr><td colspan="6" class="text-center text-muted py-4">Không có buổi học trong khoảng thời gian đã chọn.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var s in Model.Sessions)
+                            {
+                                <tr>
+                                    <td>@s.SessionDate</td>
+                                    <td>@s.StartTime - @s.EndTime</td>
+                                    <td>Class @s.ClassId • Session #@s.SessionNo</td>
+                                    <td>@(s.RoomId?.ToString() ?? "--")</td>
+                                    <td>@(s.Status == 1 ? "Planned" : s.Status == 2 ? "Completed" : s.Status == 3 ? "Cancelled" : "Unknown")</td>
+                                    <td><a asp-page="/Teacher/Attendance" asp-route-sessionId="@s.SessionId" class="btn btn-sm btn-outline-primary">Điểm danh</a></td>
+                                </tr>
+                            }
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        }
+    </main>
+</div>

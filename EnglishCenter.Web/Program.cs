@@ -50,6 +50,82 @@ app.UseRouting();
 
 app.UseSession();
 
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value ?? string.Empty;
+
+    if (path.StartsWith("/css", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWith("/js", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWith("/lib", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWith("/images", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWith("/Account", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWith("/Error", StringComparison.OrdinalIgnoreCase))
+    {
+        await next();
+        return;
+    }
+
+    var rawRoles = context.Session.GetString("Roles");
+    var roles = string.IsNullOrWhiteSpace(rawRoles)
+        ? new List<string>()
+        : System.Text.Json.JsonSerializer.Deserialize<List<string>>(rawRoles) ?? new List<string>();
+
+    bool hasRole(string role) => roles.Contains(role, StringComparer.OrdinalIgnoreCase);
+
+    if (path.StartsWith("/SuperAdmins", StringComparison.OrdinalIgnoreCase))
+    {
+        if (!roles.Any())
+        {
+            context.Response.Redirect("/Account/Login");
+            return;
+        }
+
+        if (!hasRole("SUPER_ADMIN"))
+        {
+            context.Response.Redirect("/Admin/Index");
+            return;
+        }
+    }
+
+
+    if (path.StartsWith("/Teacher", StringComparison.OrdinalIgnoreCase))
+    {
+        if (!roles.Any())
+        {
+            context.Response.Redirect("/Account/Login");
+            return;
+        }
+
+        if (!hasRole("TEACHER"))
+        {
+            context.Response.Redirect("/Account/Login");
+            return;
+        }
+    }
+    if (path.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase))
+    {
+        if (!roles.Any())
+        {
+            context.Response.Redirect("/Account/Login");
+            return;
+        }
+
+        if (hasRole("SUPER_ADMIN"))
+        {
+            context.Response.Redirect("/SuperAdmins/Dashboard");
+            return;
+        }
+
+        if (!hasRole("CENTER_ADMIN") && !hasRole("MANAGER") && !hasRole("ADMIN") && !hasRole("STAFF"))
+        {
+            context.Response.Redirect("/Account/Login");
+            return;
+        }
+    }
+
+    await next();
+});
+
 app.UseAuthorization();
 
 app.MapRazorPages();

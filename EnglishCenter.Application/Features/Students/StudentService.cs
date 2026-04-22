@@ -130,6 +130,20 @@ public class StudentService
         {
             var attendance = attendanceRecords.FirstOrDefault(x => x.SessionId == session.Id);
 
+            var attendanceStatus = attendance?.Status;
+            var attendanceStatusText = attendance != null
+                ? GetAttendanceStatusText(attendance.Status)
+                : "NotMarked";
+
+            // Business rule matrix:
+            // - Planned/Future session + no record => NotMarked
+            // - Completed session + no record => Absent
+            if (attendance == null && session.Status == ClassSessionStatusConstants.Completed)
+            {
+                attendanceStatus = AttendanceStatusConstants.Absent;
+                attendanceStatusText = "Absent";
+            }
+
             return new StudentAttendanceReportSessionItemDto
             {
                 SessionId = session.Id,
@@ -139,10 +153,8 @@ public class StudentService
                 EndTime = session.EndTime,
                 SessionStatus = session.Status,
                 SessionStatusText = GetSessionStatusText(session.Status),
-                AttendanceStatus = attendance?.Status,
-                AttendanceStatusText = attendance == null
-                    ? "NotMarked"
-                    : GetAttendanceStatusText(attendance.Status),
+                AttendanceStatus = attendanceStatus,
+                AttendanceStatusText = attendanceStatusText,
                 Note = attendance?.Note,
                 CheckedAt = attendance?.CheckedAt
             };

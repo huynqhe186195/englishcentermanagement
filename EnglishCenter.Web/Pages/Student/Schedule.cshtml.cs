@@ -1,0 +1,412 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using EnglishCenter.Web.Models;
+using EnglishCenter.Web.Services;
+
+namespace EnglishCenter.Web.Pages.Student;
+
+public class ScheduleModel : PageModel
+{
+    private readonly IApiClient _apiClient;
+
+    public ScheduleModel(IApiClient apiClient)
+    {
+        _apiClient = apiClient;
+    }
+
+    public string UserName { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
+
+    [BindProperty(SupportsGet = true)] public string? FromDate { get; set; }
+    [BindProperty(SupportsGet = true)] public string? Month { get; set; }
+    [BindProperty(SupportsGet = true)] public long? SessionId { get; set; }
+
+    public List<EnrollmentDto> Enrollments { get; set; } = new();
+    public List<TimetableItemDto> Items { get; set; } = new();
+    public List<DateOnly> WeekDays { get; set; } = new();
+    public List<WeekOptionVm> WeekOptions { get; set; } = new();
+    public List<MonthOptionVm> MonthOptions { get; set; } = new();
+    public Dictionary<long, StudentAttendanceReportSessionItemDto> AttendanceBySessionId { get; set; } = new();
+    public Dictionary<long, string> TeacherNamesById { get; set; } = new();
+    public SessionDetailVm? SelectedSessionDetail { get; set; }
+
+    public DateOnly WeekStart { get; set; }
+    public DateOnly WeekEnd { get; set; }
+    public DateOnly PrevWeekStart => WeekStart.AddDays(-7);
+    public DateOnly NextWeekStart => WeekStart.AddDays(7);
+
+    public string DataSourceNote { get; set; } = string.Empty;
+
+    public async Task OnGetAsync()
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.Date);
+        var monday = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
+
+        WeekStart = DateOnly.TryParse(FromDate, out var from) ? from : monday;
+        WeekEnd = WeekStart.AddDays(6);
+
+        MonthOptions = Enumerable.Range(1, 12)
+            .Select(m => new MonthOptionVm
+            {
+                Value = new DateOnly(today.Year, m, 1).ToString("yyyy-MM"),
+                Label = $"Tháng {m:00}/{today.Year}"
+            })
+            .ToList();
+
+        DateOnly? selectedMonthStart = null;
+        if (!string.IsNullOrWhiteSpace(Month) && DateOnly.TryParse($"{Month}-01", out var monthStart))
+        {
+            selectedMonthStart = monthStart;
+        }
+
+        var me = await _apiClient.GetAsync<CurrentUserDto>("auth/me");
+        if (me != null)
+        {
+            UserName = me.UserName;
+            FullName = me.FullName;
+        }
+
+        long studentId = me?.StudentId ?? 0;
+        if (studentId > 0)
+        {
+            DataSourceNote = "student-id: auth/me.StudentId";
+        }
+
+        var enrollmentData = await _apiClient.GetAsync<PagedResult<EnrollmentDto>>("enrollments?PageNumber=1&PageSize=100");
+        var allEnrollments = enrollmentData?.Items?.ToList() ?? new List<EnrollmentDto>();
+
+        Enrollments = allEnrollments
+            .Where(x => string.IsNullOrWhiteSpace(FullName)
+                || x.StudentName.Equals(FullName, StringComparison.OrdinalIgnoreCase)
+                || x.StudentName.Contains(FullName, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (studentId == 0)
+        {
+            studentId = Enrollments.FirstOrDefault()?.StudentId ?? 0;
+            if (studentId > 0)
+            {
+                DataSourceNote = "student-id: enrollments endpoint fallback";
+            }
+        }
+
+        var studentIdFromTrustedSource = studentId > 0;
+
+        var allItems = new List<TimetableItemDto>();
+
+        if (studentIdFromTrustedSource)
+        {
+            allItems = await LoadStudentTimetableAsync(studentId);
+            if (allItems.Any())
+            {
+                DataSourceNote = string.IsNullOrWhiteSpace(DataSourceNote)
+                    ? "timetable: students/{id}/timetable"
+                    : DataSourceNote + " | timetable: students/{id}/timetable";
+            }
+            else
+            {
+                DataSourceNote += " | students/{id}/timetable empty";
+            }
+        }
+        else
+        {
+            DataSourceNote += " | không resolve được student-id từ enrollments (có thể do API trả 400/không có quyền)";
+        }
+
+        if (!allItems.Any() && Enrollments.Any())
+        {
+            allItems = await LoadClassTimetableFallbackAsync(Enrollments.Select(x => x.ClassId).Distinct().ToList());
+            if (allItems.Any())
+            {
+                DataSourceNote += " | fallback: classes/{classId}/timetable";
+            }
+        }
+
+        TeacherNamesById = await LoadTeacherNamesByIdAsync(allItems);
+
+        var weekStarts = allItems
+            .Select(x => DateOnly.TryParse(x.SessionDate, out var d) ? d.AddDays(-(((int)d.DayOfWeek + 6) % 7)) : (DateOnly?)null)
+            .Where(x => x.HasValue)
+            .Select(x => x!.Value)
+            .Distinct()
+            .OrderBy(x => x)
+            .ToList();
+
+        if (selectedMonthStart.HasValue)
+        {
+            var monthWeeks = allItems
+                .Where(x => DateOnly.TryParse(x.SessionDate, out var d)
+                    && d.Year == selectedMonthStart.Value.Year
+                    && d.Month == selectedMonthStart.Value.Month)
+                .Select(x => DateOnly.Parse(x.SessionDate).AddDays(-(((int)DateOnly.Parse(x.SessionDate).DayOfWeek + 6) % 7)))
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
+
+            if (monthWeeks.Any())
+            {
+                weekStarts = monthWeeks;
+                if (string.IsNullOrWhiteSpace(FromDate))
+                {
+                    WeekStart = monthWeeks[0];
+                    WeekEnd = WeekStart.AddDays(6);
+                }
+                DataSourceNote += " | week options filtered by selected month";
+            }
+            else
+            {
+                var firstWeekOfMonth = selectedMonthStart.Value.AddDays(-(((int)selectedMonthStart.Value.DayOfWeek + 6) % 7));
+                weekStarts = new List<DateOnly> { firstWeekOfMonth };
+                WeekStart = firstWeekOfMonth;
+                WeekEnd = WeekStart.AddDays(6);
+                DataSourceNote += " | selected month has no sessions (no auto-shift)";
+            }
+        }
+
+        if (!weekStarts.Contains(WeekStart))
+        {
+            weekStarts.Add(WeekStart);
+            weekStarts = weekStarts.Distinct().OrderBy(x => x).ToList();
+        }
+
+        WeekOptions = weekStarts
+            .Select(x => new WeekOptionVm
+            {
+                Value = x.ToString("yyyy-MM-dd"),
+                Label = $"Tuần {x:dd/MM} - {x.AddDays(6):dd/MM}"
+            })
+            .ToList();
+
+        Items = allItems.Where(x => DateOnly.TryParse(x.SessionDate, out var d) && d >= WeekStart && d <= WeekEnd).ToList();
+
+        if (studentIdFromTrustedSource && Enrollments.Any())
+        {
+            AttendanceBySessionId = await LoadAttendanceBySessionAsync(studentId, Enrollments.Select(x => x.ClassId).Distinct().ToList());
+        }
+
+        if (!Items.Any() && allItems.Any() && !selectedMonthStart.HasValue && string.IsNullOrWhiteSpace(FromDate))
+        {
+            if (DateOnly.TryParse(allItems[0].SessionDate, out var firstDate))
+            {
+                WeekStart = firstDate.AddDays(-(((int)firstDate.DayOfWeek + 6) % 7));
+                WeekEnd = WeekStart.AddDays(6);
+                Items = allItems.Where(x => DateOnly.TryParse(x.SessionDate, out var d) && d >= WeekStart && d <= WeekEnd).ToList();
+                DataSourceNote += " | week auto-shifted to first available session";
+            }
+        }
+
+        if (!Items.Any())
+        {
+            DataSourceNote += " | chưa có buổi học từ API cho tài khoản hiện tại";
+        }
+
+        SelectedSessionDetail = BuildSelectedSessionDetail(allItems);
+        WeekDays = Enumerable.Range(0, 7).Select(x => WeekStart.AddDays(x)).ToList();
+    }
+
+    private async Task<List<TimetableItemDto>> LoadStudentTimetableAsync(long studentId)
+    {
+        var allUrl = $"students/{studentId}/timetable?PageNumber=1&PageSize=500&SortBy=SessionDate&SortDirection=asc";
+        var allData = await _apiClient.GetAsync<PagedResult<TimetableItemDto>>(allUrl);
+        return allData?.Items?.OrderBy(x => x.SessionDate).ThenBy(x => x.StartTime).ToList() ?? new List<TimetableItemDto>();
+    }
+
+    private async Task<List<TimetableItemDto>> LoadClassTimetableFallbackAsync(List<long> classIds)
+    {
+        var result = new List<TimetableItemDto>();
+
+        foreach (var classId in classIds)
+        {
+            var url = $"classes/{classId}/timetable?PageNumber=1&PageSize=200&SortBy=SessionDate&SortDirection=asc";
+            var data = await _apiClient.GetAsync<PagedResult<TimetableItemDto>>(url);
+            if (data?.Items != null)
+            {
+                result.AddRange(data.Items);
+            }
+        }
+
+        return result
+            .GroupBy(x => x.SessionId)
+            .Select(g => g.First())
+            .OrderBy(x => x.SessionDate)
+            .ThenBy(x => x.StartTime)
+            .ToList();
+    }
+
+    private async Task<Dictionary<long, StudentAttendanceReportSessionItemDto>> LoadAttendanceBySessionAsync(long studentId, List<long> classIds)
+    {
+        var result = new Dictionary<long, StudentAttendanceReportSessionItemDto>();
+
+        foreach (var classId in classIds.Distinct())
+        {
+            var url = $"students/{studentId}/attendance-report?ClassId={classId}&SendWarningEmail=false";
+            var report = await _apiClient.GetAsync<StudentAttendanceReportDto>(url);
+            if (report?.Sessions == null) continue;
+
+            foreach (var session in report.Sessions)
+            {
+                result[session.SessionId] = session;
+            }
+        }
+
+        return result;
+    }
+
+    private async Task<Dictionary<long, string>> LoadTeacherNamesByIdAsync(List<TimetableItemDto> allItems)
+    {
+        var teacherIds = allItems
+            .Where(x => x.TeacherId.HasValue)
+            .Select(x => x.TeacherId!.Value)
+            .Distinct()
+            .ToHashSet();
+
+        if (!teacherIds.Any()) return new Dictionary<long, string>();
+
+        var data = await _apiClient.GetAsync<PagedResult<TeacherLookupDto>>("teachers?PageNumber=1&PageSize=500");
+        var teachers = data?.Items ?? new List<TeacherLookupDto>();
+
+        return teachers
+            .Where(x => teacherIds.Contains(x.Id))
+            .GroupBy(x => x.Id)
+            .ToDictionary(
+                g => g.Key,
+                g =>
+                {
+                    var t = g.First();
+                    return !string.IsNullOrWhiteSpace(t.FullName)
+                        ? t.FullName
+                        : (!string.IsNullOrWhiteSpace(t.Name)
+                            ? t.Name
+                            : (!string.IsNullOrWhiteSpace(t.TeacherName) ? t.TeacherName : $"GV #{t.Id}"));
+                });
+    }
+
+    private SessionDetailVm? BuildSelectedSessionDetail(List<TimetableItemDto> allItems)
+    {
+        if (!SessionId.HasValue) return null;
+        var session = allItems.FirstOrDefault(x => x.SessionId == SessionId.Value);
+        if (session == null) return null;
+
+        AttendanceBySessionId.TryGetValue(session.SessionId, out var attendance);
+
+        return new SessionDetailVm
+        {
+            SessionId = session.SessionId,
+            Topic = session.Topic ?? "Class Session",
+            SessionDate = session.SessionDate,
+            StartTime = session.StartTime,
+            EndTime = session.EndTime,
+            RoomText = session.RoomId?.ToString() ?? "--",
+            TeacherText = ResolveTeacherText(session),
+            SessionStatusText = SessionStatusText(session.Status),
+            AttendanceStatusText = ResolveAttendanceStatusText(session.SessionId),
+            Note = session.Note,
+            AttendanceNote = attendance?.Note
+        };
+    }
+
+    public string ResolveAttendanceStatusText(long sessionId)
+    {
+        if (AttendanceBySessionId.TryGetValue(sessionId, out var session))
+        {
+            return string.IsNullOrWhiteSpace(session.AttendanceStatusText) ? "NotMarked" : session.AttendanceStatusText;
+        }
+
+        return "NotMarked";
+    }
+
+    private string ResolveTeacherText(TimetableItemDto session)
+    {
+        if (!string.IsNullOrWhiteSpace(session.TeacherName))
+        {
+            return session.TeacherName!;
+        }
+
+        if (session.TeacherId.HasValue && TeacherNamesById.TryGetValue(session.TeacherId.Value, out var teacherName))
+        {
+            return teacherName;
+        }
+
+        return session.TeacherId.HasValue ? $"GV #{session.TeacherId}" : "Chưa phân công";
+    }
+
+    public string AttendanceCssClass(long sessionId)
+    {
+        var text = ResolveAttendanceStatusText(sessionId).ToLowerInvariant();
+        if (text.Contains("present") || text.Contains("có mặt")) return "is-present";
+        if (text.Contains("absent") || text.Contains("vắng")) return "is-absent";
+        return "is-notmarked";
+    }
+
+    private static string SessionStatusText(int status)
+        => status switch
+        {
+            2 => "Completed",
+            1 => "Ongoing",
+            0 => "Planned",
+            _ => $"Status {status}"
+        };
+
+    public List<TimetableItemDto> DayItems(DateOnly day)
+        => Items.Where(x => x.SessionDate == day.ToString("yyyy-MM-dd")).ToList();
+
+    public int PositionTop(TimetableItemDto item)
+    {
+        if (!TimeOnly.TryParse(item.StartTime, out var st)) return 0;
+        return Math.Max((st.Hour - 8) * 56 + (st.Minute * 56 / 60), 0);
+    }
+
+    public int ItemHeight(TimetableItemDto item)
+    {
+        if (!TimeOnly.TryParse(item.StartTime, out var st) || !TimeOnly.TryParse(item.EndTime, out var et)) return 56;
+        var duration = (int)(et - st).TotalMinutes;
+        return Math.Clamp(duration * 56 / 60, 48, 180);
+    }
+
+    public string DayLabel(DateOnly day) => day.DayOfWeek switch
+    {
+        DayOfWeek.Monday => "T2",
+        DayOfWeek.Tuesday => "T3",
+        DayOfWeek.Wednesday => "T4",
+        DayOfWeek.Thursday => "T5",
+        DayOfWeek.Friday => "T6",
+        DayOfWeek.Saturday => "T7",
+        _ => "CN"
+    };
+
+
+    public class WeekOptionVm
+    {
+        public string Value { get; set; } = string.Empty;
+        public string Label { get; set; } = string.Empty;
+    }
+
+    public class MonthOptionVm
+    {
+        public string Value { get; set; } = string.Empty;
+        public string Label { get; set; } = string.Empty;
+    }
+
+    public class SessionDetailVm
+    {
+        public long SessionId { get; set; }
+        public string Topic { get; set; } = string.Empty;
+        public string SessionDate { get; set; } = string.Empty;
+        public string StartTime { get; set; } = string.Empty;
+        public string EndTime { get; set; } = string.Empty;
+        public string RoomText { get; set; } = string.Empty;
+        public string TeacherText { get; set; } = string.Empty;
+        public string SessionStatusText { get; set; } = string.Empty;
+        public string AttendanceStatusText { get; set; } = string.Empty;
+        public string? Note { get; set; }
+        public string? AttendanceNote { get; set; }
+    }
+
+    public class TeacherLookupDto
+    {
+        public long Id { get; set; }
+        public string FullName { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string TeacherName { get; set; } = string.Empty;
+    }
+}

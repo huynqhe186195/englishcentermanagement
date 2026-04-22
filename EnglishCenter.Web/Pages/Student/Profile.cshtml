@@ -1,0 +1,120 @@
+@page
+@model EnglishCenter.Web.Pages.Student.ProfileModel
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+    ViewData["HideChrome"] = true;
+}
+
+<div class="student-shell profile-shell">
+    <aside class="student-sidebar">
+        <div class="student-brand">English Center</div>
+
+        <div class="student-profile">
+            <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200" alt="student avatar" />
+            <h4>@(string.IsNullOrWhiteSpace(Model.FullName) ? Model.UserName : Model.FullName)</h4>
+            <span>Mã HV: @(string.IsNullOrWhiteSpace(Model.UserName) ? "HV-000" : Model.UserName)</span>
+        </div>
+
+        <nav class="student-menu">
+            <a href="/Student/Index">Dashboard</a>
+            <a href="/Student/MyCourses">Khóa học của tôi</a>
+            <a href="/Student/Schedule">Lịch học</a>
+            <a href="/Student/AcademicSummary">Điểm số</a>
+            <a href="/Student/AttendanceReport">Điểm danh</a>
+            <a href="#">Bài tập</a>
+            <a href="#">Thông báo</a>
+            <a class="active" href="/Student/Profile">Hồ sơ cá nhân</a>
+        </nav>
+
+        <a class="student-logout" href="/Account/Logout">Đăng xuất</a>
+    </aside>
+
+    <main class="student-main profile-main">
+        <header class="student-topbar">
+            <h2>Hồ sơ học viên</h2>
+        </header>
+
+        <section class="profile-grid">
+            <div class="profile-card">
+                <h3>Thông tin học viên</h3>
+                <div class="profile-readonly">
+                    <p><strong>Mã học viên:</strong> @Model.Student.StudentCode</p>
+                    <p><strong>Trạng thái:</strong> @Model.Student.Status</p>
+                    <p><strong>Tạo lúc:</strong> @Model.Student.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p><strong>Cập nhật:</strong> @(Model.Student.UpdatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "-")</p>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.ProfileMessage))
+                {
+                    <div class="profile-message @(Model.ProfileUpdated ? "is-success" : "is-error")">@Model.ProfileMessage</div>
+                }
+
+                <form method="post" asp-page-handler="UpdateProfile" class="profile-form">
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label>Họ tên</label>
+                            <input class="form-control" asp-for="ProfileForm.FullName" />
+                        </div>
+                        <div class="col-md-3">
+                            <label>Ngày sinh</label>
+                            <input class="form-control" type="date" asp-for="ProfileForm.DateOfBirth" />
+                        </div>
+                        <div class="col-md-3">
+                            <label>Giới tính</label>
+                            <select class="form-select" asp-for="ProfileForm.Gender">
+                                <option value="">Chọn</option>
+                                <option value="1">Nam</option>
+                                <option value="2">Nữ</option>
+                                <option value="3">Khác</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Email</label>
+                            <input class="form-control" asp-for="ProfileForm.Email" />
+                        </div>
+                        <div class="col-md-6">
+                            <label>Số điện thoại</label>
+                            <input class="form-control" asp-for="ProfileForm.Phone" />
+                        </div>
+                        <div class="col-md-6">
+                            <label>Trường học</label>
+                            <input class="form-control" asp-for="ProfileForm.SchoolName" />
+                        </div>
+                        <div class="col-md-6">
+                            <label>Trình độ tiếng Anh</label>
+                            <input class="form-control" asp-for="ProfileForm.EnglishLevel" />
+                        </div>
+                        <div class="col-12">
+                            <label>Ghi chú</label>
+                            <textarea class="form-control" rows="3" asp-for="ProfileForm.Note"></textarea>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary mt-3" type="submit">Lưu thông tin</button>
+                </form>
+            </div>
+
+            <div class="profile-card">
+                <h3>Đổi mật khẩu</h3>
+                @if (!string.IsNullOrWhiteSpace(Model.PasswordMessage))
+                {
+                    <div class="profile-message @(Model.PasswordUpdated ? "is-success" : "is-error")">@Model.PasswordMessage</div>
+                }
+                <form method="post" asp-page-handler="ChangePassword" class="profile-form">
+                    <div class="mb-2">
+                        <label>Mật khẩu hiện tại</label>
+                        <input class="form-control" type="password" asp-for="PasswordForm.CurrentPassword" />
+                    </div>
+                    <div class="mb-2">
+                        <label>Mật khẩu mới</label>
+                        <input class="form-control" type="password" asp-for="PasswordForm.NewPassword" />
+                    </div>
+                    <div class="mb-2">
+                        <label>Xác nhận mật khẩu mới</label>
+                        <input class="form-control" type="password" asp-for="PasswordForm.ConfirmNewPassword" />
+                    </div>
+                    <button class="btn btn-warning mt-2" type="submit">Cập nhật mật khẩu</button>
+                </form>
+            </div>
+        </section>
+    </main>
+</div>

@@ -17,32 +17,23 @@
 
 <div class="card sa-card mb-4">
     <div class="card-body">
-        <div class="row g-3">
+        <form method="get" class="row g-3">
             <div class="col-md-3">
-                <input type="text" class="form-control" placeholder="Search user or action" />
+                <input type="text" class="form-control" name="Keyword" value="@Model.Keyword" placeholder="Search action" />
             </div>
             <div class="col-md-3">
-                <select class="form-select">
+                <select class="form-select" name="Module">
                     <option>All Modules</option>
-                    <option>Users</option>
-                    <option>Finance</option>
-                    <option>Roles</option>
-                    <option>Campuses</option>
+                    <option value="Users">Users</option>
+                    <option value="Invoices">Invoices</option>
+                    <option value="Enrollments">Enrollments</option>
+                    <option value="ClassSessions">ClassSessions</option>
                 </select>
             </div>
-            <div class="col-md-3">
-                <select class="form-select">
-                    <option>All Severity</option>
-                    <option>Info</option>
-                    <option>Warning</option>
-                    <option>Error</option>
-                    <option>Critical</option>
-                </select>
-            </div>
-            <div class="col-md-3">
+            <div class="col-md-6">
                 <button class="btn btn-outline-secondary w-100">Apply Filter</button>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
@@ -53,42 +44,28 @@
                 <thead>
                     <tr>
                         <th>Time</th>
-                        <th>User</th>
                         <th>Module</th>
                         <th>Action</th>
-                        <th>Severity</th>
                         <th>IP</th>
-                        <th>Details</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>2026-04-21 09:10</td>
-                        <td>SuperAdmin</td>
-                        <td>Roles</td>
-                        <td>Updated permission matrix</td>
-                        <td><span class="badge bg-info">Info</span></td>
-                        <td>192.168.1.12</td>
-                        <td><button class="btn btn-sm btn-outline-primary">View</button></td>
-                    </tr>
-                    <tr>
-                        <td>2026-04-21 08:40</td>
-                        <td>SuperAdmin</td>
-                        <td>Finance</td>
-                        <td>Override payment confirmation</td>
-                        <td><span class="badge bg-warning text-dark">Warning</span></td>
-                        <td>192.168.1.12</td>
-                        <td><button class="btn btn-sm btn-outline-primary">View</button></td>
-                    </tr>
-                    <tr>
-                        <td>2026-04-21 08:12</td>
-                        <td>System</td>
-                        <td>Authentication</td>
-                        <td>Multiple failed login attempts</td>
-                        <td><span class="badge bg-danger">Critical</span></td>
-                        <td>192.168.1.24</td>
-                        <td><button class="btn btn-sm btn-outline-primary">View</button></td>
-                    </tr>
+                    @if (!Model.Logs.Any())
+                    {
+                        <tr><td colspan="4" class="text-center text-muted py-4">No logs found.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var log in Model.Logs)
+                        {
+                            <tr>
+                                <td>@log.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>@log.EntityName</td>
+                                <td>@log.Action</td>
+                                <td>@(string.IsNullOrWhiteSpace(log.IpAddress) ? "-" : log.IpAddress)</td>
+                            </tr>
+                        }
+                    }
                 </tbody>
             </table>
         </div>

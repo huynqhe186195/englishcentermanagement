@@ -9,6 +9,7 @@ namespace EnglishCenter.Application.Common.Interfaces;
 public interface ICurrentUserService
 {
     long? UserId { get; }
+    long? CampusId { get; }
     string? UserName { get; }
     string? IpAddress { get; }
     List<string> Roles { get; }

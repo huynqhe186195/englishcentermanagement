@@ -1,48 +1,5 @@
 @page
 @model EnglishCenter.Web.Pages.Teacher.IndexModel
 @{
-    ViewData["Title"] = "Teacher Dashboard";
+    ViewData["Title"] = "Teacher";
 }
-
-<div class="row">
-    <div class="col-md-12">
-        <h2>Teacher Dashboard</h2>
-        <p class="text-muted">Overview of your workload and upcoming sessions.</p>
-    </div>
-</div>
-
-<div class="row mt-3">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="card-title mb-0">Workload</h5>
-                    <small class="text-muted">Recent snapshot</small>
-                </div>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Teacher</th>
-                            <th>Assigned Classes</th>
-                            <th>Total Sessions</th>
-                            <th>Upcoming</th>
-                            <th>Today</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var w in Model.Workloads)
-                        {
-                            <tr>
-                                <td>@w.FullName (@w.TeacherCode)</td>
-                                <td>@w.TotalAssignedClasses</td>
-                                <td>@w.TotalSessions</td>
-                                <td>@w.UpcomingSessions</td>
-                                <td>@w.TodaySessions</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>

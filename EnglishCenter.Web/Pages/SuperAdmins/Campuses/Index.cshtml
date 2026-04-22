@@ -11,14 +11,104 @@
         <p class="page-subtitle">Quản lý tất cả campus trong hệ thống.</p>
     </div>
     <div>
-        <button class="btn btn-primary">+ Add Campus</button>
+        <a class="btn btn-primary" href="#create-campus-form">+ Add Campus</a>
     </div>
 </div>
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success">@successMessage</div>
+}
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+<div class="card sa-card mb-4" id="create-campus-form">
+    <div class="card-header card-header-clean">
+        <h5 class="mb-0">Create Campus</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" asp-page-handler="Create" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Campus Code</label>
+                <input asp-for="CreateInput.CampusCode" class="form-control" placeholder="VD: HCM-Q1" required />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Campus Name</label>
+                <input asp-for="CreateInput.Name" class="form-control" placeholder="Campus Quận 1" required />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Phone</label>
+                <input asp-for="CreateInput.Phone" class="form-control" placeholder="090..." />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Address</label>
+                <input asp-for="CreateInput.Address" class="form-control" placeholder="Địa chỉ campus" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Max Students</label>
+                <input asp-for="CreateInput.MaxStudents" type="number" min="1" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Status</label>
+                <select asp-for="CreateInput.Status" class="form-select">
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-8 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.EditingCampus != null)
+{
+    <div class="card sa-card mb-4">
+        <div class="card-header card-header-clean d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Edit Campus - @Model.EditingCampus.CampusCode</h5>
+            <a class="btn btn-sm btn-outline-secondary" asp-page="./Index">Cancel</a>
+        </div>
+        <div class="card-body">
+            <form method="post" asp-page-handler="Update" class="row g-3">
+                <input asp-for="UpdateInput.Id" type="hidden" value="@Model.EditingCampus.Id" />
+                <div class="col-md-3">
+                    <label class="form-label">Campus Code</label>
+                    <input class="form-control" value="@Model.EditingCampus.CampusCode" disabled />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Campus Name</label>
+                    <input asp-for="UpdateInput.Name" class="form-control" required />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Phone</label>
+                    <input asp-for="UpdateInput.Phone" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Address</label>
+                    <input asp-for="UpdateInput.Address" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Status</label>
+                    <select asp-for="UpdateInput.Status" class="form-select">
+                        <option value="1">Active</option>
+                        <option value="0">Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-10 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
 
 <div class="card sa-card">
     <div class="card-header card-header-clean d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Campus Management</h5>
-        <button class="btn btn-sm btn-outline-primary">Export</button>
+        <span class="text-muted small">Total: @Model.Campuses.Count</span>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -26,51 +116,46 @@
                 <thead>
                     <tr>
                         <th>Campus Name</th>
+                        <th>Campus Code</th>
+                        <th>Phone</th>
                         <th>Address</th>
-                        <th>Manager</th>
-                        <th>Students</th>
-                        <th>Revenue</th>
                         <th>Status</th>
+                        <th>Revenue</th>
+                        <th>Invoices</th>
                         <th class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>District 1</td>
-                        <td>123 Nguyen Hue, HCMC</td>
-                        <td>Nguyen Van A</td>
-                        <td>1,250</td>
-                        <td>$14,200</td>
-                        <td><span class="badge badge-soft-success">Active</span></td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary">View</button>
-                            <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Thu Duc</td>
-                        <td>25 Vo Van Ngan, HCMC</td>
-                        <td>Tran Thi B</td>
-                        <td>1,020</td>
-                        <td>$11,600</td>
-                        <td><span class="badge badge-soft-success">Active</span></td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary">View</button>
-                            <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Binh Thanh</td>
-                        <td>88 Dien Bien Phu, HCMC</td>
-                        <td>Le Van C</td>
-                        <td>980</td>
-                        <td>$10,450</td>
-                        <td><span class="badge badge-soft-danger">Inactive</span></td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary">View</button>
-                            <button class="btn btn-sm btn-outline-secondary">Edit</button>
-                        </td>
-                    </tr>
+                    @if (!Model.Campuses.Any())
+                    {
+                        <tr><td colspan="8" class="text-center text-muted py-4">No campuses found.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var c in Model.Campuses)
+                        {
+                            <tr>
+                                <td>@c.CampusName</td>
+                                <td>@c.CampusCode</td>
+                                <td>@(string.IsNullOrWhiteSpace(c.Phone) ? "-" : c.Phone)</td>
+                                <td>@(string.IsNullOrWhiteSpace(c.Address) ? "-" : c.Address)</td>
+                                <td>
+                                    <span class="badge @(c.Status == 1 ? "badge-soft-success" : "badge-soft-danger")">
+                                        @(c.Status == 1 ? "Active" : "Inactive")
+                                    </span>
+                                </td>
+                                <td>@c.Revenue.ToString("N0")</td>
+                                <td>@c.InvoiceCount</td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-primary" asp-page="./Index" asp-route-EditId="@c.Id">Edit</a>
+                                    <form method="post" asp-page-handler="Delete" asp-route-id="@c.Id" class="d-inline"
+                                          onsubmit="return confirm('Delete campus @c.CampusCode?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
                 </tbody>
             </table>
         </div>

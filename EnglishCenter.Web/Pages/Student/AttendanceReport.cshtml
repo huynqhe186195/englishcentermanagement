@@ -1,52 +1,122 @@
-﻿@page
+@page
+@model EnglishCenter.Web.Pages.Student.AttendanceReportModel
 @{
-    ViewData["Title"] = "Attendance Report";
+    ViewData["Title"] = "Điểm danh";
+    ViewData["HideChrome"] = true;
 }
 
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-        <div class="row g-3 align-items-end">
-            <div class="col-md-4">
-                <label class="form-label">Class</label>
-                <select class="form-select">
-                    <option>IELTS-EVE-01</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <button class="btn btn-primary">Load Report</button>
-            </div>
+<div class="student-shell attendance-shell">
+    <aside class="student-sidebar">
+        <div class="student-brand">English Center</div>
+
+        <div class="student-profile">
+            <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200" alt="student avatar" />
+            <h4>@(string.IsNullOrWhiteSpace(Model.FullName) ? Model.UserName : Model.FullName)</h4>
+            <span>Mã HV: @(string.IsNullOrWhiteSpace(Model.UserName) ? "HV-000" : Model.UserName)</span>
         </div>
-    </div>
-</div>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Total Sessions</div><h3>20</h3></div></div></div>
-    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Present</div><h3>18</h3></div></div></div>
-    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Absent</div><h3>2</h3></div></div></div>
-    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Absent Rate</div><h3 class="text-warning">10%</h3></div></div></div>
-</div>
+        <nav class="student-menu">
+            <a href="/Student/Index">Dashboard</a>
+            <a href="/Student/MyCourses">Khóa học của tôi</a>
+            <a href="/Student/Schedule">Lịch học</a>
+            <a href="/Student/AcademicSummary">Điểm số</a>
+            <a class="active" href="/Student/AttendanceReport">Điểm danh</a>
+            <a href="#">Bài tập</a>
+            <a href="#">Thông báo</a>
+            <a href="/Student/Profile">Hồ sơ cá nhân</a>
+        </nav>
 
-<div class="card border-0 shadow-sm">
-    <div class="table-responsive">
-        <table class="table table-striped align-middle mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>Session No</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Status</th>
-                    <th>Note</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>2026-05-01</td>
-                    <td>18:00 - 19:30</td>
-                    <td><span class="badge bg-success">Present</span></td>
-                    <td>-</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+        <a class="student-logout" href="/Account/Logout">Đăng xuất</a>
+    </aside>
+
+    <main class="student-main attendance-main">
+        <header class="student-topbar attendance-topbar">
+            <h2>Điểm danh</h2>
+            <form method="get" class="attendance-filter-form">
+                <select name="ClassId" onchange="this.form.submit()">
+                    @foreach (var item in Model.Enrollments.GroupBy(x => x.ClassId).Select(g => g.First()))
+                    {
+                        <option value="@item.ClassId" selected="@(Model.ClassId == item.ClassId)">@item.ClassName</option>
+                    }
+                </select>
+                <select name="Year" onchange="this.form.submit()">
+                    @foreach (var item in Model.YearOptions)
+                    {
+                        <option value="@item" selected="@(Model.Year == item)">@item</option>
+                    }
+                </select>
+                <select name="WeekStart" onchange="this.form.submit()">
+                    @foreach (var item in Model.WeekOptions)
+                    {
+                        <option value="@item.Value" selected="@(Model.WeekStart == item.Value)">@item.Label</option>
+                    }
+                </select>
+            </form>
+        </header>
+
+        <section class="attendance-stat-grid">
+            <article class="attendance-stat-card"><p>Tổng buổi học</p><strong>@Model.Report.TotalValidSessions</strong></article>
+            <article class="attendance-stat-card attendance-stat-ok"><p>Có mặt</p><strong>@Model.Report.PresentCount <small>@Model.AttendanceRateText%</small></strong></article>
+            <article class="attendance-stat-card attendance-stat-info"><p>Vắng có phép</p><strong>@Model.ExcusedAbsentCount</strong></article>
+            <article class="attendance-stat-card attendance-stat-warn"><p>Vắng không phép</p><strong>@Model.UnexcusedAbsentCount <small>@Model.Report.AbsentRate%</small></strong></article>
+        </section>
+
+        <section class="attendance-grid">
+            <div class="attendance-calendar-card">
+                <div class="attendance-card-title">Tháng @Model.DisplayMonthLabel</div>
+                <div class="attendance-weekdays">
+                    <span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span>
+                </div>
+                <div class="attendance-calendar">
+                    @foreach (var day in Model.CalendarDays)
+                    {
+                        <div class="attendance-day @(day.IsCurrentMonth ? string.Empty : "is-out")">
+                            <span class="attendance-day-no">@day.Date.Day</span>
+                            @foreach (var s in day.Sessions.Take(2))
+                            {
+                                var statusText = s.AttendanceStatusText ?? string.Empty;
+                                var css = statusText.Contains("Có mặt", StringComparison.OrdinalIgnoreCase) || statusText.Contains("Present", StringComparison.OrdinalIgnoreCase)
+                                    ? "present"
+                                    : (statusText.Contains("Vắng", StringComparison.OrdinalIgnoreCase) || statusText.Contains("Absent", StringComparison.OrdinalIgnoreCase)
+                                        ? "absent"
+                                        : "nomarked");
+                                <small class="@css">@statusText</small>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <aside class="attendance-side">
+                <div class="attendance-warning-card">
+                    <p><strong>Lưu ý:</strong> Học viên cần đảm bảo ≥80% điểm danh để được thi cuối kỳ.</p>
+                    <p>Hiện tại bạn đang đạt <strong>@Model.AttendanceRateText%</strong>.</p>
+                </div>
+
+                <div class="attendance-course-card">
+                    <div class="attendance-card-title">Theo từng khóa học</div>
+                    <h4>@(Model.Report.ClassName ?? "Khóa học hiện tại")</h4>
+                    <div class="attendance-progress"><i style="width:@Model.AttendanceRateText%"></i></div>
+                    <div class="attendance-progress-label">@Model.Report.PresentCount có mặt • @Model.Report.AbsentCount vắng</div>
+                </div>
+
+                <div class="attendance-history-card">
+                    <div class="attendance-card-title">Lịch sử vắng mặt</div>
+                    <table class="table table-sm mb-0">
+                        <thead><tr><th>Ngày</th><th>Lý do</th><th>Trạng thái</th></tr></thead>
+                        <tbody>
+                            @foreach (var item in Model.Report.Sessions.Where(x => (x.AttendanceStatusText ?? "").Contains("Vắng", StringComparison.OrdinalIgnoreCase)).Take(6))
+                            {
+                                <tr>
+                                    <td>@item.SessionDate.ToString("dd/MM")</td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.Note) ? "-" : item.Note)</td>
+                                    <td>@item.AttendanceStatusText</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </aside>
+        </section>
+    </main>
 </div>

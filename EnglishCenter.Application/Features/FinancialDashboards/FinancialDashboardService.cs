@@ -8,10 +8,12 @@ namespace EnglishCenter.Application.Features.FinancialDashboards;
 public class FinancialDashboardService
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserContext _currentUserContext;
 
-    public FinancialDashboardService(IApplicationDbContext context)
+    public FinancialDashboardService(IApplicationDbContext context, ICurrentUserContext currentUserContext)
     {
         _context = context;
+        _currentUserContext = currentUserContext;
     }
 
     public async Task<RevenueSummaryDto> GetRevenueSummaryAsync(GetRevenueDashboardRequestDto request)
@@ -20,6 +22,7 @@ public class FinancialDashboardService
             .AsNoTracking()
             .Where(x => !x.IsDeleted)
             .AsQueryable();
+        query = ApplyCampusScopeToInvoices(query);
 
         if (request.FromDate.HasValue)
         {
@@ -51,6 +54,7 @@ public class FinancialDashboardService
             .AsNoTracking()
             .Where(x => !x.IsDeleted)
             .AsQueryable();
+        query = ApplyCampusScopeToInvoices(query);
 
         if (request.FromDate.HasValue)
         {
@@ -82,10 +86,13 @@ public class FinancialDashboardService
 
     public async Task<List<RevenueByCourseItemDto>> GetRevenueByCourseAsync(GetRevenueDashboardRequestDto request)
     {
-        var invoices = await _context.Invoices
+        var invoiceQuery = _context.Invoices
             .AsNoTracking()
             .Where(x => !x.IsDeleted)
-            .ToListAsync();
+            .AsQueryable();
+        invoiceQuery = ApplyCampusScopeToInvoices(invoiceQuery);
+
+        var invoices = await invoiceQuery.ToListAsync();
 
         if (request.FromDate.HasValue)
         {
@@ -135,10 +142,17 @@ public class FinancialDashboardService
 
     public async Task<List<RevenueByCampusItemDto>> GetRevenueByCampusAsync(GetRevenueDashboardRequestDto request)
     {
-        var campuses = await _context.Campuses
+        var campusesQuery = _context.Campuses
             .AsNoTracking()
             .Where(x => !x.IsDeleted)
-            .ToListAsync();
+            .AsQueryable();
+
+        if (!_currentUserContext.IsSuperAdmin)
+        {
+            campusesQuery = campusesQuery.Where(x => x.Id == _currentUserContext.CampusId);
+        }
+
+        var campuses = await campusesQuery.ToListAsync();
 
         var invoiceQuery =
             from i in _context.Invoices
@@ -151,6 +165,12 @@ public class FinancialDashboardService
                 Invoice = i,
                 c.CampusId
             };
+
+        if (!_currentUserContext.IsSuperAdmin)
+        {
+            var campusId = _currentUserContext.CampusId;
+            invoiceQuery = invoiceQuery.Where(x => x.CampusId == campusId);
+        }
 
         if (request.FromDate.HasValue)
         {
@@ -227,10 +247,17 @@ public class FinancialDashboardService
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
 
-        var campuses = await _context.Campuses
+        var campusesQuery = _context.Campuses
             .AsNoTracking()
             .Where(x => !x.IsDeleted)
-            .ToListAsync();
+            .AsQueryable();
+
+        if (!_currentUserContext.IsSuperAdmin)
+        {
+            campusesQuery = campusesQuery.Where(x => x.Id == _currentUserContext.CampusId);
+        }
+
+        var campuses = await campusesQuery.ToListAsync();
 
         var teacherQuery = _context.Teachers
             .AsNoTracking()
@@ -303,10 +330,17 @@ public class FinancialDashboardService
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
 
-        var campuses = await _context.Campuses
+        var campusesQuery = _context.Campuses
             .AsNoTracking()
             .Where(x => !x.IsDeleted)
-            .ToListAsync();
+            .AsQueryable();
+
+        if (!_currentUserContext.IsSuperAdmin)
+        {
+            campusesQuery = campusesQuery.Where(x => x.Id == _currentUserContext.CampusId);
+        }
+
+        var campuses = await campusesQuery.ToListAsync();
 
         var classQuery = _context.Classes
             .AsNoTracking()
@@ -367,10 +401,17 @@ public class FinancialDashboardService
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
 
-        var campuses = await _context.Campuses
+        var campusesQuery = _context.Campuses
             .AsNoTracking()
             .Where(x => !x.IsDeleted)
-            .ToListAsync();
+            .AsQueryable();
+
+        if (!_currentUserContext.IsSuperAdmin)
+        {
+            campusesQuery = campusesQuery.Where(x => x.Id == _currentUserContext.CampusId);
+        }
+
+        var campuses = await campusesQuery.ToListAsync();
 
         var classQuery = _context.Classes
             .AsNoTracking()
@@ -453,5 +494,16 @@ public class FinancialDashboardService
             .ToList();
 
         return result;
+    }
+
+    private IQueryable<Domain.Models.Invoice> ApplyCampusScopeToInvoices(IQueryable<Domain.Models.Invoice> query)
+    {
+        if (_currentUserContext.IsSuperAdmin)
+        {
+            return query;
+        }
+
+        var campusId = _currentUserContext.CampusId;
+        return query.Where(x => x.ClassId != null && x.Class != null && x.Class.CampusId == campusId);
     }
 }

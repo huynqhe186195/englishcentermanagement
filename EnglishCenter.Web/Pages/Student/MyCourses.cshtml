@@ -1,0 +1,108 @@
+@page
+@model EnglishCenter.Web.Pages.Student.MyCoursesModel
+@{
+    ViewData["Title"] = "Khóa học của tôi";
+    ViewData["HideChrome"] = true;
+}
+
+<div class="student-shell my-courses-shell">
+    <aside class="student-sidebar">
+        <div class="student-brand">English Center</div>
+
+        <div class="student-profile">
+            <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200" alt="student avatar" />
+            <h4>@(string.IsNullOrWhiteSpace(Model.FullName) ? Model.UserName : Model.FullName)</h4>
+            <span>Mã HV: @(string.IsNullOrWhiteSpace(Model.UserName) ? "HV-000" : Model.UserName)</span>
+        </div>
+
+        <nav class="student-menu">
+            <a href="/Student/Index">Dashboard</a>
+            <a class="active" href="/Student/MyCourses">Khóa học của tôi</a>
+            <a href="/Student/Schedule">Lịch học</a>
+            <a href="/Student/AcademicSummary">Điểm số</a>
+            <a href="/Student/AttendanceReport">Điểm danh</a>
+            <a href="#">Bài tập</a>
+            <a href="#">Thông báo</a>
+            <a href="/Student/Profile">Hồ sơ cá nhân</a>
+        </nav>
+
+        <a class="student-logout" href="/Account/Logout">Đăng xuất</a>
+    </aside>
+
+    <main class="student-main my-courses-main">
+        <header class="student-topbar my-courses-topbar">
+            <h2>Khóa học của tôi</h2>
+            <div class="my-courses-filter-tabs">
+                <span class="active">Tất cả (@Model.TotalCount)</span>
+                <span>Đang học (@Model.ActiveCount)</span>
+                <span>Hoàn thành (@Model.CompletedCount)</span>
+            </div>
+            <div class="student-topbar-user">👩‍🎓</div>
+        </header>
+
+        <section class="my-courses-stat-grid">
+            <article class="my-courses-stat my-courses-stat--blue"><p>Đang học</p><strong>@Model.ActiveCount <small>khóa</small></strong></article>
+            <article class="my-courses-stat my-courses-stat--green"><p>Đã hoàn thành</p><strong>@Model.CompletedCount <small>khóa</small></strong></article>
+            <article class="my-courses-stat my-courses-stat--purple"><p>Tổng giờ học</p><strong>@Model.TotalHoursLabel <small>giờ</small></strong></article>
+        </section>
+
+        @if (Model.CardCourses.Any())
+        {
+            <section class="my-course-list">
+                @for (var i = 0; i < Model.CardCourses.Count; i++)
+                {
+                    var course = Model.CardCourses[i];
+                    var themeClass = i % 2 == 0 ? "my-course-card--violet" : "my-course-card--teal";
+                    <article class="my-course-card @themeClass">
+                        <div class="my-course-card-head">
+                            <div class="my-course-card-title-wrap">
+                                <h3>@course.CourseName</h3>
+                                <span class="my-course-badge">@course.StatusText</span>
+                            </div>
+                            <div class="my-course-meta-icons">
+                                <span>🧾 Enrollment #@course.EnrollmentId</span>
+                                <span>🏫 Class #@course.ClassId</span>
+                                <span>📍 Room @course.RoomText</span>
+                                <span>🗓 @course.NextSessionText</span>
+                            </div>
+                        </div>
+
+                        <div class="my-course-card-body">
+                            <div class="my-course-progress-row">
+                                <div class="my-course-progress-wrap">
+                                    <div class="my-course-progress-title">
+                                        <span>Tiến độ khóa học</span>
+                                        <strong>@course.ProgressPercent% (@course.CompletedSessions/@course.TotalSessions buổi)</strong>
+                                    </div>
+                                    <div class="my-course-progress-bar"><i style="width:@course.ProgressPercent%"></i></div>
+                                </div>
+
+                                <div class="my-course-side-notes">
+                                    <div class="my-course-reminder">🕒 Buổi học tiếp theo<br /><b>@course.NextSessionText</b></div>
+                                    <div class="my-course-test">📊 Điểm danh<br /><b>@course.AttendanceSummary</b></div>
+                                </div>
+                            </div>
+
+                            <div class="my-course-actions">
+                                <div class="my-course-tabs">
+                                    <span class="active">Tổng quan</span>
+                                    <span>Điểm danh</span>
+                                    <span>Lịch học</span>
+                                    <span>Điểm số</span>
+                                </div>
+                                <div class="my-course-buttons">
+                                    <a class="btn btn-sm btn-outline-secondary" href="/Student/AttendanceReport">Chi tiết điểm danh</a>
+                                    <a class="btn btn-sm btn-primary" href="/Student/Schedule">Xem lịch</a>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </section>
+        }
+        else
+        {
+            <div class="my-course-empty">Không có dữ liệu khóa học từ API cho tài khoản hiện tại.</div>
+        }
+    </main>
+</div>

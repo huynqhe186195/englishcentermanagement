@@ -114,7 +114,20 @@ public class ApiClient : IApiClient
             }
         }
 
-        if (!resp.IsSuccessStatusCode) return default;
+        if (!resp.IsSuccessStatusCode)
+        {
+            try
+            {
+                var responseText = await resp.Content.ReadAsStringAsync();
+                _logger.LogWarning("GetAsync failed. Url: {Url}, Status: {Status}, Response: {Response}", url, resp.StatusCode, responseText);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "GetAsync failed while reading response body. Url: {Url}, Status: {Status}", url, resp.StatusCode);
+            }
+
+            return default;
+        }
         var json = await resp.Content.ReadAsStringAsync();
         try
         {

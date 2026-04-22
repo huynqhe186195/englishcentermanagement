@@ -2,12 +2,14 @@ using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Application.Commons.Models.Response;
 using EnglishCenter.Application.Features.Campus;
 using EnglishCenter.Application.Features.Campus.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EnglishCenter.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = "RequireSuperAdmin")]
 public class CampusesController : ControllerBase
 {
     private readonly CampusService _campusService;
@@ -17,6 +19,7 @@ public class CampusesController : ControllerBase
         _campusService = campusService;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetPaged([FromQuery] GetCampusesPagingRequestDto request)
     {
@@ -24,6 +27,7 @@ public class CampusesController : ControllerBase
         return Ok(ApiResponse<PagedResult<CampusDto>>.SuccessResponse(result, "Get campuses successfully"));
     }
 
+    [AllowAnonymous]
     [HttpGet("{id:long}")]
     public async Task<IActionResult> GetById(long id)
     {

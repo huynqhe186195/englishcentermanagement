@@ -1,5 +1,5 @@
-﻿@page
-@model EnglishCenter.Web.Pages.SuperAdmins.DashboardModel
+@page
+@model EnglishCenter.Web.Pages.SuperAdmins.Users.IndexModel
 @{
     Layout = "~/Pages/Shared/_SuperAdminLayout.cshtml";
     ViewData["Title"] = "Users";
@@ -8,46 +8,45 @@
 <div class="page-header">
     <div>
         <h2 class="page-title">Users</h2>
-        <p class="page-subtitle">Quản lý người dùng toàn hệ thống.</p>
-    </div>
-    <div>
-        <button class="btn btn-primary">+ Add User</button>
+        <p class="page-subtitle">Danh sách người dùng (view-only) toàn hệ thống.</p>
     </div>
 </div>
 
 <div class="card sa-card mb-4">
     <div class="card-body">
-        <div class="row g-3">
-            <div class="col-md-4">
-                <input type="text" class="form-control" placeholder="Search name or email" />
+        <form method="get" class="row g-3">
+            <div class="col-md-5">
+                <input type="text" class="form-control" name="Keyword" value="@Model.Keyword" placeholder="Search name / username / email" />
             </div>
             <div class="col-md-3">
                 <select class="form-select">
                     <option>All Campuses</option>
-                    <option>District 1</option>
-                    <option>Thu Duc</option>
-                    <option>Binh Thanh</option>
+                    @foreach (var c in Model.Campuses)
+                    {
+                        <option>@c.Name (@c.CampusCode)</option>
+                    }
                 </select>
             </div>
-            <div class="col-md-3">
-                <select class="form-select">
-                    <option>All Roles</option>
-                    <option>SuperAdmin</option>
-                    <option>Campus Manager</option>
-                    <option>Staff</option>
+            <div class="col-md-2">
+                <select class="form-select" name="RoleId">
+                    <option value="">All Roles</option>
+                    @foreach (var r in Model.Roles)
+                    {
+                        <option value="@r.Id" selected="@(Model.RoleId == r.Id)">@r.Name</option>
+                    }
                 </select>
             </div>
             <div class="col-md-2">
                 <button class="btn btn-outline-secondary w-100">Filter</button>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
 <div class="card sa-card">
     <div class="card-header card-header-clean d-flex justify-content-between align-items-center">
         <h5 class="mb-0">User List</h5>
-        <button class="btn btn-sm btn-outline-primary">Export</button>
+        <span class="text-muted small">Total: @Model.TotalRecords</span>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -55,56 +54,54 @@
                 <thead>
                     <tr>
                         <th>Full Name</th>
+                        <th>Username</th>
                         <th>Email</th>
-                        <th>Campus</th>
                         <th>Role</th>
                         <th>Status</th>
                         <th>Created Date</th>
-                        <th class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Nguyen Van A</td>
-                        <td>vana@example.com</td>
-                        <td>District 1</td>
-                        <td>Campus Manager</td>
-                        <td><span class="badge badge-soft-success">Active</span></td>
-                        <td>2026-03-01</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary">Edit</button>
-                            <button class="btn btn-sm btn-outline-warning">Lock</button>
-                            <button class="btn btn-sm btn-outline-danger btn-delete" data-name="Nguyen Van A">Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Tran Thi B</td>
-                        <td>thib@example.com</td>
-                        <td>Thu Duc</td>
-                        <td>Staff</td>
-                        <td><span class="badge badge-soft-success">Active</span></td>
-                        <td>2026-02-18</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary">Edit</button>
-                            <button class="btn btn-sm btn-outline-warning">Lock</button>
-                            <button class="btn btn-sm btn-outline-danger btn-delete" data-name="Tran Thi B">Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Le Van C</td>
-                        <td>vanc@example.com</td>
-                        <td>Binh Thanh</td>
-                        <td>Staff</td>
-                        <td><span class="badge badge-soft-danger">Inactive</span></td>
-                        <td>2026-01-29</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary">Edit</button>
-                            <button class="btn btn-sm btn-outline-success">Unlock</button>
-                            <button class="btn btn-sm btn-outline-danger btn-delete" data-name="Le Van C">Delete</button>
-                        </td>
-                    </tr>
+                    @if (!Model.Users.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">No users found.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var user in Model.Users)
+                        {
+                            <tr>
+                                <td>@user.FullName</td>
+                                <td>@user.UserName</td>
+                                <td>@(string.IsNullOrWhiteSpace(user.Email) ? "-" : user.Email)</td>
+                                <td>@user.RoleName</td>
+                                <td>
+                                    <span class="badge @(user.Status == 1 ? "badge-soft-success" : "badge-soft-danger")">
+                                        @(user.Status == 1 ? "Active" : "Inactive")
+                                    </span>
+                                </td>
+                                <td>@(user.CreatedAt?.ToString("yyyy-MM-dd") ?? "-")</td>
+                            </tr>
+                        }
+                    }
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="mt-3">
+        <ul class="pagination pagination-sm">
+            @for (var p = 1; p <= Model.TotalPages; p++)
+            {
+                <li class="page-item @(p == Model.PageNumber ? "active" : string.Empty)">
+                    <a class="page-link" href="?PageNumber=@p&Keyword=@Model.Keyword&RoleId=@Model.RoleId">@p</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

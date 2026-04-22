@@ -1,1 +1,112 @@
-body { padding-top: 70px; }
+:root {
+    --brand: #3b82f6;
+    --brand-dark: #1e3a8a;
+    --surface: #f5f8ff;
+}
+
+body {
+    padding-top: 70px;
+    background: linear-gradient(180deg, #f8fbff 0%, #f4f6fb 100%);
+    color: #0f172a;
+}
+
+.admin-hero {
+    background: linear-gradient(125deg, var(--brand-dark), var(--brand));
+    color: #fff;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+    box-shadow: 0 15px 35px rgba(30, 58, 138, 0.25);
+}
+
+.stat-card,
+.panel-card {
+    background: #fff;
+    border-radius: 1rem;
+    padding: 1rem 1.1rem;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.stat-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: #94a3b8;
+}
+
+.stat-card-primary::before { background: #3b82f6; }
+.stat-card-info::before { background: #06b6d4; }
+.stat-card-warning::before { background: #f59e0b; }
+.stat-card-success::before { background: #22c55e; }
+
+.stat-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    margin-bottom: 0.45rem;
+}
+
+.stat-value {
+    font-size: 1.9rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+}
+
+.stat-trend {
+    font-size: 0.9rem;
+}
+
+.progress-group {
+    display: grid;
+    gap: 1rem;
+}
+
+.task-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.85rem;
+}
+
+.task-list li {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    color: #334155;
+}
+
+.task-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    margin-top: 0.35rem;
+}
+
+.dot-warning { background: #f59e0b; }
+.dot-danger { background: #ef4444; }
+.dot-info { background: #0ea5e9; }
+.dot-success { background: #22c55e; }
+
+.admin-table thead th {
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-size: 0.78rem;
+    white-space: nowrap;
+}
+
+.admin-table tbody td {
+    color: #0f172a;
+}

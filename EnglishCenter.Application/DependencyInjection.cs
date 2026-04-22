@@ -1,4 +1,5 @@
-﻿using EnglishCenter.Application.Commons.Helpers;
+﻿using EnglishCenter.Application.Common.Interfaces;
+using EnglishCenter.Application.Commons.Helpers;
 using EnglishCenter.Application.Features.Assignments;
 using EnglishCenter.Application.Features.Attendance;
 using EnglishCenter.Application.Features.AuditLogs;
@@ -14,6 +15,7 @@ using EnglishCenter.Application.Features.Exams;
 using EnglishCenter.Application.Features.FinancialDashboards;
 using EnglishCenter.Application.Features.Invoices;
 using EnglishCenter.Application.Features.Notifications;
+using EnglishCenter.Application.Features.Overrides;
 using EnglishCenter.Application.Features.RolePermissions;
 using EnglishCenter.Application.Features.Roles;
 using EnglishCenter.Application.Features.Rooms;
@@ -61,6 +63,9 @@ public static class DependencyInjection
         services.AddScoped<HelperMethodEnrollments>();
         services.AddScoped<InvoiceService>();
         services.AddScoped<FinancialDashboardService>();
+        services.AddScoped<OverrideWorkflowService>();
+        services.AddScoped<ICurrentUserContext, CurrentUserContext>();
+        services.AddScoped<CampusScopeHelper>();
         return services;
     }
 }
