@@ -224,6 +224,20 @@ public class ApiClient : IApiClient
                 resp = await client.PostAsJsonAsync(url, body);
             }
         }
+
+        if (!resp.IsSuccessStatusCode)
+        {
+            try
+            {
+                var responseText = await resp.Content.ReadAsStringAsync();
+                _logger.LogWarning("PostAsync failed. Url: {Url}, Status: {Status}, Response: {Response}", url, resp.StatusCode, responseText);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "PostAsync failed while reading response body. Url: {Url}, Status: {Status}", url, resp.StatusCode);
+            }
+        }
+
         return resp.IsSuccessStatusCode;
     }
 
