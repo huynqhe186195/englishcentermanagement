@@ -127,9 +127,13 @@ public class UserService
 
     public async Task<long> CreateAsync(CreateUserRequestDto request)
     {
+        NormalizeCreateRequest(request);
+
         var userName = request.UserName.Trim();
         var exists = await _context.Users.AnyAsync(x => x.UserName == userName && !x.IsDeleted);
         if (exists) throw new BusinessException("UserName already exists.");
+
+        await EnsureUniqueEmailAndPhoneOnCreateAsync(request);
 
         var entity = _mapper.Map<User>(request);
         entity.UserName = userName;
@@ -144,6 +148,8 @@ public class UserService
 
     public async Task<long> CreateInCampusAsync(CreateUserRequestDto request, long campusId)
     {
+        NormalizeCreateRequest(request);
+
         var userName = request.UserName.Trim();
         var exists = await _context.Users.AnyAsync(x => x.UserName == userName && !x.IsDeleted);
         if (exists)
@@ -151,6 +157,8 @@ public class UserService
 
         if (string.IsNullOrWhiteSpace(request.PasswordHash))
             throw new BusinessException("Password is required.");
+
+        await EnsureUniqueEmailAndPhoneOnCreateAsync(request);
 
         var entity = _mapper.Map<User>(request);
         entity.UserName = userName;
@@ -171,6 +179,9 @@ public class UserService
         var entity = await _context.Users.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         if (entity == null) throw new NotFoundException("User not found.");
 
+        NormalizeUpdateRequest(request);
+        await EnsureUniqueEmailAndPhoneOnUpdateAsync(id, request);
+
         _mapper.Map(request, entity);
         entity.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
@@ -182,6 +193,9 @@ public class UserService
         await _campusScopeHelper.EnsureUserInScopeAsync(id);
         var entity = await _context.Users.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         if (entity == null) throw new NotFoundException("User not found.");
+
+        NormalizeUpdateRequest(request);
+        await EnsureUniqueEmailAndPhoneOnUpdateAsync(id, request);
 
         _mapper.Map(request, entity);
         entity.UpdatedAt = DateTime.UtcNow;
@@ -210,5 +224,68 @@ public class UserService
         entity.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    private async Task EnsureUniqueEmailAndPhoneOnCreateAsync(CreateUserRequestDto request)
+    {
+        if (!string.IsNullOrWhiteSpace(request.Email))
+        {
+            var normalizedEmail = request.Email.Trim().ToLower();
+            var emailExists = await _context.Users
+                .AnyAsync(x => !x.IsDeleted && x.Email != null && x.Email.ToLower() == normalizedEmail);
+            if (emailExists)
+            {
+                throw new BusinessException("Email already exists.");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
+        {
+            var normalizedPhone = request.PhoneNumber.Trim();
+            var phoneExists = await _context.Users
+                .AnyAsync(x => !x.IsDeleted && x.PhoneNumber == normalizedPhone);
+            if (phoneExists)
+            {
+                throw new BusinessException("PhoneNumber already exists.");
+            }
+        }
+    }
+
+    private async Task EnsureUniqueEmailAndPhoneOnUpdateAsync(long userId, UpdateUserRequestDto request)
+    {
+        if (!string.IsNullOrWhiteSpace(request.Email))
+        {
+            var normalizedEmail = request.Email.Trim().ToLower();
+            var emailExists = await _context.Users
+                .AnyAsync(x => !x.IsDeleted && x.Id != userId && x.Email != null && x.Email.ToLower() == normalizedEmail);
+            if (emailExists)
+            {
+                throw new BusinessException("Email already exists.");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
+        {
+            var normalizedPhone = request.PhoneNumber.Trim();
+            var phoneExists = await _context.Users
+                .AnyAsync(x => !x.IsDeleted && x.Id != userId && x.PhoneNumber == normalizedPhone);
+            if (phoneExists)
+            {
+                throw new BusinessException("PhoneNumber already exists.");
+            }
+        }
+    }
+
+    private static void NormalizeCreateRequest(CreateUserRequestDto request)
+    {
+        request.UserName = request.UserName.Trim();
+        request.Email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim();
+        request.PhoneNumber = string.IsNullOrWhiteSpace(request.PhoneNumber) ? null : request.PhoneNumber.Trim();
+    }
+
+    private static void NormalizeUpdateRequest(UpdateUserRequestDto request)
+    {
+        request.Email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim();
+        request.PhoneNumber = string.IsNullOrWhiteSpace(request.PhoneNumber) ? null : request.PhoneNumber.Trim();
     }
 }

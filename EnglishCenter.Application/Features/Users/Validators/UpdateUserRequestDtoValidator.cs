@@ -15,6 +15,8 @@ public class UpdateUserRequestDtoValidator : AbstractValidator<UpdateUserRequest
             .EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email)).WithMessage("Email format is invalid.");
 
         RuleFor(x => x.PhoneNumber)
-            .MaximumLength(20).WithMessage("PhoneNumber must not exceed 20 characters.");
+            .Matches("^0\\d{0,9}$")
+            .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
+            .WithMessage("PhoneNumber must start with 0, contain digits only, and be at most 10 digits.");
     }
 }
