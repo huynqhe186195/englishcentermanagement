@@ -100,7 +100,7 @@ public class IndexModel : PageModel
         CreateInput.PhoneNumber = string.IsNullOrWhiteSpace(CreateInput.PhoneNumber) ? null : CreateInput.PhoneNumber.Trim();
         CreateInput.RoleIds = new List<long> { CreateRoleId.Value };
 
-        var ok = await _apiClient.PostAsync("campus-admin/users", new
+        var createdUser = await _apiClient.PostAsync<object, CreateUserResultDto>("campus-admin/users", new
         {
             userName = CreateInput.UserName,
             passwordHash = CreateInput.PasswordHash,
@@ -111,23 +111,13 @@ public class IndexModel : PageModel
             roleIds = CreateInput.RoleIds
         });
 
-        if (!ok)
+        if (createdUser == null || createdUser.Id <= 0)
         {
             TempData["ErrorMessage"] = "Failed to create campus user.";
             return RedirectToPage();
         }
 
-        // Query lại danh sách user để tìm user vừa tạo
-        var userPaged = await _apiClient.GetAsync<PagedResult<UserDto>>("campus-admin/users?pageNumber=1&pageSize=200");
-        var createdUser = userPaged?.Items?
-            .FirstOrDefault(x => string.Equals(x.UserName, CreateInput.UserName, StringComparison.OrdinalIgnoreCase));
-
         TempData["SuccessMessage"] = "Campus user created successfully.";
-
-        if (createdUser == null)
-        {
-            return RedirectToPage();
-        }
 
         var selectedRole = AssignableRoles.FirstOrDefault(x => x.Id == CreateRoleId.Value);
         var selectedRoleCode = selectedRole?.Code?.Trim().ToUpperInvariant();

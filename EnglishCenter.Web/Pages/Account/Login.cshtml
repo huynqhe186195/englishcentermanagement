@@ -32,6 +32,10 @@
                 {
                     <div class="alert alert-danger py-2">@Model.ErrorMessage</div>
                 }
+                @if (TempData["SuccessMessage"] is string successMessage)
+                {
+                    <div class="alert alert-success py-2">@successMessage</div>
+                }
 
                 <div class="mb-3">
                     <label class="form-label">Campus</label>
@@ -69,8 +73,12 @@
                     <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập
                 </button>
 
+                <div class="text-center mt-3">
+                    <a href="/Account/Register">Chưa có tài khoản? Đăng ký</a>
+                </div>
+
                 <div class="login-footer-note text-center mt-4">
-                    <i class="bi bi-shield-lock-fill me-1"></i> Hệ thống bảo mật JWT Authentication
+                    <i class="bi bi-shield-lock-fill me-1"></i> Tài khoản mới chọn campus mà bản thân muốn học!
                 </div>
             </form>
         </div>

@@ -49,7 +49,7 @@ public class CreateTeacherProfileModel : PageModel
         Input.FullName = UserInfo.FullName;
         Input.Email = UserInfo.Email;
         Input.Phone = UserInfo.PhoneNumber;
-        Input.HireDate = DateTime.Today;
+        Input.HireDate = DateOnly.FromDateTime(DateTime.Today);
         Input.Status = 1;
 
         return Page();
@@ -118,7 +118,7 @@ public class CreateTeacherProfileModel : PageModel
         public string? Email { get; set; }
         public string Specialization { get; set; } = string.Empty;
         public string Qualification { get; set; } = string.Empty;
-        public DateTime HireDate { get; set; } = DateTime.Today;
+        public DateOnly? HireDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
         public int Status { get; set; } = 1;
     }
 }

@@ -139,6 +139,35 @@ app.Use(async (context, next) =>
         }
     }
 
+    if (path.StartsWith("/Student", StringComparison.OrdinalIgnoreCase))
+    {
+        if (!roles.Any())
+        {
+            context.Response.Redirect("/Account/Login");
+            return;
+        }
+
+        if (!hasRole("STUDENT") && !hasRole("PARENT"))
+        {
+            context.Response.Redirect("/Account/Login");
+            return;
+        }
+
+        if (hasRole("STUDENT"))
+        {
+            var hasAnyEnrollment = string.Equals(
+                context.Session.GetString("HasAnyEnrollment"),
+                "true",
+                StringComparison.OrdinalIgnoreCase);
+
+            if (!hasAnyEnrollment)
+            {
+                context.Response.Redirect("/Courses/Index");
+                return;
+            }
+        }
+    }
+
     await next();
 });
 

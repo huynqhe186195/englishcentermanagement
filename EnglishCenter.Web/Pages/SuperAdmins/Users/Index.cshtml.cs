@@ -30,11 +30,49 @@ public class IndexModel : PageModel
     public List<RoleDto> Roles { get; set; } = new();
     public List<CampusSimpleDto> Campuses { get; set; } = new();
     public List<UserListItemVm> Users { get; set; } = new();
+    public long? AdminRoleId { get; set; }
+
+    [BindProperty]
+    public CreateAdminUserInput CreateInput { get; set; } = new();
 
     public async Task OnGetAsync()
     {
+        await LoadDataAsync();
+    }
+
+    public async Task<IActionResult> OnPostCreateAsync()
+    {
+        await EnsureAdminRoleIdAsync();
+
+        if (!ModelState.IsValid || !AdminRoleId.HasValue)
+        {
+            await LoadDataAsync();
+            return Page();
+        }
+
+        var ok = await _apiClient.PostAsync("users", new
+        {
+            userName = CreateInput.UserName.Trim(),
+            passwordHash = CreateInput.Password.Trim(),
+            email = string.IsNullOrWhiteSpace(CreateInput.Email) ? null : CreateInput.Email.Trim(),
+            phoneNumber = string.IsNullOrWhiteSpace(CreateInput.PhoneNumber) ? null : CreateInput.PhoneNumber.Trim(),
+            fullName = CreateInput.FullName.Trim(),
+            status = CreateInput.Status,
+            roleIds = new[] { AdminRoleId.Value }
+        });
+
+        TempData[ok ? "SuccessMessage" : "ErrorMessage"] = ok
+            ? "Admin user created successfully."
+            : "Failed to create admin user.";
+
+        return RedirectToPage(new { Keyword, RoleId, PageNumber });
+    }
+
+    private async Task LoadDataAsync()
+    {
         var rolePaged = await _apiClient.GetAsync<PagedResult<RoleDto>>("roles?pageNumber=1&pageSize=200");
         Roles = rolePaged?.Items?.OrderBy(x => x.Name).ToList() ?? new List<RoleDto>();
+        await EnsureAdminRoleIdAsync();
 
         var campusPaged = await _apiClient.GetAsync<PagedResult<CampusSimpleDto>>("campuses?pageNumber=1&pageSize=200");
         Campuses = campusPaged?.Items?.OrderBy(x => x.Name).ToList() ?? new List<CampusSimpleDto>();
@@ -76,6 +114,28 @@ public class IndexModel : PageModel
         }
     }
 
+    private async Task EnsureAdminRoleIdAsync()
+    {
+        if (AdminRoleId.HasValue && AdminRoleId.Value > 0)
+        {
+            return;
+        }
+
+        if (!Roles.Any())
+        {
+            var rolePaged = await _apiClient.GetAsync<PagedResult<RoleDto>>("roles?pageNumber=1&pageSize=200");
+            Roles = rolePaged?.Items?.OrderBy(x => x.Name).ToList() ?? new List<RoleDto>();
+        }
+
+        var adminRole = Roles.FirstOrDefault(x => string.Equals(x.Code, "ADMIN", StringComparison.OrdinalIgnoreCase));
+        AdminRoleId = adminRole?.Id;
+
+        if (!AdminRoleId.HasValue)
+        {
+            ModelState.AddModelError(string.Empty, "Role ADMIN does not exist. Please seed roles before creating admin users.");
+        }
+    }
+
     public class UserListItemVm
     {
         public long Id { get; set; }
@@ -86,5 +146,15 @@ public class IndexModel : PageModel
         public long? RoleId { get; set; }
         public int Status { get; set; }
         public DateTime? CreatedAt { get; set; }
+    }
+
+    public class CreateAdminUserInput
+    {
+        public string UserName { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
+        public string? Email { get; set; }
+        public string? PhoneNumber { get; set; }
+        public int Status { get; set; } = 1;
     }
 }

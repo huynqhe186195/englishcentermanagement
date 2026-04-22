@@ -115,7 +115,7 @@ public class CreateStudentProfileModel : PageModel
     {
         public long UserId { get; set; }
         public string FullName { get; set; } = string.Empty;
-        public DateTime DateOfBirth { get; set; } = new DateTime(2012, 1, 1);
+        public DateOnly? DateOfBirth { get; set; } = new DateOnly(2012, 1, 1);
         public int Gender { get; set; } = 0;
         public string? Phone { get; set; }
         public string? Email { get; set; }

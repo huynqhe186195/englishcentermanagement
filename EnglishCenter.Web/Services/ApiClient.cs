@@ -57,8 +57,12 @@ public class ApiClient : IApiClient
             _httpContextAccessor.HttpContext?.Session.SetString("AccessToken", login.AccessToken ?? string.Empty);
             _httpContextAccessor.HttpContext?.Session.SetString("RefreshToken", login.RefreshToken ?? string.Empty);
             _httpContextAccessor.HttpContext?.Session.SetString("UserName", login.UserName ?? string.Empty);
+            _httpContextAccessor.HttpContext?.Session.SetString("FullName", login.FullName ?? string.Empty);
             _httpContextAccessor.HttpContext?.Session.SetString("CampusId", login.CampusId?.ToString() ?? string.Empty);
             _httpContextAccessor.HttpContext?.Session.SetString("Roles", JsonSerializer.Serialize(login.Roles ?? new List<string>()));
+            _httpContextAccessor.HttpContext?.Session.SetString("HasStudentProfile", login.HasStudentProfile ? "true" : "false");
+            _httpContextAccessor.HttpContext?.Session.SetString("HasCompletedStudentProfile", login.HasCompletedStudentProfile ? "true" : "false");
+            _httpContextAccessor.HttpContext?.Session.SetString("HasAnyEnrollment", login.HasAnyEnrollment ? "true" : "false");
 
             return true;
         }
@@ -224,6 +228,20 @@ public class ApiClient : IApiClient
                 resp = await client.PostAsJsonAsync(url, body);
             }
         }
+
+        if (!resp.IsSuccessStatusCode)
+        {
+            try
+            {
+                var responseText = await resp.Content.ReadAsStringAsync();
+                _logger.LogWarning("PostAsync failed. Url: {Url}, Status: {Status}, Response: {Response}", url, resp.StatusCode, responseText);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "PostAsync failed while reading response body. Url: {Url}, Status: {Status}", url, resp.StatusCode);
+            }
+        }
+
         return resp.IsSuccessStatusCode;
     }
 

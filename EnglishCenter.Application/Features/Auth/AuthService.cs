@@ -217,6 +217,22 @@ public class AuthService
             }
         }
 
+        var studentAccess = await GetStudentAccessInfoAsync(user.Id);
+
+        if (isStudent && !user.CampusId.HasValue)
+        {
+            var campusExists = await _context.Campuses
+                .AnyAsync(x => x.Id == request.CampusId && !x.IsDeleted && x.Status == 1);
+            if (!campusExists)
+            {
+                throw new BusinessException("Campus not found or inactive.");
+            }
+
+            user.CampusId = request.CampusId;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+
         var tokenCampusId = user.CampusId ?? request.CampusId;
 
         var permissions = await _permissionCacheService.GetPermissionsAsync(user.Id);
@@ -253,6 +269,9 @@ public class AuthService
             RefreshToken = refreshToken,
             ExpiresAtUtc = expiresAtUtc,
             CampusId = tokenCampusId,
+            HasStudentProfile = studentAccess.HasStudentProfile,
+            HasCompletedStudentProfile = studentAccess.HasCompletedStudentProfile,
+            HasAnyEnrollment = studentAccess.HasAnyEnrollment,
             Roles = roles
         };
     }
@@ -344,6 +363,7 @@ public class AuthService
         });
 
         await _context.SaveChangesAsync();
+        var studentAccess = await GetStudentAccessInfoAsync(user.Id);
 
         return new LoginResponseDto
         {
@@ -354,6 +374,9 @@ public class AuthService
             RefreshToken = newRefreshToken,
             ExpiresAtUtc = expiresAtUtc,
             CampusId = tokenCampusId,
+            HasStudentProfile = studentAccess.HasStudentProfile,
+            HasCompletedStudentProfile = studentAccess.HasCompletedStudentProfile,
+            HasAnyEnrollment = studentAccess.HasAnyEnrollment,
             Roles = roles
         };
     }
@@ -380,10 +403,139 @@ public class AuthService
         await _context.SaveChangesAsync();
     }
 
+    public async Task<RegisterStudentResponseDto> RegisterStudentAsync(RegisterStudentRequestDto request)
+    {
+        var userName = request.UserName.Trim();
+        var fullName = request.FullName.Trim();
+        var email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim();
+        var phoneNumber = string.IsNullOrWhiteSpace(request.PhoneNumber) ? null : request.PhoneNumber.Trim();
+
+        var userNameExists = await _context.Users
+            .AnyAsync(x => !x.IsDeleted && x.UserName == userName);
+        if (userNameExists)
+        {
+            throw new BusinessException("UserName already exists.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            var emailExists = await _context.Users
+                .AnyAsync(x => !x.IsDeleted && x.Email != null && x.Email.ToLower() == email.ToLower());
+            if (emailExists)
+            {
+                throw new BusinessException("Email already exists.");
+            }
+        }
+
+        var studentRole = await _context.Roles
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => !x.IsDeleted && x.Code == RoleConstants.Student);
+        if (studentRole == null)
+        {
+            throw new NotFoundException("Student role not found.");
+        }
+
+        var user = new User
+        {
+            UserName = userName,
+            PasswordHash = _passwordHasherService.HashPassword(request.Password),
+            Email = email,
+            PhoneNumber = phoneNumber,
+            FullName = fullName,
+            Status = 1,
+            IsDeleted = false,
+            CreatedAt = DateTime.UtcNow,
+            CampusId = null
+        };
+
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        _context.UserRoles.Add(new UserRole
+        {
+            UserId = user.Id,
+            RoleId = studentRole.Id
+        });
+
+        var studentCode = await GenerateStudentCodeAsync(user.Id);
+        var student = new Student
+        {
+            UserId = user.Id,
+            StudentCode = studentCode,
+            FullName = fullName,
+            Phone = phoneNumber,
+            Email = email,
+            Status = 1,
+            IsDeleted = false,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.Students.Add(student);
+        await _context.SaveChangesAsync();
+
+        return new RegisterStudentResponseDto
+        {
+            UserId = user.Id,
+            StudentId = student.Id,
+            UserName = user.UserName
+        };
+    }
+
     private static string GenerateRefreshToken()
     {
         var randomBytes = RandomNumberGenerator.GetBytes(64);
         return Convert.ToBase64String(randomBytes);
+    }
+
+    private async Task<string> GenerateStudentCodeAsync(long userId)
+    {
+        var baseCode = $"STU{userId:D6}";
+        var candidate = baseCode;
+        var suffix = 1;
+
+        while (await _context.Students.AnyAsync(x => !x.IsDeleted && x.StudentCode == candidate))
+        {
+            candidate = $"{baseCode}-{suffix}";
+            suffix++;
+        }
+
+        return candidate;
+    }
+
+    private async Task<StudentAccessInfo> GetStudentAccessInfoAsync(long userId)
+    {
+        var student = await _context.Students
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => !x.IsDeleted && x.UserId == userId);
+
+        if (student == null)
+        {
+            return StudentAccessInfo.Empty;
+        }
+
+        var hasAnyEnrollment = await _context.Enrollments
+            .AnyAsync(x => !x.IsDeleted
+                && x.StudentId == student.Id
+                && (x.Status == EnrollmentStatusConstants.Active
+                    || x.Status == EnrollmentStatusConstants.Suspended
+                    || x.Status == EnrollmentStatusConstants.Completed));
+
+        var hasCompletedStudentProfile =
+            !string.IsNullOrWhiteSpace(student.FullName)
+            && student.DateOfBirth.HasValue
+            && student.Gender.HasValue
+            && !string.IsNullOrWhiteSpace(student.Phone)
+            && !string.IsNullOrWhiteSpace(student.Email)
+            && !string.IsNullOrWhiteSpace(student.SchoolName)
+            && !string.IsNullOrWhiteSpace(student.EnglishLevel)
+            && student.Status == 1;
+
+        return new StudentAccessInfo(true, hasCompletedStudentProfile, hasAnyEnrollment);
+    }
+
+    private record StudentAccessInfo(bool HasStudentProfile, bool HasCompletedStudentProfile, bool HasAnyEnrollment)
+    {
+        public static StudentAccessInfo Empty => new(false, false, false);
     }
 
     public async Task<CurrentUserDto> GetCurrentUserAsync()

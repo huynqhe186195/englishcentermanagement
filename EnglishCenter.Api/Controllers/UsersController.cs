@@ -28,8 +28,8 @@ public class UsersController : ControllerBase
     {
         if (_currentUserService.IsInRole(RoleConstants.SuperAdmin))
         {
-            var result = await _userService.GetPagedAdminsAsync(request);
-            return Ok(ApiResponse<PagedResult<UserDto>>.SuccessResponse(result, "Get admin users successfully"));
+            var result = await _userService.GetPagedAsync(request);
+            return Ok(ApiResponse<PagedResult<UserDto>>.SuccessResponse(result, "Get users successfully"));
         }
 
         if (_currentUserService.IsInRole(RoleConstants.CenterAdmin))
@@ -51,8 +51,8 @@ public class UsersController : ControllerBase
     {
         if (_currentUserService.IsInRole(RoleConstants.SuperAdmin))
         {
-            var result = await _userService.GetAdminByIdAsync(id);
-            return Ok(ApiResponse<UserDetailDto>.SuccessResponse(result, "Get admin user successfully"));
+            var result = await _userService.GetByIdAsync(id);
+            return Ok(ApiResponse<UserDetailDto>.SuccessResponse(result, "Get user successfully"));
         }
 
         if (_currentUserService.IsInRole(RoleConstants.CenterAdmin))

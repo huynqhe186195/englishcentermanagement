@@ -6,6 +6,6 @@ public class CreateCampusRequestDto
     public string Name { get; set; } = string.Empty;
     public string? Address { get; set; }
     public string? Phone { get; set; }
-    public int MaxStudents { get; set; } = 10;
+    public long? ManagerAdminUserId { get; set; }
     public int Status { get; set; } = 1;
 }

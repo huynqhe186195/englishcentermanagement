@@ -28,6 +28,8 @@ public class UserService
 
     public async Task<long> CreateAdminAsync(CreateUserRequestDto request)
     {
+        await ValidateOnlyAdminRoleAssignmentAsync(request);
+
         var userName = request.UserName.Trim();
         var exists = await _context.Users.AnyAsync(x => x.UserName == userName && !x.IsDeleted);
         if (exists)
@@ -99,6 +101,7 @@ public class UserService
     .Select(x => new UserDto
     {
         Id = x.Id,
+        CampusId = x.CampusId,
         UserName = x.UserName,
         Email = x.Email,
         FullName = x.FullName,
@@ -135,6 +138,7 @@ public class UserService
             .Select(x => new UserDto
             {
                 Id = x.Id,
+                CampusId = x.CampusId,
                 UserName = x.UserName,
                 Email = x.Email,
                 FullName = x.FullName,
@@ -166,7 +170,7 @@ public class UserService
         var query = _context.Users
             .AsNoTracking()
             .Where(x => !x.IsDeleted)
-            .Where(x => x.UserRoles.Any(ur => ur.Role.Name == RoleConstants.CenterAdmin))
+            .Where(x => x.UserRoles.Any(ur => ur.Role.Name == RoleConstants.Admin))
             .AsQueryable();
 
         query = ApplyUserFilters(query, request);
@@ -180,6 +184,7 @@ public class UserService
     .Select(x => new UserDto
     {
         Id = x.Id,
+        CampusId = x.CampusId,
         UserName = x.UserName,
         Email = x.Email,
         FullName = x.FullName,
@@ -215,7 +220,7 @@ public class UserService
 
     public async Task<UserDetailDto> GetAdminByIdAsync(long id)
     {
-        await EnsureUserIsCenterAdminAsync(id);
+        await EnsureUserIsAdminAsync(id);
         return await GetByIdAsync(id);
     }
 
@@ -326,14 +331,15 @@ public class UserService
 
     public async Task<bool> UpdateAdminAsync(long id, UpdateUserRequestDto request)
     {
-        await EnsureUserIsCenterAdminAsync(id);
-        await ValidateOnlyCenterAdminRoleAssignmentAsync(request);
+        await EnsureUserIsAdminAsync(id);
+        await ValidateOnlyAdminRoleAssignmentAsync(request);
 
         var entity = await _context.Users.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         if (entity == null)
             throw new NotFoundException("User not found.");
 
         _mapper.Map(request, entity);
+        entity.CampusId = entity.CampusId; // giữ campus cũ
         entity.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
@@ -370,7 +376,7 @@ public class UserService
 
     public async Task<bool> DeleteAdminAsync(long id)
     {
-        await EnsureUserIsCenterAdminAsync(id);
+        await EnsureUserIsAdminAsync(id);
 
         var entity = await _context.Users.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
         if (entity == null)
@@ -429,15 +435,15 @@ public class UserService
             throw new BusinessException("Center admin cannot manage admin accounts.");
     }
 
-    private async Task EnsureUserIsCenterAdminAsync(long userId)
+    private async Task EnsureUserIsAdminAsync(long userId)
     {
-        var isCenterAdmin = await _context.Users
+        var isAdmin = await _context.Users
             .AnyAsync(x => x.Id == userId &&
                            !x.IsDeleted &&
-                           x.UserRoles.Any(ur => ur.Role.Name == RoleConstants.CenterAdmin));
+                           x.UserRoles.Any(ur => ur.Role.Name == RoleConstants.Admin));
 
-        if (!isCenterAdmin)
-            throw new BusinessException("Target user is not a center admin.");
+        if (!isAdmin)
+            throw new BusinessException("Target user is not an admin.");
     }
 
     private async Task ValidateNoAdminRoleAssignmentAsync(CreateUserRequestDto request)
@@ -454,18 +460,18 @@ public class UserService
             throw new BusinessException("Center admin cannot assign admin roles.");
     }
 
-    private async Task ValidateOnlyCenterAdminRoleAssignmentAsync(CreateUserRequestDto request)
+    private async Task ValidateOnlyAdminRoleAssignmentAsync(CreateUserRequestDto request)
     {
         var roleNames = await ResolveRoleNamesFromCreateRequestAsync(request);
-        if (roleNames.Count == 0 || roleNames.Any(x => x != RoleConstants.CenterAdmin))
-            throw new BusinessException("Super admin can only create users with role CenterAdmin in this endpoint.");
+        if (roleNames.Count == 0 || roleNames.Any(x => x != RoleConstants.Admin))
+            throw new BusinessException("Super admin can only create users with role ADMIN in this endpoint.");
     }
 
-    private async Task ValidateOnlyCenterAdminRoleAssignmentAsync(UpdateUserRequestDto request)
+    private async Task ValidateOnlyAdminRoleAssignmentAsync(UpdateUserRequestDto request)
     {
         var roleNames = await ResolveRoleNamesFromUpdateRequestAsync(request);
-        if (roleNames.Count > 0 && roleNames.Any(x => x != RoleConstants.CenterAdmin))
-            throw new BusinessException("Super admin can only manage users with role CenterAdmin in this endpoint.");
+        if (roleNames.Count > 0 && roleNames.Any(x => x != RoleConstants.Admin))
+            throw new BusinessException("Super admin can only manage users with role ADMIN in this endpoint.");
     }
 
     private async Task<HashSet<string>> ResolveRoleNamesFromCreateRequestAsync(CreateUserRequestDto request)

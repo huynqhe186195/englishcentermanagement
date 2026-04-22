@@ -17,15 +17,18 @@ public class StudentService
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IEmailService _emailService;
+    private readonly ICurrentUserService _currentUserService;
 
     public StudentService(
     IApplicationDbContext context,
     IMapper mapper,
-    IEmailService emailService)
+    IEmailService emailService,
+    ICurrentUserService currentUserService)
     {
         _context = context;
         _mapper = mapper;
         _emailService = emailService;
+        _currentUserService = currentUserService;
     }
     // Helper methods to convert status codes to text
     private static string GetAttendanceStatusText(int status)
@@ -363,8 +366,11 @@ public class StudentService
 
     public async Task<long> CreateAsync(CreateStudentRequestDto request)
     {
-        var studentCode = request.StudentCode.Trim();
         var fullName = request.FullName.Trim();
+        var requestedCode = request.StudentCode?.Trim();
+        var studentCode = string.IsNullOrWhiteSpace(requestedCode)
+            ? await GenerateStudentCodeAsync(request.UserId)
+            : requestedCode;
 
         var exists = await _context.Students
             .AnyAsync(x => x.StudentCode == studentCode && !x.IsDeleted);
@@ -372,6 +378,25 @@ public class StudentService
         if (exists)
         {
             throw new BusinessException("StudentCode already exists.");
+        }
+
+        if (request.UserId.HasValue && request.UserId.Value > 0)
+        {
+            var userExists = await _context.Users
+                .AnyAsync(x => x.Id == request.UserId.Value && !x.IsDeleted);
+
+            if (!userExists)
+            {
+                throw new BusinessException("User not found.");
+            }
+
+            var studentProfileExists = await _context.Students
+                .AnyAsync(x => x.UserId == request.UserId.Value && !x.IsDeleted);
+
+            if (studentProfileExists)
+            {
+                throw new BusinessException("User already has a student profile.");
+            }
         }
 
         var entity = _mapper.Map<Student>(request);
@@ -388,8 +413,33 @@ public class StudentService
         return entity.Id;
     }
 
+    private async Task<string> GenerateStudentCodeAsync(long? userId)
+    {
+        var baseCode = userId.HasValue && userId.Value > 0
+            ? $"STU{userId.Value:D6}"
+            : $"STU{DateTime.UtcNow:yyyyMMddHHmmss}";
+
+        var candidate = baseCode;
+        var suffix = 1;
+
+        while (await _context.Students.AnyAsync(x => x.StudentCode == candidate && !x.IsDeleted))
+        {
+            candidate = $"{baseCode}-{suffix}";
+            suffix++;
+        }
+
+        return candidate;
+    }
+
     public async Task<bool> UpdateAsync(long id, UpdateStudentRequestDto request)
     {
+        var fullName = request.FullName.Trim();
+        var email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim();
+        var phone = string.IsNullOrWhiteSpace(request.Phone) ? null : request.Phone.Trim();
+        var schoolName = string.IsNullOrWhiteSpace(request.SchoolName) ? null : request.SchoolName.Trim();
+        var englishLevel = string.IsNullOrWhiteSpace(request.EnglishLevel) ? null : request.EnglishLevel.Trim();
+        var note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
+
         var entity = await _context.Students
             .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
 
@@ -399,7 +449,78 @@ public class StudentService
         }
 
         _mapper.Map(request, entity);
+        entity.FullName = fullName;
+        entity.Email = email;
+        entity.Phone = phone;
+        entity.SchoolName = schoolName;
+        entity.EnglishLevel = englishLevel;
+        entity.Note = note;
         entity.UpdatedAt = DateTime.UtcNow;
+
+        if (entity.UserId.HasValue)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.Id == entity.UserId.Value && !x.IsDeleted);
+
+            if (user != null)
+            {
+                user.FullName = fullName;
+                user.Email = email;
+                user.PhoneNumber = phone;
+                user.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> UpdateCurrentStudentProfileAsync(UpdateStudentRequestDto request)
+    {
+        var fullName = request.FullName.Trim();
+        var email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim();
+        var phone = string.IsNullOrWhiteSpace(request.Phone) ? null : request.Phone.Trim();
+        var schoolName = string.IsNullOrWhiteSpace(request.SchoolName) ? null : request.SchoolName.Trim();
+        var englishLevel = string.IsNullOrWhiteSpace(request.EnglishLevel) ? null : request.EnglishLevel.Trim();
+        var note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
+
+        if (!_currentUserService.UserId.HasValue)
+        {
+            throw new BusinessException("User is not authenticated.");
+        }
+
+        var userId = _currentUserService.UserId.Value;
+
+        var entity = await _context.Students
+            .FirstOrDefaultAsync(x => x.UserId == userId && !x.IsDeleted);
+
+        if (entity == null)
+        {
+            throw new NotFoundException("Student profile not found.");
+        }
+
+        _mapper.Map(request, entity);
+        entity.FullName = fullName;
+        entity.Email = email;
+        entity.Phone = phone;
+        entity.SchoolName = schoolName;
+        entity.EnglishLevel = englishLevel;
+        entity.Note = note;
+        entity.UpdatedAt = DateTime.UtcNow;
+
+        if (entity.UserId.HasValue)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.Id == entity.UserId.Value && !x.IsDeleted);
+
+            if (user != null)
+            {
+                user.FullName = fullName;
+                user.Email = email;
+                user.PhoneNumber = phone;
+                user.UpdatedAt = DateTime.UtcNow;
+            }
+        }
 
         await _context.SaveChangesAsync();
         return true;

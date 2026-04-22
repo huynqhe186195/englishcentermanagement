@@ -34,6 +34,15 @@
             <h2>Hồ sơ học viên</h2>
         </header>
 
+        @if (TempData["ErrorMessage"] is string errorMessage)
+        {
+            <div class="alert alert-warning">@errorMessage</div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.ReturnUrl))
+        {
+            <div class="alert alert-info">Vui lòng hoàn thiện hồ sơ trước khi đăng ký khóa học.</div>
+        }
+
         <section class="profile-grid">
             <div class="profile-card">
                 <h3>Thông tin học viên</h3>
@@ -50,6 +59,7 @@
                 }
 
                 <form method="post" asp-page-handler="UpdateProfile" class="profile-form">
+                    <input type="hidden" asp-for="ReturnUrl" />
                     <div class="row g-2">
                         <div class="col-md-6">
                             <label>Họ tên</label>

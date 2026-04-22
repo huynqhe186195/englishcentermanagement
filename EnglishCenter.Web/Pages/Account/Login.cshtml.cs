@@ -78,6 +78,7 @@ public class LoginModel : PageModel
             HttpContext.Session.SetString("AccessToken", loginResp.AccessToken ?? string.Empty);
             HttpContext.Session.SetString("RefreshToken", loginResp.RefreshToken ?? string.Empty);
             HttpContext.Session.SetString("UserName", loginResp.UserName ?? string.Empty);
+            HttpContext.Session.SetString("FullName", loginResp.FullName ?? string.Empty);
             var roles = (loginResp.Roles ?? new List<string>())
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -90,6 +91,9 @@ public class LoginModel : PageModel
 
             HttpContext.Session.SetString("Roles", JsonSerializer.Serialize(roles));
             HttpContext.Session.SetString("CampusId", loginResp.CampusId?.ToString() ?? Input.CampusId.ToString());
+            HttpContext.Session.SetString("HasStudentProfile", loginResp.HasStudentProfile ? "true" : "false");
+            HttpContext.Session.SetString("HasCompletedStudentProfile", loginResp.HasCompletedStudentProfile ? "true" : "false");
+            HttpContext.Session.SetString("HasAnyEnrollment", loginResp.HasAnyEnrollment ? "true" : "false");
 
             // redirect based on role
             if (roles.Contains("SUPER_ADMIN", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/SuperAdmins/Dashboard");
@@ -99,7 +103,12 @@ public class LoginModel : PageModel
             if (roles.Contains("TEACHER", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Teacher/Index");
             if (roles.Contains("STAFF", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Admin/Index");
             if (roles.Contains("PARENT", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Student/Index");
-            if (roles.Contains("STUDENT", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Student/Index");
+            if (roles.Contains("STUDENT", StringComparer.OrdinalIgnoreCase))
+            {
+                return loginResp.HasAnyEnrollment
+                    ? RedirectToPage("/Student/Index")
+                    : RedirectToPage("/Courses/Index");
+            }
 
             // authenticated but role does not match known route yet
             return RedirectToPage("/Student/Index");
