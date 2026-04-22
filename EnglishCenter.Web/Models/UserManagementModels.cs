@@ -3,6 +3,7 @@ namespace EnglishCenter.Web.Models;
 public class UserDto
 {
     public long Id { get; set; }
+    public long? CampusId { get; set; }
     public string UserName { get; set; } = string.Empty;
     public string? Email { get; set; }
     public string? PhoneNumber { get; set; }
@@ -13,6 +14,7 @@ public class UserDto
 public class UserDetailDto
 {
     public long Id { get; set; }
+    public long? CampusId { get; set; }
     public string UserName { get; set; } = string.Empty;
     public string? Email { get; set; }
     public string? PhoneNumber { get; set; }

@@ -18,16 +18,20 @@ public class EnrollmentService
     private readonly IMapper _mapper;
     private readonly IEmailService _emailService;
     private readonly HelperMethodEnrollments _helperMethodEnrollments;
+    private readonly ICurrentUserService _currentUserService;
 
     public EnrollmentService(
     IApplicationDbContext context,
     IMapper mapper,
-    IEmailService emailService, HelperMethodEnrollments helperMethodEnrollments)
+    IEmailService emailService,
+    HelperMethodEnrollments helperMethodEnrollments,
+    ICurrentUserService currentUserService)
     {
         _context = context;
         _mapper = mapper;
         _emailService = emailService;
         _helperMethodEnrollments = helperMethodEnrollments;
+        _currentUserService = currentUserService;
     }
     // Đánh giá chính sách điểm danh cho tất cả sinh viên trong một lớp học cụ thể,
     // tính toán tỷ lệ vắng mặt của từng sinh viên dựa trên số buổi học đã lên lịch và số buổi vắng mặt,
@@ -180,8 +184,12 @@ public class EnrollmentService
 
     public async Task SuspendAsync(long enrollmentId, SuspendEnrollmentRequestDto request)
     {
-        var entity = await _context.Enrollments
-            .FirstOrDefaultAsync(x => x.Id == enrollmentId && !x.IsDeleted);
+        var query = _context.Enrollments
+            .Where(x => x.Id == enrollmentId && !x.IsDeleted)
+            .AsQueryable();
+        query = ApplyCampusScope(query);
+
+        var entity = await query.FirstOrDefaultAsync();
 
         if (entity == null)
         {
@@ -201,8 +209,12 @@ public class EnrollmentService
     }
     public async Task<long> TransferAsync(long enrollmentId, TransferEnrollmentRequestDto request)
     {
-        var sourceEnrollment = await _context.Enrollments
-            .FirstOrDefaultAsync(x => x.Id == enrollmentId && !x.IsDeleted);
+        var sourceQuery = _context.Enrollments
+            .Where(x => x.Id == enrollmentId && !x.IsDeleted)
+            .AsQueryable();
+        sourceQuery = ApplyCampusScope(sourceQuery);
+
+        var sourceEnrollment = await sourceQuery.FirstOrDefaultAsync();
 
         if (sourceEnrollment == null)
         {
@@ -215,7 +227,10 @@ public class EnrollmentService
         }
 
         var targetClass = await _context.Classes
-            .FirstOrDefaultAsync(x => x.Id == request.TargetClassId && !x.IsDeleted);
+            .FirstOrDefaultAsync(x =>
+                x.Id == request.TargetClassId
+                && !x.IsDeleted
+                && (!IsCampusScoped() || x.CampusId == GetRequiredCampusId()));
 
         if (targetClass == null)
         {
@@ -272,8 +287,12 @@ public class EnrollmentService
 
     public async Task CompleteAsync(long enrollmentId, CompleteEnrollmentRequestDto request)
     {
-        var entity = await _context.Enrollments
-            .FirstOrDefaultAsync(x => x.Id == enrollmentId && !x.IsDeleted);
+        var query = _context.Enrollments
+            .Where(x => x.Id == enrollmentId && !x.IsDeleted)
+            .AsQueryable();
+        query = ApplyCampusScope(query);
+
+        var entity = await query.FirstOrDefaultAsync();
 
         if (entity == null)
         {
@@ -292,13 +311,18 @@ public class EnrollmentService
         await _context.SaveChangesAsync();
     }
 
-    
+
 
     public async Task<List<EnrollmentDto>> GetAllAsync()
     {
-        return await _context.Enrollments
+        var query = _context.Enrollments
             .AsNoTracking()
             .Where(x => !x.IsDeleted)
+            .AsQueryable();
+
+        query = ApplyCampusScope(query);
+
+        return await query
             .ProjectTo<EnrollmentDto>(_mapper.ConfigurationProvider)
             .ToListAsync();
     }
@@ -312,6 +336,8 @@ public class EnrollmentService
             .AsNoTracking()
             .Where(x => !x.IsDeleted)
             .AsQueryable();
+
+        query = ApplyCampusScope(query);
 
         if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
@@ -349,9 +375,14 @@ public class EnrollmentService
 
     public async Task<EnrollmentDetailDto> GetByIdAsync(long id)
     {
-        var enrollment = await _context.Enrollments
+        var query = _context.Enrollments
             .AsNoTracking()
             .Where(x => x.Id == id && !x.IsDeleted)
+            .AsQueryable();
+
+        query = ApplyCampusScope(query);
+
+        var enrollment = await query
             .ProjectTo<EnrollmentDetailDto>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
 
@@ -373,8 +404,11 @@ public class EnrollmentService
             throw new BusinessException("Student does not exist or has been deleted.");
         }
 
-        var cls = await _context.Classes
-            .FirstOrDefaultAsync(c => c.Id == request.ClassId && !c.IsDeleted);
+        var cls = await _context.Classes.FirstOrDefaultAsync(c =>
+            c.Id == request.ClassId
+            && !c.IsDeleted
+            && (!IsCampusScoped() || c.CampusId == GetRequiredCampusId()));
+        if (cls == null) throw new NotFoundException("Class not found.");
 
         if (cls == null)
         {
@@ -425,8 +459,13 @@ public class EnrollmentService
 
     public async Task<bool> UpdateAsync(long id, UpdateEnrollmentRequestDto request)
     {
-        var entity = await _context.Enrollments
-            .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+        var query = _context.Enrollments
+            .Where(x => x.Id == id && !x.IsDeleted)
+            .AsQueryable();
+
+        query = ApplyCampusScope(query);
+
+        var entity = await query.FirstOrDefaultAsync();
 
         if (entity == null)
         {
@@ -442,8 +481,13 @@ public class EnrollmentService
 
     public async Task<bool> DeleteAsync(long id)
     {
-        var entity = await _context.Enrollments
-            .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+        var query = _context.Enrollments
+            .Where(x => x.Id == id && !x.IsDeleted)
+            .AsQueryable();
+
+        query = ApplyCampusScope(query);
+
+        var entity = await query.FirstOrDefaultAsync();
 
         if (entity == null)
         {
@@ -455,5 +499,38 @@ public class EnrollmentService
 
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    private IQueryable<Enrollment> ApplyCampusScope(IQueryable<Enrollment> query)
+    {
+        if (IsCampusScoped())
+        {
+            var campusId = GetRequiredCampusId();
+            query = query.Where(x => x.Class != null && x.Class.CampusId == campusId);
+        }
+
+        return query;
+    }
+
+    private bool IsCampusScoped()
+    {
+        if (_currentUserService.IsInRole(RoleConstants.SuperAdmin))
+        {
+            return false;
+        }
+
+        return _currentUserService.IsInRole(RoleConstants.CenterAdmin)
+            || _currentUserService.IsInRole(RoleConstants.Manager)
+            || _currentUserService.IsInRole(RoleConstants.Admin);
+    }
+
+    private long GetRequiredCampusId()
+    {
+        if (!_currentUserService.CampusId.HasValue)
+        {
+            throw new BusinessException("Current admin does not have a campus assigned.");
+        }
+
+        return _currentUserService.CampusId.Value;
     }
 }

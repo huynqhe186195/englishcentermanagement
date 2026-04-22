@@ -29,5 +29,10 @@ public class CreateCampusRequestDtoValidator : AbstractValidator<CreateCampusReq
 
         RuleFor(x => x.Status)
             .InclusiveBetween(0, 1).WithMessage("Status must be 0 or 1.");
+
+        RuleFor(x => x.ManagerAdminUserId)
+            .GreaterThan(0)
+            .When(x => x.ManagerAdminUserId.HasValue)
+            .WithMessage("ManagerAdminUserId must be greater than 0.");
     }
 }

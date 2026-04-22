@@ -4,6 +4,7 @@ using EnglishCenter.Application.Common.Exceptions;
 using EnglishCenter.Application.Common.Interfaces;
 using EnglishCenter.Application.Common.Models;
 using EnglishCenter.Application.Features.Campus.Dtos;
+using EnglishCenter.Domain.Constants;
 using EnglishCenter.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -87,6 +88,25 @@ public class CampusService
         var exists = await _context.Campuses.AnyAsync(x => x.CampusCode == code && !x.IsDeleted);
         if (exists) throw new BusinessException("CampusCode already exists.");
 
+        User? managerAdmin = null;
+        if (request.ManagerAdminUserId.HasValue)
+        {
+            managerAdmin = await _context.Users
+                .Include(x => x.UserRoles)
+                .ThenInclude(x => x.Role)
+                .FirstOrDefaultAsync(x => x.Id == request.ManagerAdminUserId.Value && !x.IsDeleted);
+
+            if (managerAdmin == null)
+                throw new NotFoundException("Admin manager user not found.");
+
+            var isAdmin = managerAdmin.UserRoles.Any(x => x.Role.Name == RoleConstants.Admin);
+            if (!isAdmin)
+                throw new BusinessException("Selected manager must have ADMIN role.");
+
+            if (managerAdmin.CampusId.HasValue)
+                throw new BusinessException("Selected admin is already assigned to another campus.");
+        }
+
         var entity = _mapper.Map<EnglishCenter.Domain.Models.Campus>(request);
         entity.CampusCode = code;
         entity.CreatedAt = DateTime.UtcNow;
@@ -95,6 +115,14 @@ public class CampusService
 
         _context.Campuses.Add(entity);
         await _context.SaveChangesAsync();
+
+        if (managerAdmin != null)
+        {
+            managerAdmin.CampusId = entity.Id;
+            managerAdmin.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+
         return entity.Id;
     }
 
