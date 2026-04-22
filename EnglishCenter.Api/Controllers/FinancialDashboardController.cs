@@ -7,7 +7,7 @@ namespace EnglishCenter.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Policy = "RequireSuperAdmin")]
+[Authorize(Policy = "RequireCenterAdmin")]
 public class FinancialDashboardController : ControllerBase
 {
     private readonly FinancialDashboardService _financialDashboardService;

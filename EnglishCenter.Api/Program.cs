@@ -115,7 +115,8 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy("RequireCenterAdmin", policy =>
         policy.RequireAssertion(context =>
-            context.User.IsInRole(RoleConstants.CenterAdmin)
+            context.User.IsInRole(RoleConstants.SuperAdmin)
+            || context.User.IsInRole(RoleConstants.CenterAdmin)
             || context.User.IsInRole(RoleConstants.Manager)
             || context.User.IsInRole(RoleConstants.Admin)));
 

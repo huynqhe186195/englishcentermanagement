@@ -31,9 +31,9 @@ public class IndexModel : PageModel
     public ClassDashboardByCampusItemDto? SelectedClassCampus { get; set; }
     public TeacherWorkloadByCampusItemDto? SelectedTeacherCampus { get; set; }
     public RoomUtilizationByCampusItemDto? SelectedRoomCampus { get; set; }
-    public string DrilldownTitle => CampusId.HasValue
-        ? $"Drill-down campus #{CampusId}"
-        : "Global dashboard (all campuses)";
+    public string DrilldownTitle => IsSuperAdmin
+        ? (CampusId.HasValue ? $"Drill-down campus #{CampusId}" : "Global dashboard (all campuses)")
+        : "Campus dashboard";
 
     public int TotalClasses { get; set; }
     public int TotalStudents { get; set; }
@@ -48,7 +48,7 @@ public class IndexModel : PageModel
     {
         ResolveRoleFlags();
 
-        HasGlobalDashboardAccess = IsSuperAdmin;
+        HasGlobalDashboardAccess = IsSuperAdmin || IsCenterAdmin;
 
         if (HasGlobalDashboardAccess)
         {

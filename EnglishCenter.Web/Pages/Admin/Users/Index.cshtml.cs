@@ -222,7 +222,7 @@ public class IndexModel : PageModel
     {
         var userPaged = await _apiClient.GetAsync<PagedResult<UserDto>>($"campus-admin/users?pageNumber={PageNumber}&pageSize={PageSize}");
 
-        Users = (List<UserDto>)(userPaged?.Items ?? new List<UserDto>());
+        Users = userPaged?.Items?.ToList() ?? new List<UserDto>();
         TotalPages = userPaged?.TotalPages ?? 1;
         TotalRecords = userPaged?.TotalRecords ?? 0;
 

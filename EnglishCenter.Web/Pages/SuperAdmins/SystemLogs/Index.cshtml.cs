@@ -1,4 +1,5 @@
 using EnglishCenter.Web.Models;
+using EnglishCenter.Web.Pages.Account;
 using EnglishCenter.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
