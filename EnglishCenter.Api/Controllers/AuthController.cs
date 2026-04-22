@@ -47,6 +47,14 @@ public class AuthController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPost("register-student")]
+    [AllowAnonymous]
+    public async Task<IActionResult> RegisterStudent([FromBody] RegisterStudentRequestDto request)
+    {
+        var result = await _authService.RegisterStudentAsync(request);
+        return Ok(result);
+    }
+
     [HttpPost("logout")]
     public async Task<IActionResult> Logout([FromBody] LogoutRequestDto request)
     {

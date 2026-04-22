@@ -369,6 +369,21 @@ public class EnrollmentService
         var student = await _context.Students.FirstOrDefaultAsync(s => s.Id == request.StudentId && !s.IsDeleted);
         if (student == null) throw new NotFoundException("Student not found.");
 
+        var hasCompletedProfile =
+            !string.IsNullOrWhiteSpace(student.FullName)
+            && student.DateOfBirth.HasValue
+            && student.Gender.HasValue
+            && !string.IsNullOrWhiteSpace(student.Phone)
+            && !string.IsNullOrWhiteSpace(student.Email)
+            && !string.IsNullOrWhiteSpace(student.SchoolName)
+            && !string.IsNullOrWhiteSpace(student.EnglishLevel)
+            && student.Status == 1;
+
+        if (!hasCompletedProfile)
+        {
+            throw new BusinessException("Student profile must be completed before enrollment.");
+        }
+
         var cls = await _context.Classes.FirstOrDefaultAsync(c => c.Id == request.ClassId && !c.IsDeleted);
         if (cls == null) throw new NotFoundException("Class not found.");
 

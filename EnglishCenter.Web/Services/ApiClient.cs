@@ -59,6 +59,9 @@ public class ApiClient : IApiClient
             _httpContextAccessor.HttpContext?.Session.SetString("UserName", login.UserName ?? string.Empty);
             _httpContextAccessor.HttpContext?.Session.SetString("CampusId", login.CampusId?.ToString() ?? string.Empty);
             _httpContextAccessor.HttpContext?.Session.SetString("Roles", JsonSerializer.Serialize(login.Roles ?? new List<string>()));
+            _httpContextAccessor.HttpContext?.Session.SetString("HasStudentProfile", login.HasStudentProfile ? "true" : "false");
+            _httpContextAccessor.HttpContext?.Session.SetString("HasCompletedStudentProfile", login.HasCompletedStudentProfile ? "true" : "false");
+            _httpContextAccessor.HttpContext?.Session.SetString("HasAnyEnrollment", login.HasAnyEnrollment ? "true" : "false");
 
             return true;
         }
