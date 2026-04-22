@@ -219,6 +219,20 @@ public class AuthService
 
         var studentAccess = await GetStudentAccessInfoAsync(user.Id);
 
+        if (isStudent && !user.CampusId.HasValue)
+        {
+            var campusExists = await _context.Campuses
+                .AnyAsync(x => x.Id == request.CampusId && !x.IsDeleted && x.Status == 1);
+            if (!campusExists)
+            {
+                throw new BusinessException("Campus not found or inactive.");
+            }
+
+            user.CampusId = request.CampusId;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+
         var tokenCampusId = user.CampusId ?? request.CampusId;
 
         var permissions = await _permissionCacheService.GetPermissionsAsync(user.Id);
