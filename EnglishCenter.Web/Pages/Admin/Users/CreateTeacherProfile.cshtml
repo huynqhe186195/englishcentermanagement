@@ -1,0 +1,93 @@
+﻿@page
+@model EnglishCenter.Web.Pages.Admin.Users.CreateTeacherProfileModel
+@{
+    ViewData["Title"] = "Create Teacher Profile";
+}
+
+<section class="admin-page-header mb-4">
+    <div>
+        <span class="admin-badge-soft">Admin · Teacher Profile</span>
+        <h1>Create Teacher Profile</h1>
+        <p>Hoàn thiện hồ sơ giáo viên sau khi tạo tài khoản.</p>
+    </div>
+    <div class="admin-page-actions">
+        <a class="btn btn-outline-primary" asp-page="/Admin/Users/Index">Về Campus Users</a>
+    </div>
+</section>
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success">@successMessage</div>
+}
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@if (!Model.IsCenterAdmin)
+{
+    <div class="alert alert-warning">
+        Chức năng này chỉ dành cho CENTER_ADMIN.
+    </div>
+}
+else
+{
+    <section class="admin-surface mb-4">
+        <div class="admin-surface-head mb-2">
+            <div>
+                <h2>Teacher Profile Information</h2>
+                <p>Nhập đầy đủ thông tin hồ sơ giáo viên cho tài khoản vừa tạo.</p>
+            </div>
+        </div>
+
+        <form method="post" class="row g-3 admin-form-grid">
+            <input asp-for="Input.UserId" type="hidden" />
+
+            <div class="col-md-6">
+                <label class="form-label">Full Name</label>
+                <input asp-for="Input.FullName" class="form-control" required />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Phone</label>
+                <input asp-for="Input.Phone" class="form-control" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Email</label>
+                <input asp-for="Input.Email" type="email" class="form-control" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Specialization</label>
+                <input asp-for="Input.Specialization" class="form-control" required />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Qualification</label>
+                <input asp-for="Input.Qualification" class="form-control" required />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Hire Date</label>
+                <input asp-for="Input.HireDate" type="date" class="form-control" required />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Status</label>
+                <select asp-for="Input.Status" class="form-select">
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
+            </div>
+
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Create Teacher Profile</button>
+            </div>
+
+            <div class="col-md-3 d-flex align-items-end">
+                <a asp-page="/Admin/Users/Index" class="btn btn-outline-secondary w-100">Cancel</a>
+            </div>
+        </form>
+    </section>
+}

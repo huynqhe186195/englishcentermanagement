@@ -21,6 +21,13 @@ public class ClassSessionsController : ControllerBase
         await _classSessionService.RescheduleAsync(sessionId, request);
         return Ok();
     }
+    // Cho phép giảng viên có thể cancel session đang dạy để có thể điểm danh cho sinh viên
+    [HttpPut("{id:long}/reopen")]
+    public async Task<IActionResult> Reopen(long id, [FromBody] CompleteClassSessionRequestDto request)
+    {
+        await _classSessionService.ReopenAsync(id, request);
+        return Ok();
+    }
     // Cho phép giáo viên hủy một buổi học đã lên lịch,
     // cập nhật trạng thái của buổi học và thực hiện các hành động liên quan như gửi thông báo đến sinh viên hoặc cập nhật điểm danh.
     [HttpPut("{sessionId:long}/cancel")]

@@ -14,9 +14,14 @@ public class AttendanceModel : PageModel
         _apiClient = apiClient;
     }
 
-    [BindProperty(SupportsGet = true)] public long? SessionId { get; set; }
-    [BindProperty] public List<AttendanceInput> Items { get; set; } = new();
-    [BindProperty] public string? CompleteNote { get; set; }
+    [BindProperty(SupportsGet = true)]
+    public long? SessionId { get; set; }
+
+    [BindProperty]
+    public List<AttendanceInput> Items { get; set; } = new();
+
+    [BindProperty]
+    public string? CompleteNote { get; set; }
 
     public long? TeacherId { get; set; }
     public string FullName { get; set; } = string.Empty;
@@ -26,8 +31,15 @@ public class AttendanceModel : PageModel
     public List<SessionAttendanceRosterItemDto> Roster { get; set; } = new();
     public int ClassRosterCount { get; set; }
     public int ActiveEnrollmentCount { get; set; }
+
     public bool CanEditAttendance { get; set; }
+    public bool CanCompleteSession { get; set; }
+    public bool CanCancelCompleteSession { get; set; }
+
     public string? Message { get; set; }
+
+    private const int PlannedStatus = 1;
+    private const int CompletedStatus = 2;
 
     public async Task OnGetAsync()
     {
@@ -37,9 +49,10 @@ public class AttendanceModel : PageModel
     public async Task<IActionResult> OnPostSaveAsync()
     {
         await LoadDataAsync();
+
         if (!SessionId.HasValue || !CanEditAttendance)
         {
-            Message = "Buổi học đã quá hạn chỉnh sửa điểm danh.";
+            Message = "Chỉ có thể sửa điểm danh trong ngày diễn ra session và khi session chưa hoàn tất.";
             return Page();
         }
 
@@ -64,13 +77,32 @@ public class AttendanceModel : PageModel
     public async Task<IActionResult> OnPostCompleteAsync()
     {
         await LoadDataAsync();
-        if (!SessionId.HasValue)
+
+        if (!SessionId.HasValue || !CanCompleteSession)
         {
+            Message = "Chỉ có thể hoàn tất buổi học trong ngày diễn ra session khi session chưa hoàn tất.";
             return Page();
         }
 
         var ok = await _apiClient.PutAsync($"classsessions/{SessionId.Value}/complete", new { Note = CompleteNote });
         Message = ok ? "Đã hoàn tất buổi học." : "Không thể hoàn tất buổi học.";
+
+        await LoadDataAsync();
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostCancelCompleteAsync()
+    {
+        await LoadDataAsync();
+
+        if (!SessionId.HasValue || !CanCancelCompleteSession)
+        {
+            Message = "Chỉ có thể mở lại buổi học đã hoàn tất trong chính ngày diễn ra session.";
+            return Page();
+        }
+
+        var ok = await _apiClient.PutAsync($"classsessions/{SessionId.Value}/reopen", new { Note = CompleteNote });
+        Message = ok ? "Đã mở lại buổi học để tiếp tục chỉnh sửa điểm danh." : "Không thể mở lại buổi học.";
 
         await LoadDataAsync();
         return Page();
@@ -82,7 +114,11 @@ public class AttendanceModel : PageModel
         TeacherId = me?.TeacherId;
         FullName = me?.FullName ?? string.Empty;
         UserName = me?.UserName ?? string.Empty;
-        if (!TeacherId.HasValue) return;
+
+        if (!TeacherId.HasValue)
+        {
+            return;
+        }
 
         var from = DateTime.Today.AddDays(-7).ToString("yyyy-MM-dd");
         var to = DateTime.Today.AddDays(14).ToString("yyyy-MM-dd");
@@ -90,27 +126,42 @@ public class AttendanceModel : PageModel
         var timetable = await _apiClient.GetAsync<PagedResult<TimetableItemDto>>(
             $"teachers/{TeacherId.Value}/timetable?PageNumber=1&PageSize=300&FromDate={from}&ToDate={to}&SortBy=SessionDate&SortDirection=asc");
 
-        Sessions = timetable?.Items?.OrderBy(x => x.SessionDate).ThenBy(x => x.StartTime).ToList() ?? new List<TimetableItemDto>();
-        if (!SessionId.HasValue && Sessions.Any()) SessionId = Sessions.First().SessionId;
+        Sessions = timetable?.Items?
+            .OrderBy(x => x.SessionDate)
+            .ThenBy(x => x.StartTime)
+            .ToList()
+            ?? new List<TimetableItemDto>();
 
-        if (!SessionId.HasValue) return;
+        if (!SessionId.HasValue && Sessions.Any())
+        {
+            SessionId = Sessions.First().SessionId;
+        }
+
+        if (!SessionId.HasValue)
+        {
+            return;
+        }
 
         SelectedSession = Sessions.FirstOrDefault(x => x.SessionId == SessionId.Value);
-        Roster = await _apiClient.GetAsync<List<SessionAttendanceRosterItemDto>>($"attendance/session/{SessionId.Value}/roster") ?? new List<SessionAttendanceRosterItemDto>();
+
+        Roster = await _apiClient.GetAsync<List<SessionAttendanceRosterItemDto>>(
+            $"attendance/session/{SessionId.Value}/roster") ?? new List<SessionAttendanceRosterItemDto>();
 
         if (SelectedSession != null)
         {
-            var classRoster = await _apiClient.GetAsync<List<ClassRosterItemDto>>($"classes/{SelectedSession.ClassId}/roster") ?? new List<ClassRosterItemDto>();
+            var classRoster = await _apiClient.GetAsync<List<ClassRosterItemDto>>(
+                $"classes/{SelectedSession.ClassId}/roster") ?? new List<ClassRosterItemDto>();
+
             ClassRosterCount = classRoster.Count;
             ActiveEnrollmentCount = classRoster.Count(x => x.EnrollmentStatus == 1);
         }
-
-        var sessionDate = DateOnly.MinValue;
-        if (SelectedSession != null && DateOnly.TryParse(SelectedSession.SessionDate, out var parsedDate))
+        else
         {
-            sessionDate = parsedDate;
+            ClassRosterCount = 0;
+            ActiveEnrollmentCount = 0;
         }
-        CanEditAttendance = sessionDate == DateOnly.FromDateTime(DateTime.Today) && SelectedSession?.Status != 2;
+
+        SetPermissions();
 
         if (!Items.Any() || Items.Count != Roster.Count)
         {
@@ -121,6 +172,31 @@ public class AttendanceModel : PageModel
                 Note = x.Note
             }).ToList();
         }
+    }
+
+    private void SetPermissions()
+    {
+        CanEditAttendance = false;
+        CanCompleteSession = false;
+        CanCancelCompleteSession = false;
+
+        if (SelectedSession == null)
+        {
+            return;
+        }
+
+        if (!DateOnly.TryParse(SelectedSession.SessionDate, out var sessionDate))
+        {
+            return;
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var isToday = sessionDate == today;
+        var isCompleted = SelectedSession.Status == CompletedStatus;
+
+        CanEditAttendance = isToday && !isCompleted;
+        CanCompleteSession = isToday && !isCompleted;
+        CanCancelCompleteSession = isToday && isCompleted;
     }
 
     public class AttendanceInput

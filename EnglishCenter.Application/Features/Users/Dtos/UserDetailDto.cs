@@ -11,4 +11,6 @@ public class UserDetailDto
     public DateTime? LastLoginAt { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
+    public List<string> RoleNames { get; set; } = new();
+    public string RoleDisplay { get; set; } = string.Empty;
 }

@@ -1,3 +1,6 @@
+using EnglishCenter.Application.Commons.Models.Response;
+using EnglishCenter.Application.Features.Roles;
+using EnglishCenter.Application.Features.Roles.Dtos;
 using EnglishCenter.Application.Features.UserRoles;
 using EnglishCenter.Application.Features.UserRoles.Dtos;
 using Microsoft.AspNetCore.Authorization;
@@ -11,10 +14,12 @@ namespace EnglishCenter.Api.Controllers;
 public class CampusAdminUserRolesController : ControllerBase
 {
     private readonly UserRoleService _userRoleService;
+    private readonly RoleService _roleService;
 
-    public CampusAdminUserRolesController(UserRoleService userRoleService)
+    public CampusAdminUserRolesController(UserRoleService userRoleService, RoleService roleService)
     {
         _userRoleService = userRoleService;
+        _roleService = roleService;
     }
 
     [HttpGet("{userId:long}")]
@@ -43,5 +48,12 @@ public class CampusAdminUserRolesController : ControllerBase
     {
         await _userRoleService.ReplaceRolesAsync(request);
         return Ok();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var result = await _roleService.GetAllAsync();
+        return Ok(ApiResponse<List<RoleDto>>.SuccessResponse(result, "Get roles successfully"));
     }
 }

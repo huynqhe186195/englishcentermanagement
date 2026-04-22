@@ -43,9 +43,8 @@
         </div>
         <div class="col-md-4 mb-3">
             <label class="form-label">Campus</label>
-            <select asp-for="Input.CampusId" class="form-select" asp-items="Model.Campuses">
-                <option value="">-- Select campus --</option>
-            </select>
+            <input type="text" class="form-control" value="@Model.CurrentCampusName" readonly />
+            <input asp-for="Input.CampusId" type="hidden" />
         </div>
         <div class="col-md-4 mb-3">
             <label class="form-label">Room</label>

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using EnglishCenter.Web.Models;
 using EnglishCenter.Web.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +38,10 @@ public class IndexModel : PageModel
     public UserDetailDto? RoleTargetUser { get; set; }
     public List<UserRoleDto> CurrentRoles { get; set; } = new();
     public Dictionary<long, string> UserRoleBadges { get; set; } = new();
+    public List<RoleDto> AssignableRoles { get; set; } = new();
+
+    [BindProperty]
+    public long? CreateRoleId { get; set; }
 
     [BindProperty]
     public CreateUserRequestDto CreateInput { get; set; } = new()
@@ -74,6 +78,8 @@ public class IndexModel : PageModel
             return RedirectToPage();
         }
 
+        await LoadAssignableRolesAsync();
+
         if (string.IsNullOrWhiteSpace(CreateInput.UserName)
             || string.IsNullOrWhiteSpace(CreateInput.PasswordHash)
             || string.IsNullOrWhiteSpace(CreateInput.FullName))
@@ -82,10 +88,17 @@ public class IndexModel : PageModel
             return RedirectToPage();
         }
 
+        if (!CreateRoleId.HasValue || CreateRoleId.Value <= 0)
+        {
+            TempData["ErrorMessage"] = "Role is required.";
+            return RedirectToPage();
+        }
+
         CreateInput.UserName = CreateInput.UserName.Trim();
         CreateInput.FullName = CreateInput.FullName.Trim();
         CreateInput.Email = string.IsNullOrWhiteSpace(CreateInput.Email) ? null : CreateInput.Email.Trim();
         CreateInput.PhoneNumber = string.IsNullOrWhiteSpace(CreateInput.PhoneNumber) ? null : CreateInput.PhoneNumber.Trim();
+        CreateInput.RoleIds = new List<long> { CreateRoleId.Value };
 
         var ok = await _apiClient.PostAsync("campus-admin/users", new
         {
@@ -94,12 +107,40 @@ public class IndexModel : PageModel
             email = CreateInput.Email,
             phoneNumber = CreateInput.PhoneNumber,
             fullName = CreateInput.FullName,
-            status = CreateInput.Status
+            status = CreateInput.Status,
+            roleIds = CreateInput.RoleIds
         });
 
-        TempData[ok ? "SuccessMessage" : "ErrorMessage"] = ok
-            ? "Campus user created successfully."
-            : "Failed to create campus user.";
+        if (!ok)
+        {
+            TempData["ErrorMessage"] = "Failed to create campus user.";
+            return RedirectToPage();
+        }
+
+        // Query lại danh sách user để tìm user vừa tạo
+        var userPaged = await _apiClient.GetAsync<PagedResult<UserDto>>("campus-admin/users?pageNumber=1&pageSize=200");
+        var createdUser = userPaged?.Items?
+            .FirstOrDefault(x => string.Equals(x.UserName, CreateInput.UserName, StringComparison.OrdinalIgnoreCase));
+
+        TempData["SuccessMessage"] = "Campus user created successfully.";
+
+        if (createdUser == null)
+        {
+            return RedirectToPage();
+        }
+
+        var selectedRole = AssignableRoles.FirstOrDefault(x => x.Id == CreateRoleId.Value);
+        var selectedRoleCode = selectedRole?.Code?.Trim().ToUpperInvariant();
+
+        if (selectedRoleCode == "STUDENT")
+        {
+            return RedirectToPage("./CreateStudentProfile", new { userId = createdUser.Id });
+        }
+
+        if (selectedRoleCode == "TEACHER")
+        {
+            return RedirectToPage("./CreateTeacherProfile", new { userId = createdUser.Id });
+        }
 
         return RedirectToPage();
     }
@@ -224,6 +265,8 @@ public class IndexModel : PageModel
 
     private async Task LoadDataAsync()
     {
+        await LoadAssignableRolesAsync();
+
         var userPaged = await _apiClient.GetAsync<PagedResult<UserDto>>($"campus-admin/users?pageNumber={PageNumber}&pageSize={PageSize}");
 
         Users = userPaged?.Items?.ToList() ?? new List<UserDto>();
@@ -235,14 +278,18 @@ public class IndexModel : PageModel
             var roleTasks = Users.Select(async u =>
             {
                 var roles = await _apiClient.GetAsync<List<UserRoleDto>>($"campus-admin/user-roles/{u.Id}") ?? new List<UserRoleDto>();
-                var roleCode = roles
-                    .Select(r => r.RoleCode)
-                    .FirstOrDefault(code => !string.IsNullOrWhiteSpace(code)) ?? "-";
-                return (u.Id, Roles: roles, RoleCode: roleCode);
+
+                var roleLabel = roles
+                    .Select(ResolveRoleDisplayName)
+                    .Where(label => !string.IsNullOrWhiteSpace(label))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                return (u.Id, Roles: roles, RoleLabel: roleLabel.Any() ? string.Join(", ", roleLabel) : "-");
             });
 
             var roleResults = await Task.WhenAll(roleTasks);
-            UserRoleBadges = roleResults.ToDictionary(x => x.Id, x => x.RoleCode);
+            UserRoleBadges = roleResults.ToDictionary(x => x.Id, x => x.RoleLabel);
 
             if (!string.IsNullOrWhiteSpace(RoleCode))
             {
@@ -297,6 +344,7 @@ public class IndexModel : PageModel
             roles.Contains("CENTER_ADMIN", StringComparer.OrdinalIgnoreCase)
             || roles.Contains("MANAGER", StringComparer.OrdinalIgnoreCase)
             || roles.Contains("ADMIN", StringComparer.OrdinalIgnoreCase);
+
         return IsCenterAdmin;
     }
 
@@ -309,6 +357,36 @@ public class IndexModel : PageModel
             .Where(x => x > 0)
             .Distinct()
             .ToList();
+    }
+
+    private async Task LoadAssignableRolesAsync()
+    {
+        var roles = await _apiClient.GetAsync<List<RoleDto>>("campus-admin/user-roles")
+            ?? new List<RoleDto>();
+
+        AssignableRoles = roles
+            .Where(x => CampusAdminAssignableRoleCodes.Any(code => string.Equals(code, x.Code, StringComparison.OrdinalIgnoreCase)))
+            .OrderBy(x => x.Name)
+            .ToList();
+    }
+
+    private static string ResolveRoleDisplayName(UserRoleDto role)
+    {
+        if (!string.IsNullOrWhiteSpace(role.RoleName)) return role.RoleName.Trim();
+        if (!string.IsNullOrWhiteSpace(role.RoleCode)) return role.RoleCode.Trim();
+        return string.Empty;
+    }
+
+    private static readonly string[] CampusAdminAssignableRoleCodes = ["STAFF", "TEACHER", "PARENT", "STUDENT"];
+
+    public class ApiCreateUserEnvelope
+    {
+        public CreateUserResultDto? Data { get; set; }
+    }
+
+    public class CreateUserResultDto
+    {
+        public long Id { get; set; }
     }
 
     public class UpdateUserInput

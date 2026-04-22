@@ -43,7 +43,7 @@ public class PaymentsModel : PageModel
         var url = "payments?PageNumber=1&PageSize=30";
         if (InvoiceId.HasValue) url += $"&InvoiceId={InvoiceId.Value}";
         var data = await _apiClient.GetAsync<PagedResult<PaymentDto>>(url);
-        Items = data?.Items ?? new List<PaymentDto>();
+        Items = (List<PaymentDto>)(data?.Items ?? new List<PaymentDto>());
 
         var invoices = await _apiClient.GetAsync<PagedResult<InvoiceDto>>("invoices?PageNumber=1&PageSize=200");
         Invoices = invoices?.Items.Select(x => new SelectListItem($"{x.InvoiceNo} - {x.FinalAmount:N0}", x.Id.ToString())).ToList() ?? new List<SelectListItem>();
