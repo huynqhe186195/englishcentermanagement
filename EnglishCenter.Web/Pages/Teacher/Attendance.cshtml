@@ -1,55 +1,106 @@
-﻿@page
+@page
+@model EnglishCenter.Web.Pages.Teacher.AttendanceModel
 @{
     ViewData["Title"] = "Attendance";
 }
 
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-        <div class="row g-3">
-            <div class="col-md-3">
-                <label class="form-label">Session</label>
-                <select class="form-select">
-                    <option>Session 01 - TOEIC-MOR-01</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Date</label>
-                <input class="form-control" value="2026-05-22" readonly />
-            </div>
-            <div class="col-md-3 d-flex align-items-end">
-                <button class="btn btn-success">Save Attendance</button>
-            </div>
+<h3 class="mb-3">Điểm danh buổi học</h3>
+
+@if (!string.IsNullOrWhiteSpace(Model.Message))
+{
+    <div class="alert alert-info">@Model.Message</div>
+}
+
+@if (!Model.TeacherId.HasValue)
+{
+    <div class="alert alert-warning">Không tìm thấy hồ sơ giáo viên cho tài khoản hiện tại.</div>
+    return;
+}
+
+@if (!Model.Sessions.Any())
+{
+    <div class="alert alert-info">Không có session nào thuộc quyền giảng dạy của bạn.</div>
+    return;
+}
+
+<form method="get" class="card border-0 shadow-sm mb-3">
+    <div class="card-body row g-3 align-items-end">
+        <div class="col-md-6">
+            <label class="form-label">Session</label>
+            <select class="form-select" name="SessionId" onchange="this.form.submit()">
+                @foreach (var s in Model.Sessions)
+                {
+                    <option value="@s.SessionId" selected="@(s.SessionId == Model.SessionId)">
+                        @s.SessionDate - Class @s.ClassId - Session #@s.SessionNo (@s.StartTime-@s.EndTime)
+                    </option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <div class="small text-muted">Trạng thái session</div>
+            <div>@(Model.SelectedSession?.Status == 1 ? "Planned" : Model.SelectedSession?.Status == 2 ? "Completed" : "Cancelled")</div>
+        </div>
+        <div class="col-md-3">
+            @if (Model.CanEditAttendance)
+            {
+                <span class="badge text-bg-success">Có thể sửa điểm danh trong ngày</span>
+            }
+            else
+            {
+                <span class="badge text-bg-secondary">Đã khóa sửa điểm danh</span>
+            }
         </div>
     </div>
-</div>
+</form>
 
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white fw-semibold">Session Roster</div>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>#</th>
-                    <th>Student Code</th>
-                    <th>Full Name</th>
-                    <th>Status</th>
-                    <th>Note</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>ST001</td>
-                    <td>Nguyen Van A</td>
-                    <td>
-                        <select class="form-select form-select-sm attendance-status">
-                            <option value="present">Present</option>
-                            <option value="absent">Absent</option>
-                        </select>
-                    </td>
-                    <td><input class="form-control form-control-sm" placeholder="Optional note" /></td>
-                </tr>
-            </tbody>
-        </table>
+<form method="post" asp-page-handler="Save">
+    <input type="hidden" name="SessionId" value="@Model.SessionId" />
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white fw-semibold">Roster của session</div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr><th>#</th><th>Mã HV</th><th>Họ tên</th><th>Trạng thái</th><th>Ghi chú</th></tr>
+                </thead>
+                <tbody>
+                @for (var i = 0; i < Model.Roster.Count; i++)
+                {
+                    <tr>
+                        <td>@(i + 1)</td>
+                        <td>@Model.Roster[i].StudentCode</td>
+                        <td>@Model.Roster[i].FullName</td>
+                        <td>
+                            <input type="hidden" asp-for="Items[i].StudentId" value="@Model.Roster[i].StudentId" />
+                            <select asp-for="Items[i].Status" class="form-select form-select-sm" disabled="@(!Model.CanEditAttendance)">
+                                <option value="0">Not Marked</option>
+                                <option value="1">Present</option>
+                                <option value="2">Absent</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input asp-for="Items[i].Note" class="form-control form-control-sm" disabled="@(!Model.CanEditAttendance)" />
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
+
+    <div class="d-flex gap-2 mb-4">
+        <button class="btn btn-success" type="submit" @(Model.CanEditAttendance ? null : "disabled")>Lưu điểm danh</button>
+    </div>
+</form>
+
+<form method="post" asp-page-handler="Complete" class="card border-0 shadow-sm">
+    <input type="hidden" name="SessionId" value="@Model.SessionId" />
+    <div class="card-body row g-3 align-items-end">
+        <div class="col-md-8">
+            <label class="form-label">Ghi chú hoàn tất buổi học</label>
+            <input asp-for="CompleteNote" class="form-control" placeholder="Optional" />
+        </div>
+        <div class="col-md-4 d-grid">
+            <button class="btn btn-primary" type="submit" @(Model.SelectedSession?.Status == 2 ? "disabled" : null)>Complete session</button>
+        </div>
+    </div>
+</form>

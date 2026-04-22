@@ -1,0 +1,57 @@
+@page
+@model EnglishCenter.Web.Pages.Teacher.TimetableModel
+@{
+    ViewData["Title"] = "Timetable";
+}
+
+<h3 class="mb-3">Lịch dạy của tôi</h3>
+
+@if (!Model.TeacherId.HasValue)
+{
+    <div class="alert alert-warning">Không tìm thấy hồ sơ giáo viên cho tài khoản hiện tại.</div>
+    return;
+}
+
+<form method="get" class="row g-3 mb-3">
+    <div class="col-md-3">
+        <label class="form-label">Từ ngày</label>
+        <input type="date" name="FromDate" value="@Model.FromDate" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Đến ngày</label>
+        <input type="date" name="ToDate" value="@Model.ToDate" class="form-control" />
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+        <button class="btn btn-primary w-100">Lọc</button>
+    </div>
+</form>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+            <tr><th>Ngày</th><th>Giờ</th><th>Lớp</th><th>Phòng</th><th>Trạng thái</th><th></th></tr>
+            </thead>
+            <tbody>
+            @if (!Model.Sessions.Any())
+            {
+                <tr><td colspan="6" class="text-center text-muted py-4">Không có buổi học trong khoảng thời gian đã chọn.</td></tr>
+            }
+            else
+            {
+                @foreach (var s in Model.Sessions)
+                {
+                    <tr>
+                        <td>@s.SessionDate</td>
+                        <td>@s.StartTime - @s.EndTime</td>
+                        <td>@s.ClassId (#@s.SessionNo)</td>
+                        <td>@(s.RoomId?.ToString() ?? "--")</td>
+                        <td>@(s.Status == 1 ? "Planned" : s.Status == 2 ? "Completed" : s.Status == 3 ? "Cancelled" : "Unknown")</td>
+                        <td><a asp-page="/Teacher/Attendance" asp-route-sessionId="@s.SessionId" class="btn btn-sm btn-outline-primary">Điểm danh</a></td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

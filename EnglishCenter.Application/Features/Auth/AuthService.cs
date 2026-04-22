@@ -410,6 +410,12 @@ public class AuthService
             .Select(x => (long?)x.Id)
             .FirstOrDefaultAsync();
 
+        var teacherId = await _context.Teachers
+            .AsNoTracking()
+            .Where(x => x.UserId == user.Id && !x.IsDeleted)
+            .Select(x => (long?)x.Id)
+            .FirstOrDefaultAsync();
+
         return new CurrentUserDto
         {
             UserId = user.Id,
@@ -417,6 +423,7 @@ public class AuthService
             FullName = user.FullName,
             Email = user.Email,
             StudentId = studentId,
+            TeacherId = teacherId,
             Roles = _currentUserService.Roles,
             Permissions = _currentUserService.Permissions
         };
