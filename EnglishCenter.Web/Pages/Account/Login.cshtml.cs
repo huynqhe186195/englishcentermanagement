@@ -78,6 +78,7 @@ public class LoginModel : PageModel
             HttpContext.Session.SetString("AccessToken", loginResp.AccessToken ?? string.Empty);
             HttpContext.Session.SetString("RefreshToken", loginResp.RefreshToken ?? string.Empty);
             HttpContext.Session.SetString("UserName", loginResp.UserName ?? string.Empty);
+            HttpContext.Session.SetString("FullName", loginResp.FullName ?? string.Empty);
             var roles = (loginResp.Roles ?? new List<string>())
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Distinct(StringComparer.OrdinalIgnoreCase)

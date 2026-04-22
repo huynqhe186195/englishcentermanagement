@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using EnglishCenter.Web.Models;
 using EnglishCenter.Web.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -24,6 +25,8 @@ public class ProfileModel : PageModel
     public string UserName { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
     public long StudentId { get; set; }
+    [BindProperty(SupportsGet = true)]
+    public string? ReturnUrl { get; set; }
 
     public StudentProfileDetailDto Student { get; set; } = new();
 
@@ -58,7 +61,14 @@ public class ProfileModel : PageModel
 
         if (ok)
         {
+            var profileCompleted = IsProfileCompleted(ProfileForm);
+            HttpContext.Session.SetString("HasCompletedStudentProfile", profileCompleted ? "true" : "false");
             await LoadProfileAsync();
+
+            if (!string.IsNullOrWhiteSpace(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+            {
+                return Redirect(ReturnUrl);
+            }
         }
 
         return Page();
@@ -140,6 +150,18 @@ public class ProfileModel : PageModel
         }
 
         return (false, ExtractErrorMessage(content, (int)response.StatusCode));
+    }
+
+    private static bool IsProfileCompleted(UpdateStudentProfileRequestDto profile)
+    {
+        return !string.IsNullOrWhiteSpace(profile.FullName)
+            && profile.DateOfBirth.HasValue
+            && profile.Gender.HasValue
+            && !string.IsNullOrWhiteSpace(profile.Phone)
+            && !string.IsNullOrWhiteSpace(profile.Email)
+            && !string.IsNullOrWhiteSpace(profile.SchoolName)
+            && !string.IsNullOrWhiteSpace(profile.EnglishLevel)
+            && profile.Status == 1;
     }
 
     private static string ExtractErrorMessage(string content, int statusCode)

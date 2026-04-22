@@ -17,6 +17,7 @@ public class IndexModel : PageModel
     public List<CourseDto> Courses { get; set; } = new();
     public bool IsStudentLoggedIn { get; set; }
     public bool HasAnyEnrollment { get; set; }
+    public string StudentDisplayName { get; set; } = string.Empty;
     public string PrimaryCtaText => !IsStudentLoggedIn
         ? "Đăng ký ngay"
         : (HasAnyEnrollment ? "Vào học tập" : "Đăng ký khóa học");
@@ -46,7 +47,7 @@ public class IndexModel : PageModel
         }
 
         return courseId.HasValue
-            ? $"/Courses/Enroll?courseId={courseId.Value}"
+            ? $"/Courses/Details?id={courseId.Value}"
             : "/Courses/Index";
     }
 
@@ -58,6 +59,9 @@ public class IndexModel : PageModel
             : JsonSerializer.Deserialize<List<string>>(rawRoles) ?? new List<string>();
 
         IsStudentLoggedIn = roles.Contains("STUDENT", StringComparer.OrdinalIgnoreCase);
+        StudentDisplayName = HttpContext.Session.GetString("FullName")
+            ?? HttpContext.Session.GetString("UserName")
+            ?? "Học viên";
         HasAnyEnrollment = string.Equals(
             HttpContext.Session.GetString("HasAnyEnrollment"),
             "true",
