@@ -1,3 +1,4 @@
+using EnglishCenter.Web.Models;
 using EnglishCenter.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -34,7 +35,7 @@ public class IndexModel : PageModel
         }
 
         var paged = await _apiClient.GetAsync<PagedResult<AuditLogVm>>(url);
-        Logs = paged?.Items ?? new List<AuditLogVm>();
+        Logs = (List<AuditLogVm>)(paged?.Items ?? new List<AuditLogVm>());
     }
 
     public class AuditLogVm

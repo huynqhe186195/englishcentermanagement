@@ -35,7 +35,7 @@ public class DashboardModel : PageModel
             .ToList();
 
         var logs = await _apiClient.GetAsync<PagedResult<AuditLogVm>>("auditlogs?pageNumber=1&pageSize=3&SortBy=CreatedAt&SortDirection=desc");
-        RecentActivities = logs?.Items ?? new List<AuditLogVm>();
+        RecentActivities = (List<AuditLogVm>)(logs?.Items ?? new List<AuditLogVm>());
     }
 
     public class AuditLogVm
