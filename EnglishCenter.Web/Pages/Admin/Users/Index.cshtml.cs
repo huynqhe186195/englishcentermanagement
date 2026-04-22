@@ -41,13 +41,13 @@ public class IndexModel : PageModel
     public List<RoleDto> AssignableRoles { get; set; } = new();
 
     [BindProperty]
+    public long? SelectedRoleId { get; set; }
+
+    [BindProperty]
     public CreateUserRequestDto CreateInput { get; set; } = new()
     {
         Status = 1
     };
-
-    [BindProperty]
-    public long? CreateRoleId { get; set; }
 
     [BindProperty]
     public UpdateUserInput UpdateInput { get; set; } = new();
@@ -100,7 +100,7 @@ public class IndexModel : PageModel
         CreateInput.PhoneNumber = string.IsNullOrWhiteSpace(CreateInput.PhoneNumber) ? null : CreateInput.PhoneNumber.Trim();
         CreateInput.RoleIds = new List<long> { CreateRoleId.Value };
 
-        var created = await _apiClient.PostAsync<object,ApiCreateUserEnvelope>("campus-admin/users", new
+        var created = await _apiClient.PostAsync<object, ApiCreateUserEnvelope>("campus-admin/users", new
         {
             userName = CreateInput.UserName,
             passwordHash = CreateInput.PasswordHash,
@@ -352,8 +352,8 @@ public class IndexModel : PageModel
 
     private async Task LoadAssignableRolesAsync()
     {
-        var rolePaged = await _apiClient.GetAsync<PagedResult<RoleDto>>("roles?pageNumber=1&pageSize=200");
-        var roles = rolePaged?.Items?.ToList() ?? new List<RoleDto>();
+        var roles = await _apiClient.GetAsync<List<RoleDto>>("campus-admin/user-roles")
+            ?? new List<RoleDto>();
 
         AssignableRoles = roles
             .Where(x => CampusAdminAssignableRoleCodes.Any(code => string.Equals(code, x.Code, StringComparison.OrdinalIgnoreCase)))
