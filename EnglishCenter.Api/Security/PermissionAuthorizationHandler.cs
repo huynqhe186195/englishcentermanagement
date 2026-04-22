@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EnglishCenter.Api.Security;
 
@@ -10,7 +11,7 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
     {
         var hasPermission = context.User.Claims.Any(x =>
             x.Type == "permission" &&
-            x.Value == requirement.Permission);
+            string.Equals(x.Value, requirement.Permission, StringComparison.OrdinalIgnoreCase));
 
         if (hasPermission)
         {

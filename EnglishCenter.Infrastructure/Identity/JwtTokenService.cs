@@ -39,7 +39,10 @@ public class JwtTokenService : IJwtTokenService
             claims.Add(new Claim(ClaimTypes.Role, role));
         }
 
-        foreach (var permission in permissions.Distinct())
+        foreach (var permission in permissions
+                     .Where(x => !string.IsNullOrWhiteSpace(x))
+                     .Select(x => x.Trim().ToLowerInvariant())
+                     .Distinct())
         {
             claims.Add(new Claim("permission", permission));
         }

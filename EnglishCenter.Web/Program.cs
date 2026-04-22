@@ -132,7 +132,7 @@ app.Use(async (context, next) =>
             return;
         }
 
-        if (!hasRole("CENTER_ADMIN") && !hasRole("MANAGER") && !hasRole("ADMIN"))
+        if (!hasRole("CENTER_ADMIN") && !hasRole("MANAGER") && !hasRole("ADMIN") && !hasRole("STAFF"))
         {
             context.Response.Redirect("/Account/Login");
             return;
