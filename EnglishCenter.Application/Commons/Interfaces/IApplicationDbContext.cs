@@ -14,6 +14,10 @@ public interface IApplicationDbContext
     DbSet<Assignment> Assignments { get; }
     DbSet<Score> Scores { get; }
     DbSet<Student> Students { get; }
+    DbSet<Parent> Parents { get; }
+    DbSet<StudentParent> StudentParents { get; }
+    DbSet<AssignmentSubmission> AssignmentSubmissions { get; }
+    DbSet<ProgressReport> ProgressReports { get; }
     DbSet<Role> Roles { get; }
     DbSet<User> Users { get; }
     DbSet<Notification> Notifications { get; }

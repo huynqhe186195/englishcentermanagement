@@ -8,6 +8,8 @@ using EnglishCenter.Domain.Constants;
 using EnglishCenter.Infrastructure;
 using EnglishCenter.Infrastructure.Persistence.Seed;
 using EnglishCenter.Infrastructure.Services;
+using EnglishCenter.Infrastructure.Persistence.Context;
+using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -143,8 +145,20 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    // apply pending EF Core migrations (creates database if it does not exist)
+    var db = scope.ServiceProvider.GetRequiredService<EnglishCenterDbContext>();
+    await db.Database.MigrateAsync();
+
+    // seed identity data
     var seeder = scope.ServiceProvider.GetRequiredService<IdentitySeeder>();
     await seeder.SeedAsync();
+
+    // optional: seed sample application data if available
+    var sampleSeeder = scope.ServiceProvider.GetService<SampleDataSeeder>();
+    if (sampleSeeder != null)
+    {
+        await sampleSeeder.SeedAsync();
+    }
 }
 
 app.UseSerilogRequestLogging();
