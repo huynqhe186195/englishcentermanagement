@@ -16,8 +16,6 @@
     </div>
 </section>
 
-
-
 <section class="admin-surface mb-3">
     <div class="d-flex align-items-center flex-wrap gap-2">
         <span class="text-muted small">Lọc nhanh theo role:</span>
@@ -51,27 +49,33 @@ else
                 <p>Tạo tài khoản mới trong campus hiện tại.</p>
             </div>
         </div>
+
         <form method="post" asp-page-handler="Create" class="row g-3 admin-form-grid">
             <div class="col-md-4">
                 <label class="form-label">UserName</label>
                 <input asp-for="CreateInput.UserName" class="form-control" required />
             </div>
+
             <div class="col-md-4">
                 <label class="form-label">Password</label>
                 <input asp-for="CreateInput.PasswordHash" class="form-control" required />
             </div>
+
             <div class="col-md-4">
                 <label class="form-label">Full Name</label>
                 <input asp-for="CreateInput.FullName" class="form-control" required />
             </div>
+
             <div class="col-md-4">
                 <label class="form-label">Email</label>
                 <input asp-for="CreateInput.Email" type="email" class="form-control" />
             </div>
+
             <div class="col-md-4">
                 <label class="form-label">Phone</label>
                 <input asp-for="CreateInput.PhoneNumber" class="form-control" />
             </div>
+
             <div class="col-md-2">
                 <label class="form-label">Status</label>
                 <select asp-for="CreateInput.Status" class="form-select">
@@ -79,9 +83,10 @@ else
                     <option value="0">Inactive</option>
                 </select>
             </div>
+
             <div class="col-md-4">
                 <label class="form-label">Role</label>
-                <select asp-for="CreateRoleId" class="form-select">
+                <select asp-for="CreateRoleId" class="form-select" required>
                     <option value="">-- Chọn role --</option>
                     @foreach (var role in Model.AssignableRoles)
                     {
@@ -89,6 +94,7 @@ else
                     }
                 </select>
             </div>
+
             <div class="col-md-2 d-flex align-items-end">
                 <button type="submit" class="btn btn-primary w-100">Create</button>
             </div>
@@ -105,24 +111,30 @@ else
                 </div>
                 <a class="btn btn-sm btn-outline-secondary" asp-page="./Index">Cancel</a>
             </div>
+
             <form method="post" asp-page-handler="Update" class="row g-3 admin-form-grid">
                 <input asp-for="UpdateInput.Id" type="hidden" value="@Model.EditingUser.Id" />
+
                 <div class="col-md-4">
                     <label class="form-label">Full Name</label>
                     <input asp-for="UpdateInput.FullName" class="form-control" required />
                 </div>
+
                 <div class="col-md-4">
                     <label class="form-label">Email</label>
                     <input asp-for="UpdateInput.Email" type="email" class="form-control" />
                 </div>
+
                 <div class="col-md-4">
                     <label class="form-label">Phone</label>
                     <input asp-for="UpdateInput.PhoneNumber" class="form-control" />
                 </div>
+
                 <div class="col-md-4">
                     <label class="form-label">Password (optional)</label>
                     <input asp-for="UpdateInput.PasswordHash" class="form-control" />
                 </div>
+
                 <div class="col-md-2">
                     <label class="form-label">Status</label>
                     <select asp-for="UpdateInput.Status" class="form-select">
@@ -130,6 +142,7 @@ else
                         <option value="0">Inactive</option>
                     </select>
                 </div>
+
                 <div class="col-md-2 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary w-100">Save</button>
                 </div>
@@ -144,6 +157,7 @@ else
                 <p>Tổng số bản ghi: @Model.TotalRecords</p>
             </div>
         </div>
+
         <div class="table-responsive">
             <table class="table admin-modern-table align-middle mb-0">
                 <thead>
@@ -159,7 +173,9 @@ else
                 <tbody>
                     @if (!Model.Users.Any())
                     {
-                        <tr><td colspan="6" class="text-center text-muted py-4">No users found.</td></tr>
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">No users found.</td>
+                        </tr>
                     }
                     else
                     {
@@ -169,7 +185,11 @@ else
                                 <td>@user.FullName</td>
                                 <td>@user.UserName</td>
                                 <td>@(string.IsNullOrWhiteSpace(user.Email) ? "-" : user.Email)</td>
-                                <td><span class="admin-role-badge">@(Model.UserRoleBadges.TryGetValue(user.Id, out var roleCode) ? roleCode : "-")</span></td>
+                                <td>
+                                    <span class="admin-role-badge">
+                                        @(Model.UserRoleBadges.TryGetValue(user.Id, out var roleCode) ? roleCode : "-")
+                                    </span>
+                                </td>
                                 <td>
                                     <span class="badge @(user.Status == 1 ? "text-bg-success" : "text-bg-secondary")">
                                         @(user.Status == 1 ? "Active" : "Inactive")
@@ -205,7 +225,7 @@ else
         </nav>
     }
 
-    if (Model.RoleTargetUser != null)
+    @if (Model.RoleTargetUser != null)
     {
         <section class="admin-surface mt-4">
             <div class="admin-surface-head mb-2">
@@ -250,6 +270,7 @@ else
                         </div>
                     </form>
                 </div>
+
                 <div class="col-md-6">
                     <h6>Replace roles (comma RoleIds)</h6>
                     <form method="post" asp-page-handler="ReplaceRoles" class="row g-2">
@@ -262,7 +283,6 @@ else
                         </div>
                     </form>
                 </div>
-
             </div>
         </section>
     }
