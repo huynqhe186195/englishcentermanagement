@@ -45,7 +45,6 @@ public class IndexModel : PageModel
             name = CreateInput.Name.Trim(),
             address = string.IsNullOrWhiteSpace(CreateInput.Address) ? null : CreateInput.Address.Trim(),
             phone = string.IsNullOrWhiteSpace(CreateInput.Phone) ? null : CreateInput.Phone.Trim(),
-            maxStudents = CreateInput.MaxStudents,
             status = CreateInput.Status
         });
 
@@ -164,7 +163,6 @@ public class IndexModel : PageModel
         public string Name { get; set; } = string.Empty;
         public string? Address { get; set; }
         public string? Phone { get; set; }
-        public int MaxStudents { get; set; } = 100;
         public int Status { get; set; } = 1;
     }
 
