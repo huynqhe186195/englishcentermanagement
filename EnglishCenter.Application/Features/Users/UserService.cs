@@ -46,6 +46,26 @@ public class UserService
         _context.Users.Add(entity);
         await _context.SaveChangesAsync();
 
+        if (request.RoleIds != null && request.RoleIds.Any())
+        {
+            var validRoleIds = await _context.Roles
+                .Where(r => request.RoleIds.Contains(r.Id))
+                .Select(r => r.Id)
+                .ToListAsync();
+
+            foreach (var roleId in validRoleIds.Distinct())
+            {
+                _context.UserRoles.Add(new UserRole
+                {
+                    UserId = entity.Id,
+                    RoleId = roleId,
+                    AssignedAt = DateTime.UtcNow
+                });
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
         return entity.Id;
     }
 
@@ -225,8 +245,6 @@ public class UserService
 
     public async Task<long> CreateInCampusAsync(CreateUserRequestDto request, long campusId)
     {
-        await ValidateNoAdminRoleAssignmentAsync(request);
-
         var userName = request.UserName.Trim();
         var exists = await _context.Users.AnyAsync(x => x.UserName == userName && !x.IsDeleted);
         if (exists)
@@ -245,6 +263,26 @@ public class UserService
 
         _context.Users.Add(entity);
         await _context.SaveChangesAsync();
+
+        if (request.RoleIds != null && request.RoleIds.Any())
+        {
+            var validRoleIds = await _context.Roles
+                .Where(r => request.RoleIds.Contains(r.Id))
+                .Select(r => r.Id)
+                .ToListAsync();
+
+            foreach (var roleId in validRoleIds.Distinct())
+            {
+                _context.UserRoles.Add(new UserRole
+                {
+                    UserId = entity.Id,
+                    RoleId = roleId,
+                    AssignedAt = DateTime.UtcNow
+                });
+            }
+
+            await _context.SaveChangesAsync();
+        }
 
         return entity.Id;
     }

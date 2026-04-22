@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using EnglishCenter.Web.Models;
 using EnglishCenter.Web.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +41,7 @@ public class IndexModel : PageModel
     public List<RoleDto> AssignableRoles { get; set; } = new();
 
     [BindProperty]
-    public long? SelectedRoleId { get; set; }
+    public long? CreateRoleId { get; set; }
 
     [BindProperty]
     public CreateUserRequestDto CreateInput { get; set; } = new()
@@ -100,7 +100,7 @@ public class IndexModel : PageModel
         CreateInput.PhoneNumber = string.IsNullOrWhiteSpace(CreateInput.PhoneNumber) ? null : CreateInput.PhoneNumber.Trim();
         CreateInput.RoleIds = new List<long> { CreateRoleId.Value };
 
-        var created = await _apiClient.PostAsync<object, ApiCreateUserEnvelope>("campus-admin/users", new
+        var ok = await _apiClient.PostAsync("campus-admin/users", new
         {
             userName = CreateInput.UserName,
             passwordHash = CreateInput.PasswordHash,
@@ -111,26 +111,35 @@ public class IndexModel : PageModel
             roleIds = CreateInput.RoleIds
         });
 
-        var createdUserId = created?.Data?.Id ?? 0;
-        if (createdUserId <= 0)
+        if (!ok)
         {
             TempData["ErrorMessage"] = "Failed to create campus user.";
+            return RedirectToPage();
+        }
+
+        // Query lại danh sách user để tìm user vừa tạo
+        var userPaged = await _apiClient.GetAsync<PagedResult<UserDto>>("campus-admin/users?pageNumber=1&pageSize=200");
+        var createdUser = userPaged?.Items?
+            .FirstOrDefault(x => string.Equals(x.UserName, CreateInput.UserName, StringComparison.OrdinalIgnoreCase));
+
+        TempData["SuccessMessage"] = "Campus user created successfully.";
+
+        if (createdUser == null)
+        {
             return RedirectToPage();
         }
 
         var selectedRole = AssignableRoles.FirstOrDefault(x => x.Id == CreateRoleId.Value);
         var selectedRoleCode = selectedRole?.Code?.Trim().ToUpperInvariant();
 
-        TempData["SuccessMessage"] = "Campus user created successfully.";
-
         if (selectedRoleCode == "STUDENT")
         {
-            return RedirectToPage("./CreateStudentProfile", new { userId = createdUserId });
+            return RedirectToPage("./CreateStudentProfile", new { userId = createdUser.Id });
         }
 
         if (selectedRoleCode == "TEACHER")
         {
-            return RedirectToPage("./CreateTeacherProfile", new { userId = createdUserId });
+            return RedirectToPage("./CreateTeacherProfile", new { userId = createdUser.Id });
         }
 
         return RedirectToPage();
