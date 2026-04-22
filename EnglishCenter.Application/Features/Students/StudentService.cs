@@ -433,6 +433,13 @@ public class StudentService
 
     public async Task<bool> UpdateAsync(long id, UpdateStudentRequestDto request)
     {
+        var fullName = request.FullName.Trim();
+        var email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim();
+        var phone = string.IsNullOrWhiteSpace(request.Phone) ? null : request.Phone.Trim();
+        var schoolName = string.IsNullOrWhiteSpace(request.SchoolName) ? null : request.SchoolName.Trim();
+        var englishLevel = string.IsNullOrWhiteSpace(request.EnglishLevel) ? null : request.EnglishLevel.Trim();
+        var note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
+
         var entity = await _context.Students
             .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
 
@@ -442,7 +449,27 @@ public class StudentService
         }
 
         _mapper.Map(request, entity);
+        entity.FullName = fullName;
+        entity.Email = email;
+        entity.Phone = phone;
+        entity.SchoolName = schoolName;
+        entity.EnglishLevel = englishLevel;
+        entity.Note = note;
         entity.UpdatedAt = DateTime.UtcNow;
+
+        if (entity.UserId.HasValue)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.Id == entity.UserId.Value && !x.IsDeleted);
+
+            if (user != null)
+            {
+                user.FullName = fullName;
+                user.Email = email;
+                user.PhoneNumber = phone;
+                user.UpdatedAt = DateTime.UtcNow;
+            }
+        }
 
         await _context.SaveChangesAsync();
         return true;
@@ -450,6 +477,13 @@ public class StudentService
 
     public async Task<bool> UpdateCurrentStudentProfileAsync(UpdateStudentRequestDto request)
     {
+        var fullName = request.FullName.Trim();
+        var email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim();
+        var phone = string.IsNullOrWhiteSpace(request.Phone) ? null : request.Phone.Trim();
+        var schoolName = string.IsNullOrWhiteSpace(request.SchoolName) ? null : request.SchoolName.Trim();
+        var englishLevel = string.IsNullOrWhiteSpace(request.EnglishLevel) ? null : request.EnglishLevel.Trim();
+        var note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
+
         if (!_currentUserService.UserId.HasValue)
         {
             throw new BusinessException("User is not authenticated.");
@@ -466,7 +500,27 @@ public class StudentService
         }
 
         _mapper.Map(request, entity);
+        entity.FullName = fullName;
+        entity.Email = email;
+        entity.Phone = phone;
+        entity.SchoolName = schoolName;
+        entity.EnglishLevel = englishLevel;
+        entity.Note = note;
         entity.UpdatedAt = DateTime.UtcNow;
+
+        if (entity.UserId.HasValue)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.Id == entity.UserId.Value && !x.IsDeleted);
+
+            if (user != null)
+            {
+                user.FullName = fullName;
+                user.Email = email;
+                user.PhoneNumber = phone;
+                user.UpdatedAt = DateTime.UtcNow;
+            }
+        }
 
         await _context.SaveChangesAsync();
         return true;
