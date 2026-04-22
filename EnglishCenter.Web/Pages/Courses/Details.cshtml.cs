@@ -20,6 +20,7 @@ public class DetailsModel : PageModel
     public bool IsStudentLoggedIn { get; set; }
     public bool HasAnyEnrollment { get; set; }
     public string StudentDisplayName { get; set; } = "Học viên";
+    public string ProfilePageUrl => HasAnyEnrollment ? "/Student/Profile" : "/Account/CompleteStudentProfile";
 
     [BindProperty(SupportsGet = true)]
     public long Id { get; set; }
@@ -71,7 +72,7 @@ public class DetailsModel : PageModel
         if (!hasCompletedProfileFromSession)
         {
             TempData["ErrorMessage"] = "Vui lòng hoàn thiện hồ sơ cá nhân trước khi đăng ký khóa học.";
-            return RedirectToPage("/Student/Profile", new { returnUrl = $"/Courses/Details?id={courseId}&autoRegister=true" });
+            return RedirectToPage("/Account/CompleteStudentProfile", new { returnUrl = $"/Courses/Details?id={courseId}&autoRegister=true" });
         }
 
         var me = await _apiClient.GetAsync<CurrentUserDto>("auth/me");
@@ -90,7 +91,7 @@ public class DetailsModel : PageModel
         if (!me.StudentId.HasValue || me.StudentId.Value <= 0)
         {
             TempData["ErrorMessage"] = "Bạn chưa có hồ sơ học viên. Vui lòng cập nhật hồ sơ trước.";
-            return RedirectToPage("/Student/Profile", new { returnUrl = $"/Courses/Details?id={courseId}&autoRegister=true" });
+            return RedirectToPage("/Account/CompleteStudentProfile", new { returnUrl = $"/Courses/Details?id={courseId}&autoRegister=true" });
         }
 
         var profile = await _apiClient.GetAsync<StudentProfileDetailDto>($"students/{me.StudentId.Value}");
@@ -98,7 +99,7 @@ public class DetailsModel : PageModel
         {
             TempData["ErrorMessage"] = "Vui lòng hoàn thiện hồ sơ cá nhân trước khi đăng ký khóa học.";
             HttpContext.Session.SetString("HasCompletedStudentProfile", "false");
-            return RedirectToPage("/Student/Profile", new { returnUrl = $"/Courses/Details?id={courseId}&autoRegister=true" });
+            return RedirectToPage("/Account/CompleteStudentProfile", new { returnUrl = $"/Courses/Details?id={courseId}&autoRegister=true" });
         }
 
         var classesPaged = await _apiClient.GetAsync<PagedResult<ClassDto>>("classes?PageNumber=1&PageSize=500&Status=1");

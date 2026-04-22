@@ -18,6 +18,7 @@ public class IndexModel : PageModel
     public bool IsStudentLoggedIn { get; set; }
     public bool HasAnyEnrollment { get; set; }
     public string StudentDisplayName { get; set; } = string.Empty;
+    public string ProfilePageUrl => HasAnyEnrollment ? "/Student/Profile" : "/Account/CompleteStudentProfile";
     public string PrimaryCtaText => !IsStudentLoggedIn
         ? "Đăng ký ngay"
         : (HasAnyEnrollment ? "Vào học tập" : "Đăng ký khóa học");

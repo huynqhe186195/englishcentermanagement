@@ -160,7 +160,7 @@ app.Use(async (context, next) =>
                 "true",
                 StringComparison.OrdinalIgnoreCase);
 
-            if (!hasAnyEnrollment && !path.StartsWith("/Student/Profile", StringComparison.OrdinalIgnoreCase))
+            if (!hasAnyEnrollment)
             {
                 context.Response.Redirect("/Courses/Index");
                 return;
