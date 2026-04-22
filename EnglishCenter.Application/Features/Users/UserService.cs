@@ -16,15 +16,37 @@ public class UserService
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly CampusScopeHelper _campusScopeHelper;
+    private readonly IPasswordHasherService _passwordHasherService;
 
-    public UserService(
-        IApplicationDbContext context,
-        IMapper mapper,
-        CampusScopeHelper campusScopeHelper)
+    public UserService(IApplicationDbContext context, IMapper mapper, CampusScopeHelper campusScopeHelper, IPasswordHasherService passwordHasherService)
     {
         _context = context;
         _mapper = mapper;
         _campusScopeHelper = campusScopeHelper;
+        _passwordHasherService = passwordHasherService;
+    }
+
+    public async Task<long> CreateAdminAsync(CreateUserRequestDto request)
+    {
+        var userName = request.UserName.Trim();
+        var exists = await _context.Users.AnyAsync(x => x.UserName == userName && !x.IsDeleted);
+        if (exists)
+            throw new BusinessException("UserName already exists.");
+
+        if (string.IsNullOrWhiteSpace(request.PasswordHash))
+            throw new BusinessException("Password is required.");
+
+        var entity = _mapper.Map<User>(request);
+        entity.UserName = userName;
+        entity.PasswordHash = _passwordHasherService.HashPassword(request.PasswordHash);
+        entity.CreatedAt = DateTime.UtcNow;
+        entity.UpdatedAt = null;
+        entity.IsDeleted = false;
+
+        _context.Users.Add(entity);
+        await _context.SaveChangesAsync();
+
+        return entity.Id;
     }
 
     public async Task<List<UserDto>> GetAllAsync()
@@ -184,8 +206,12 @@ public class UserService
         if (exists)
             throw new BusinessException("UserName already exists.");
 
+        if (string.IsNullOrWhiteSpace(request.PasswordHash))
+            throw new BusinessException("Password is required.");
+
         var entity = _mapper.Map<User>(request);
         entity.UserName = userName;
+        entity.PasswordHash = _passwordHasherService.HashPassword(request.PasswordHash);
         entity.CreatedAt = DateTime.UtcNow;
         entity.UpdatedAt = null;
         entity.IsDeleted = false;
@@ -206,9 +232,13 @@ public class UserService
         if (exists)
             throw new BusinessException("UserName already exists.");
 
+        if (string.IsNullOrWhiteSpace(request.PasswordHash))
+            throw new BusinessException("Password is required.");
+
         var entity = _mapper.Map<User>(request);
         entity.UserName = userName;
         entity.CampusId = campusId;
+        entity.PasswordHash = _passwordHasherService.HashPassword(request.PasswordHash);
         entity.CreatedAt = DateTime.UtcNow;
         entity.UpdatedAt = null;
         entity.IsDeleted = false;
@@ -216,29 +246,6 @@ public class UserService
         _context.Users.Add(entity);
         await _context.SaveChangesAsync();
 
-        await AssignRolesIfProvidedAsync(entity.Id, request);
-        return entity.Id;
-    }
-
-    public async Task<long> CreateAdminAsync(CreateUserRequestDto request)
-    {
-        await ValidateOnlyCenterAdminRoleAssignmentAsync(request);
-
-        var userName = request.UserName.Trim();
-        var exists = await _context.Users.AnyAsync(x => x.UserName == userName && !x.IsDeleted);
-        if (exists)
-            throw new BusinessException("UserName already exists.");
-
-        var entity = _mapper.Map<User>(request);
-        entity.UserName = userName;
-        entity.CreatedAt = DateTime.UtcNow;
-        entity.UpdatedAt = null;
-        entity.IsDeleted = false;
-
-        _context.Users.Add(entity);
-        await _context.SaveChangesAsync();
-
-        await AssignRolesIfProvidedAsync(entity.Id, request);
         return entity.Id;
     }
 

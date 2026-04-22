@@ -39,6 +39,7 @@ public class IndexModel : PageModel
     public UserDetailDto? RoleTargetUser { get; set; }
     public List<UserRoleDto> CurrentRoles { get; set; } = new();
     public Dictionary<long, string> UserRoleBadges { get; set; } = new();
+    public List<RoleDto> AssignableRoles { get; set; } = new();
 
     public List<SelectListItem> RoleOptions { get; set; } = new();
 
@@ -50,6 +51,9 @@ public class IndexModel : PageModel
     {
         Status = 1
     };
+
+    [BindProperty]
+    public long? CreateRoleId { get; set; }
 
     [BindProperty]
     public UpdateUserInput UpdateInput { get; set; } = new();
@@ -102,7 +106,7 @@ public class IndexModel : PageModel
         CreateInput.PhoneNumber = string.IsNullOrWhiteSpace(CreateInput.PhoneNumber) ? null : CreateInput.PhoneNumber.Trim();
         CreateInput.RoleIds = new List<long> { SelectedRoleId.Value };
 
-        var ok = await _apiClient.PostAsync("campus-admin/users", new
+        var created = await _apiClient.PostAsync<object, CreateUserResultDto>("campus-admin/users", new
         {
             userName = CreateInput.UserName,
             passwordHash = CreateInput.PasswordHash,
@@ -112,6 +116,23 @@ public class IndexModel : PageModel
             status = CreateInput.Status,
             roleIds = CreateInput.RoleIds
         });
+
+        var ok = created != null && created.Id > 0;
+
+        if (ok && CreateRoleId.HasValue && CreateRoleId.Value > 0)
+        {
+            var roleAssigned = await _apiClient.PostAsync("campus-admin/user-roles/assign", new
+            {
+                userId = created!.Id,
+                roleId = CreateRoleId.Value
+            });
+
+            if (!roleAssigned)
+            {
+                TempData["ErrorMessage"] = "Campus user created successfully nhưng gán role thất bại.";
+                return RedirectToPage();
+            }
+        }
 
         TempData[ok ? "SuccessMessage" : "ErrorMessage"] = ok
             ? "Campus user created successfully."
@@ -240,7 +261,7 @@ public class IndexModel : PageModel
 
     private async Task LoadDataAsync()
     {
-        await LoadRoleOptionsAsync();
+        await LoadAssignableRolesAsync();
 
         var userPaged = await _apiClient.GetAsync<PagedResult<UserDto>>($"campus-admin/users?pageNumber={PageNumber}&pageSize={PageSize}");
 
@@ -253,22 +274,35 @@ public class IndexModel : PageModel
             var roleTasks = Users.Select(async u =>
             {
                 var roles = await _apiClient.GetAsync<List<UserRoleDto>>($"campus-admin/user-roles/{u.Id}") ?? new List<UserRoleDto>();
-
-                var roleCode = roles
-                    .Select(r => r.RoleCode)
-                    .Where(code => !string.IsNullOrWhiteSpace(code))
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .ToList();
-
-                var roleLabel = roleCode.Any()
-                    ? string.Join(", ", roleCode)
-                    : "-";
-
-                return (u.Id, Roles: roles, RoleCode: roleLabel);
+                var roleLabel = roles
+                    .Select(r => ResolveRoleDisplayName(r))
+                    .FirstOrDefault(label => !string.IsNullOrWhiteSpace(label)) ?? "-";
+                return (u.Id, Roles: roles, RoleLabel: roleLabel);
             });
 
             var roleResults = await Task.WhenAll(roleTasks);
-            UserRoleBadges = roleResults.ToDictionary(x => x.Id, x => x.RoleCode);
+            UserRoleBadges = roleResults.ToDictionary(x => x.Id, x => x.RoleLabel);
+
+            if (!AssignableRoles.Any())
+            {
+                AssignableRoles = roleResults
+                    .SelectMany(x => x.Roles)
+                    .Where(r => r.RoleId > 0)
+                    .GroupBy(r => r.RoleId)
+                    .Select(g =>
+                    {
+                        var first = g.First();
+                        return new RoleDto
+                        {
+                            Id = g.Key,
+                            Code = first.RoleCode,
+                            Name = string.IsNullOrWhiteSpace(first.RoleName) ? first.RoleCode : first.RoleName
+                        };
+                    })
+                    .Where(x => !string.IsNullOrWhiteSpace(x.Name) || !string.IsNullOrWhiteSpace(x.Code))
+                    .OrderBy(x => x.Name)
+                    .ToList();
+            }
 
             if (!string.IsNullOrWhiteSpace(RoleCode))
             {
@@ -352,6 +386,31 @@ public class IndexModel : PageModel
             .Where(x => x > 0)
             .Distinct()
             .ToList();
+    }
+
+    private async Task LoadAssignableRolesAsync()
+    {
+        var rolePaged = await _apiClient.GetAsync<PagedResult<RoleDto>>("roles?pageNumber=1&pageSize=200");
+        var roles = rolePaged?.Items?.ToList() ?? new List<RoleDto>();
+
+        AssignableRoles = roles
+            .Where(x => CampusAdminAssignableRoleCodes.Any(code => string.Equals(code, x.Code, StringComparison.OrdinalIgnoreCase)))
+            .OrderBy(x => x.Name)
+            .ToList();
+    }
+
+    private static string ResolveRoleDisplayName(UserRoleDto role)
+    {
+        if (!string.IsNullOrWhiteSpace(role.RoleName)) return role.RoleName.Trim();
+        if (!string.IsNullOrWhiteSpace(role.RoleCode)) return role.RoleCode.Trim();
+        return string.Empty;
+    }
+
+    private static readonly string[] CampusAdminAssignableRoleCodes = ["STAFF", "TEACHER", "PARENT", "STUDENT"];
+
+    public class CreateUserResultDto
+    {
+        public long Id { get; set; }
     }
 
     public class UpdateUserInput

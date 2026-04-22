@@ -35,7 +35,7 @@ public class SessionsModel : PageModel
     private async Task LoadAsync()
     {
         var sessions = await _apiClient.GetAsync<PagedResult<ClassSessionDto>>("classsessions?PageNumber=1&PageSize=30");
-        Items = sessions?.Items ?? new List<ClassSessionDto>();
+        Items = (List<ClassSessionDto>)(sessions?.Items ?? new List<ClassSessionDto>());
 
         var classes = await _apiClient.GetAsync<PagedResult<ClassDto>>("classes?PageNumber=1&PageSize=1000");
         Classes = classes?.Items.Select(x => new SelectListItem($"{x.ClassCode} - {x.Name}", x.Id.ToString())).ToList() ?? new List<SelectListItem>();
