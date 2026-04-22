@@ -19,10 +19,15 @@ public class TimetableModel : PageModel
 
     public List<TimetableItemDto> Sessions { get; set; } = new();
     public long? TeacherId { get; set; }
+    public string FullName { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
 
     public async Task OnGetAsync()
     {
-        TeacherId = (await _apiClient.GetAsync<CurrentUserDto>("auth/me"))?.TeacherId;
+        var me = await _apiClient.GetAsync<CurrentUserDto>("auth/me");
+        TeacherId = me?.TeacherId;
+        FullName = me?.FullName ?? string.Empty;
+        UserName = me?.UserName ?? string.Empty;
         if (!TeacherId.HasValue) return;
 
         var from = string.IsNullOrWhiteSpace(FromDate) ? DateTime.Today.ToString("yyyy-MM-dd") : FromDate;

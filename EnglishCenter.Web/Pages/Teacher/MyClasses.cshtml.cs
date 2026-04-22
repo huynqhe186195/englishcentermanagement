@@ -17,13 +17,18 @@ public class MyClassesModel : PageModel
     [BindProperty(SupportsGet = true)] public long? ClassId { get; set; }
 
     public long? TeacherId { get; set; }
+    public string FullName { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
     public List<long> ClassIds { get; set; } = new();
     public ClassSummaryDto? SelectedSummary { get; set; }
     public List<ClassRosterItemDto> Roster { get; set; } = new();
 
     public async Task OnGetAsync()
     {
-        TeacherId = (await _apiClient.GetAsync<CurrentUserDto>("auth/me"))?.TeacherId;
+        var me = await _apiClient.GetAsync<CurrentUserDto>("auth/me");
+        TeacherId = me?.TeacherId;
+        FullName = me?.FullName ?? string.Empty;
+        UserName = me?.UserName ?? string.Empty;
         if (!TeacherId.HasValue) return;
 
         var timetable = await _apiClient.GetAsync<PagedResult<TimetableItemDto>>(

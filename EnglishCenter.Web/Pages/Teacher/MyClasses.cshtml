@@ -1,69 +1,88 @@
 @page
 @model EnglishCenter.Web.Pages.Teacher.MyClassesModel
 @{
-    ViewData["Title"] = "My Classes";
+    ViewData["Title"] = "Teacher Classes";
+    ViewData["HideChrome"] = true;
 }
 
-<h3 class="mb-3">Lớp tôi phụ trách</h3>
+<div class="student-shell teacher-shell">
+    <aside class="student-sidebar teacher-sidebar">
+        <div class="student-brand">English Center</div>
+        <div class="student-profile">
+            <img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=200" alt="teacher avatar" />
+            <h4>@(string.IsNullOrWhiteSpace(Model.FullName) ? Model.UserName : Model.FullName)</h4>
+            <span>Giáo viên</span>
+        </div>
+        <nav class="student-menu">
+            <a href="/Teacher/Dashboard">Dashboard</a>
+            <a href="/Teacher/Timetable">Thời khóa biểu</a>
+            <a class="active" href="/Teacher/MyClasses">Lớp phụ trách</a>
+            <a href="/Teacher/Attendance">Điểm danh</a>
+        </nav>
+        <a class="student-logout" href="/Account/Logout">Đăng xuất</a>
+    </aside>
 
-@if (!Model.TeacherId.HasValue)
-{
-    <div class="alert alert-warning">Không tìm thấy hồ sơ giáo viên cho tài khoản hiện tại.</div>
-    return;
-}
+    <main class="student-main teacher-main">
+        <header class="student-topbar teacher-topbar">
+            <h2>Lớp phụ trách</h2>
+            <form method="get" class="teacher-filter-form">
+                <select name="ClassId" onchange="this.form.submit()">
+                    @foreach (var id in Model.ClassIds)
+                    {
+                        <option value="@id" selected="@(id == Model.ClassId)">Class #@id</option>
+                    }
+                </select>
+            </form>
+            <div class="student-topbar-user">🏫</div>
+        </header>
 
-@if (!Model.ClassIds.Any())
-{
-    <div class="alert alert-info">Hiện chưa có lớp được phân công.</div>
-    return;
-}
-
-<form method="get" class="mb-3 row g-3">
-    <div class="col-md-4">
-        <label class="form-label">Chọn lớp</label>
-        <select name="ClassId" class="form-select" onchange="this.form.submit()">
-            @foreach (var id in Model.ClassIds)
+        @if (!Model.TeacherId.HasValue)
+        {
+            <div class="teacher-alert">Không tìm thấy hồ sơ giáo viên cho tài khoản hiện tại.</div>
+        }
+        else if (!Model.ClassIds.Any())
+        {
+            <div class="teacher-empty">Hiện chưa có lớp được phân công.</div>
+        }
+        else
+        {
+            @if (Model.SelectedSummary != null)
             {
-                <option value="@id" selected="@(id == Model.ClassId)">Class #@id</option>
+                <section class="student-stats teacher-stats">
+                    <article class="student-stat-card"><h6>Sĩ số tối đa</h6><strong>@Model.SelectedSummary.MaxStudents</strong><span>Capacity</span></article>
+                    <article class="student-stat-card"><h6>Đang học</h6><strong>@Model.SelectedSummary.ActiveEnrollments</strong><span>Active enrollments</span></article>
+                    <article class="student-stat-card"><h6>Buổi hoàn thành</h6><strong>@Model.SelectedSummary.CompletedSessions/@Model.SelectedSummary.TotalSessions</strong><span>Tiến độ lớp</span></article>
+                    <article class="student-stat-card"><h6>Tỷ lệ điểm danh</h6><strong>@Model.SelectedSummary.AttendanceRate%</strong><span>Attendance rate</span></article>
+                </section>
             }
-        </select>
-    </div>
-</form>
 
-@if (Model.SelectedSummary != null)
-{
-    <div class="row g-3 mb-4">
-        <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="small text-muted">Sĩ số tối đa</div><h4>@Model.SelectedSummary.MaxStudents</h4></div></div></div>
-        <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="small text-muted">Đang học</div><h4>@Model.SelectedSummary.ActiveEnrollments</h4></div></div></div>
-        <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="small text-muted">Buổi hoàn thành</div><h4>@Model.SelectedSummary.CompletedSessions / @Model.SelectedSummary.TotalSessions</h4></div></div></div>
-        <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="small text-muted">Tỷ lệ điểm danh</div><h4>@Model.SelectedSummary.AttendanceRate%</h4></div></div></div>
-    </div>
-}
-
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white fw-semibold">Class roster</div>
-    <div class="table-responsive">
-        <table class="table table-hover mb-0">
-            <thead class="table-light"><tr><th>Mã HV</th><th>Họ tên</th><th>Email</th><th>SĐT</th><th>Trạng thái</th></tr></thead>
-            <tbody>
-            @if (!Model.Roster.Any())
-            {
-                <tr><td colspan="5" class="text-center text-muted py-4">Lớp chưa có học viên.</td></tr>
-            }
-            else
-            {
-                @foreach (var item in Model.Roster)
-                {
-                    <tr>
-                        <td>@item.StudentCode</td>
-                        <td>@item.FullName</td>
-                        <td>@item.Email</td>
-                        <td>@item.Phone</td>
-                        <td>@item.EnrollmentStatus</td>
-                    </tr>
-                }
-            }
-            </tbody>
-        </table>
-    </div>
+            <section class="teacher-table-card">
+                <div class="teacher-card-title">Class roster</div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light"><tr><th>Mã HV</th><th>Họ tên</th><th>Email</th><th>SĐT</th><th>Trạng thái</th></tr></thead>
+                        <tbody>
+                        @if (!Model.Roster.Any())
+                        {
+                            <tr><td colspan="5" class="text-center text-muted py-4">Lớp chưa có học viên.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model.Roster)
+                            {
+                                <tr>
+                                    <td>@item.StudentCode</td>
+                                    <td>@item.FullName</td>
+                                    <td>@item.Email</td>
+                                    <td>@item.Phone</td>
+                                    <td>@item.EnrollmentStatus</td>
+                                </tr>
+                            }
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        }
+    </main>
 </div>

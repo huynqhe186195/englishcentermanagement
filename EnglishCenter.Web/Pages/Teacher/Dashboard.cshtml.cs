@@ -16,10 +16,16 @@ public class DashboardModel : PageModel
     public TeacherSummaryDto Summary { get; set; } = new();
     public List<TimetableItemDto> TodaySessions { get; set; } = new();
     public long? TeacherId { get; set; }
+    public string FullName { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
 
     public async Task OnGetAsync()
     {
-        TeacherId = await ResolveTeacherIdAsync();
+        var me = await _apiClient.GetAsync<CurrentUserDto>("auth/me");
+        TeacherId = me?.TeacherId;
+        FullName = me?.FullName ?? string.Empty;
+        UserName = me?.UserName ?? string.Empty;
+
         if (!TeacherId.HasValue)
         {
             return;
@@ -34,11 +40,5 @@ public class DashboardModel : PageModel
         TodaySessions = timetable?.Items?
             .OrderBy(x => x.StartTime)
             .ToList() ?? new List<TimetableItemDto>();
-    }
-
-    private async Task<long?> ResolveTeacherIdAsync()
-    {
-        var me = await _apiClient.GetAsync<CurrentUserDto>("auth/me");
-        return me?.TeacherId;
     }
 }

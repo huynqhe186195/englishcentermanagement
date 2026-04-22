@@ -19,6 +19,8 @@ public class AttendanceModel : PageModel
     [BindProperty] public string? CompleteNote { get; set; }
 
     public long? TeacherId { get; set; }
+    public string FullName { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
     public List<TimetableItemDto> Sessions { get; set; } = new();
     public TimetableItemDto? SelectedSession { get; set; }
     public List<SessionAttendanceRosterItemDto> Roster { get; set; } = new();
@@ -74,7 +76,10 @@ public class AttendanceModel : PageModel
 
     private async Task LoadDataAsync()
     {
-        TeacherId = (await _apiClient.GetAsync<CurrentUserDto>("auth/me"))?.TeacherId;
+        var me = await _apiClient.GetAsync<CurrentUserDto>("auth/me");
+        TeacherId = me?.TeacherId;
+        FullName = me?.FullName ?? string.Empty;
+        UserName = me?.UserName ?? string.Empty;
         if (!TeacherId.HasValue) return;
 
         var from = DateTime.Today.AddDays(-7).ToString("yyyy-MM-dd");
