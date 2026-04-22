@@ -13,17 +13,32 @@ namespace EnglishCenter.Application.Features.Dashboards;
 public class AcademicDashboardService
 {
     private readonly IApplicationDbContext _context;
+    private readonly ICurrentUserContext _currentUserContext;
 
-    public AcademicDashboardService(IApplicationDbContext context)
+    public AcademicDashboardService(IApplicationDbContext context, ICurrentUserContext currentUserContext)
     {
         _context = context;
+        _currentUserContext = currentUserContext;
     }
 
     public async Task<PagedResult<StudentAtRiskDto>> GetStudentsAtRiskAsync(GetStudentsAtRiskRequestDto request)
     {
-        var students = await _context.Students
+        var studentsQuery = _context.Students
             .AsNoTracking()
             .Where(x => !x.IsDeleted)
+            .AsQueryable();
+
+        if (!_currentUserContext.IsSuperAdmin)
+        {
+            var campusId = _currentUserContext.CampusId;
+            studentsQuery = studentsQuery.Where(student =>
+                _context.Enrollments.Any(e =>
+                    e.StudentId == student.Id &&
+                    !e.IsDeleted &&
+                    e.Class.CampusId == campusId));
+        }
+
+        var students = await studentsQuery
             .OrderBy(x => x.FullName)
             .ToListAsync();
 
@@ -31,12 +46,24 @@ public class AcademicDashboardService
 
         foreach (var student in students)
         {
-            var suspendedEnrollments = await _context.Enrollments
-                .CountAsync(x => x.StudentId == student.Id && !x.IsDeleted && x.Status == 2);
+            var suspendedEnrollmentQuery = _context.Enrollments
+                .Where(x => x.StudentId == student.Id && !x.IsDeleted && x.Status == 2);
 
-            var attendanceQuery = _context.AttendanceRecords
-                .AsNoTracking()
-                .Where(x => x.StudentId == student.Id);
+            var attendanceQuery =
+                from attendance in _context.AttendanceRecords.AsNoTracking()
+                join session in _context.ClassSessions.AsNoTracking() on attendance.SessionId equals session.Id
+                join @class in _context.Classes.AsNoTracking() on session.ClassId equals @class.Id
+                where attendance.StudentId == student.Id && !@class.IsDeleted
+                select attendance;
+
+            if (!_currentUserContext.IsSuperAdmin)
+            {
+                var campusId = _currentUserContext.CampusId;
+                suspendedEnrollmentQuery = suspendedEnrollmentQuery.Where(x => x.Class.CampusId == campusId);
+                attendanceQuery = attendanceQuery.Where(x => x.Session.Class.CampusId == campusId);
+            }
+
+            var suspendedEnrollments = await suspendedEnrollmentQuery.CountAsync();
 
             var totalAttendanceRecords = await attendanceQuery.CountAsync();
             var presentCount = await attendanceQuery.CountAsync(x => x.Status == 1);
@@ -90,15 +117,24 @@ public class AcademicDashboardService
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
 
-        var teachers = await _context.Teachers
+        var teachersQuery = _context.Teachers
             .AsNoTracking()
             .Where(x => !x.IsDeleted)
+            .AsQueryable();
+
+        if (!_currentUserContext.IsSuperAdmin)
+        {
+            var campusId = _currentUserContext.CampusId;
+            teachersQuery = teachersQuery.Where(x => x.CampusId == campusId);
+        }
+
+        var totalRecords = await teachersQuery.CountAsync();
+
+        var teachers = await teachersQuery
             .OrderBy(x => x.FullName)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync();
-
-        var totalRecords = await _context.Teachers.CountAsync(x => !x.IsDeleted);
 
         var items = new List<TeacherWorkloadDto>();
 
@@ -106,7 +142,14 @@ public class AcademicDashboardService
         {
             var sessionQuery = _context.ClassSessions
                 .AsNoTracking()
-                .Where(x => x.TeacherId == teacher.Id);
+                .Where(x => x.TeacherId == teacher.Id)
+                .AsQueryable();
+
+            if (!_currentUserContext.IsSuperAdmin)
+            {
+                var campusId = _currentUserContext.CampusId;
+                sessionQuery = sessionQuery.Where(x => x.Class.CampusId == campusId);
+            }
 
             items.Add(new TeacherWorkloadDto
             {
@@ -137,15 +180,24 @@ public class AcademicDashboardService
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
 
-        var rooms = await _context.Rooms
+        var roomsQuery = _context.Rooms
             .AsNoTracking()
             .Where(x => !x.IsDeleted)
+            .AsQueryable();
+
+        if (!_currentUserContext.IsSuperAdmin)
+        {
+            var campusId = _currentUserContext.CampusId;
+            roomsQuery = roomsQuery.Where(x => x.CampusId == campusId);
+        }
+
+        var totalRecords = await roomsQuery.CountAsync();
+
+        var rooms = await roomsQuery
             .OrderBy(x => x.Name)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync();
-
-        var totalRecords = await _context.Rooms.CountAsync(x => !x.IsDeleted);
 
         var items = new List<RoomUtilizationDto>();
 
@@ -153,7 +205,14 @@ public class AcademicDashboardService
         {
             var sessionQuery = _context.ClassSessions
                 .AsNoTracking()
-                .Where(x => x.RoomId == room.Id);
+                .Where(x => x.RoomId == room.Id)
+                .AsQueryable();
+
+            if (!_currentUserContext.IsSuperAdmin)
+            {
+                var campusId = _currentUserContext.CampusId;
+                sessionQuery = sessionQuery.Where(x => x.Class.CampusId == campusId);
+            }
 
             items.Add(new RoomUtilizationDto
             {
@@ -185,15 +244,24 @@ public class AcademicDashboardService
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
 
-        var classes = await _context.Classes
+        var classesQuery = _context.Classes
             .AsNoTracking()
             .Where(x => !x.IsDeleted)
+            .AsQueryable();
+
+        if (!_currentUserContext.IsSuperAdmin)
+        {
+            var campusId = _currentUserContext.CampusId;
+            classesQuery = classesQuery.Where(x => x.CampusId == campusId);
+        }
+
+        var totalRecords = await classesQuery.CountAsync();
+
+        var classes = await classesQuery
             .OrderBy(x => x.Name)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync();
-
-        var totalRecords = await _context.Classes.CountAsync(x => !x.IsDeleted);
 
         var items = new List<ClassDashboardDto>();
 
