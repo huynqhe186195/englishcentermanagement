@@ -79,6 +79,16 @@ else
                     <option value="0">Inactive</option>
                 </select>
             </div>
+            <div class="col-md-4">
+                <label class="form-label">Role</label>
+                <select asp-for="CreateRoleId" class="form-select">
+                    <option value="">-- Chọn role --</option>
+                    @foreach (var role in Model.AssignableRoles)
+                    {
+                        <option value="@role.Id">@role.Name (@role.Code)</option>
+                    }
+                </select>
+            </div>
             <div class="col-md-2 d-flex align-items-end">
                 <button type="submit" class="btn btn-primary w-100">Create</button>
             </div>
