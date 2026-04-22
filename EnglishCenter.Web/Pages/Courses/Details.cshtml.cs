@@ -45,7 +45,7 @@ public class DetailsModel : PageModel
 
         if (AutoRegister && IsStudentLoggedIn && !HasAnyEnrollment)
         {
-            return await ExecuteRegisterAsync(Id, redirectOnSuccess: true);
+            return await ExecuteRegisterAsync(Id);
         }
 
         return Page();
@@ -58,11 +58,22 @@ public class DetailsModel : PageModel
             return RedirectToPage("/Courses/Index");
         }
 
-        return await ExecuteRegisterAsync(Id, redirectOnSuccess: false);
+        return await ExecuteRegisterAsync(Id);
     }
 
-    private async Task<IActionResult> ExecuteRegisterAsync(long courseId, bool redirectOnSuccess)
+    private async Task<IActionResult> ExecuteRegisterAsync(long courseId)
     {
+        var hasCompletedProfileFromSession = string.Equals(
+            HttpContext.Session.GetString("HasCompletedStudentProfile"),
+            "true",
+            StringComparison.OrdinalIgnoreCase);
+
+        if (!hasCompletedProfileFromSession)
+        {
+            TempData["ErrorMessage"] = "Vui lòng hoàn thiện hồ sơ cá nhân trước khi đăng ký khóa học.";
+            return RedirectToPage("/Student/Profile", new { returnUrl = $"/Courses/Details?id={courseId}&autoRegister=true" });
+        }
+
         var me = await _apiClient.GetAsync<CurrentUserDto>("auth/me");
         if (me == null)
         {
@@ -86,6 +97,7 @@ public class DetailsModel : PageModel
         if (!IsProfileCompleted(profile))
         {
             TempData["ErrorMessage"] = "Vui lòng hoàn thiện hồ sơ cá nhân trước khi đăng ký khóa học.";
+            HttpContext.Session.SetString("HasCompletedStudentProfile", "false");
             return RedirectToPage("/Student/Profile", new { returnUrl = $"/Courses/Details?id={courseId}&autoRegister=true" });
         }
 
@@ -118,11 +130,6 @@ public class DetailsModel : PageModel
 
         HttpContext.Session.SetString("HasAnyEnrollment", "true");
         TempData["SuccessMessage"] = "Đăng ký khóa học thành công.";
-
-        if (redirectOnSuccess)
-        {
-            return RedirectToPage("/Courses/Details", new { id = courseId });
-        }
 
         return RedirectToPage("/Courses/Details", new { id = courseId });
     }
