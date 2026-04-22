@@ -8,7 +8,7 @@ namespace EnglishCenter.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Policy = "RequireSuperAdmin")]
+[Authorize(Policy = "RequireCenterAdmin")]
 public class AcademicDashboardController : ControllerBase
 {
     private readonly AcademicDashboardService _academicDashboardService;
