@@ -262,7 +262,10 @@ public class IndexModel : PageModel
             ? new List<string>()
             : JsonSerializer.Deserialize<List<string>>(rawRoles) ?? new List<string>();
 
-        IsCenterAdmin = roles.Contains("CENTER_ADMIN", StringComparer.OrdinalIgnoreCase);
+        IsCenterAdmin =
+            roles.Contains("CENTER_ADMIN", StringComparer.OrdinalIgnoreCase)
+            || roles.Contains("MANAGER", StringComparer.OrdinalIgnoreCase)
+            || roles.Contains("ADMIN", StringComparer.OrdinalIgnoreCase);
         return IsCenterAdmin;
     }
 

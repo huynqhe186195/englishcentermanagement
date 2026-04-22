@@ -1,6 +1,6 @@
 ﻿@{
     var isSuperAdmin = User.IsInRole("SUPER_ADMIN");
-    var isAdmin = User.IsInRole("ADMIN");
+    var isAdmin = User.IsInRole("ADMIN") || User.IsInRole("CENTER_ADMIN") || User.IsInRole("MANAGER");
     var isStaff = User.IsInRole("STAFF");
     var isTeacher = User.IsInRole("TEACHER");
     var isStudent = User.IsInRole("STUDENT");
