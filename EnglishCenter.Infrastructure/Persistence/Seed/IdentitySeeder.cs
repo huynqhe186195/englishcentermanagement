@@ -75,11 +75,32 @@ public class IdentitySeeder
                 IsDeleted = false,
                 CreatedAt = DateTime.UtcNow
             },
+            // ensure primary admin username exists
+            new()
+            {
+                UserName = "admin",
+                FullName = "Center Admin",
+                Email = "admin@englishcenter.local",
+                PasswordHash = _passwordHasherService.HashPassword("123456"),
+                Status = 1,
+                IsDeleted = false,
+                CreatedAt = DateTime.UtcNow
+            },
             new()
             {
                 UserName = "staff02",
                 FullName = "Center Staff Two",
                 Email = "staff02@englishcenter.local",
+                PasswordHash = _passwordHasherService.HashPassword("123456"),
+                Status = 1,
+                IsDeleted = false,
+                CreatedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                UserName = "staff01",
+                FullName = "Center Staff One",
+                Email = "staff01@englishcenter.local",
                 PasswordHash = _passwordHasherService.HashPassword("123456"),
                 Status = 1,
                 IsDeleted = false,
@@ -181,20 +202,20 @@ public class IdentitySeeder
             [RoleConstants.SuperAdmin] = permissionMap.Keys.ToList(),
             [RoleConstants.CenterAdmin] = permissionMap.Keys.ToList(),
 
-            [RoleConstants.Staff] =
-            [
+            [RoleConstants.Staff] = new List<string>
+            {
                 PermissionConstants.Students.View,
-            PermissionConstants.Students.Create,
-            PermissionConstants.Students.Update,
-            PermissionConstants.Courses.View,
-            PermissionConstants.Attendance.View
-            ],
+                PermissionConstants.Students.Create,
+                PermissionConstants.Students.Update,
+                PermissionConstants.Courses.View,
+                PermissionConstants.Attendance.View
+            },
 
-            [RoleConstants.Teacher] =
-            [
+            [RoleConstants.Teacher] = new List<string>
+            {
                 PermissionConstants.Attendance.View,
-            PermissionConstants.Attendance.Mark
-            ]
+                PermissionConstants.Attendance.Mark
+            }
         };
 
         foreach (var roleEntry in mappings)
