@@ -1,0 +1,40 @@
+@page
+@model EnglishCenter.Web.Pages.Staff.ClassSelectionModel
+@{
+    ViewData["Title"] = "Staff - Class Selection";
+}
+
+<h2 class="mb-3">Hỗ trợ chọn lớp sau thanh toán</h2>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white fw-semibold">Chọn lớp cho invoice đã thanh toán</div>
+    <div class="card-body">
+        <form method="post" class="row g-2">
+            <div class="col-md-5">
+                <select class="form-select" asp-for="SelectedInvoiceId">
+                    @foreach (var x in Model.PaidWithoutClass)
+                    {
+                        <option value="@x.Id">@x.InvoiceNo - Student:@x.StudentId - @x.FinalAmount.ToString("N0")</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-5"><select class="form-select" asp-for="Input.ClassId" asp-items="Model.Classes"></select></div>
+            <div class="col-md-2"><button class="btn btn-primary w-100">Xác nhận</button></div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead><tr><th>Invoice</th><th>Student</th><th>Amount</th><th>Paid</th></tr></thead>
+    <tbody>
+    @foreach (var x in Model.PaidWithoutClass)
+    {
+        <tr>
+            <td>@x.InvoiceNo</td>
+            <td>@x.StudentId</td>
+            <td>@x.FinalAmount.ToString("N0")</td>
+            <td>@x.PaidAmount.ToString("N0")</td>
+        </tr>
+    }
+    </tbody>
+</table>

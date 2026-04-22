@@ -1,36 +1,44 @@
-﻿@page
+@page
+@model EnglishCenter.Web.Pages.Staff.DashboardModel
 @{
     ViewData["Title"] = "Staff Dashboard";
 }
 
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Staff Dashboard</h2>
+</div>
+
 <div class="row g-3 mb-4">
-    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Pending Class Selection</div><h3>12</h3></div></div></div>
-    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Invoices Today</div><h3>9</h3></div></div></div>
-    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Payments Today</div><h3>8</h3></div></div></div>
+    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Pending Class Selection</div><h3>@Model.PendingClassSelection</h3></div></div></div>
+    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Invoices Today</div><h3>@Model.InvoicesToday</h3></div></div></div>
+    <div class="col-md-4"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Payments Today</div><h3>@Model.PaymentsToday</h3></div></div></div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-2 d-grid"><a asp-page="/Staff/Invoices" class="btn btn-outline-primary">Invoices</a></div>
+    <div class="col-md-2 d-grid"><a asp-page="/Staff/Payments" class="btn btn-outline-success">Payments</a></div>
+    <div class="col-md-3 d-grid"><a asp-page="/Staff/ClassSelection" class="btn btn-outline-warning">Hỗ trợ chọn lớp</a></div>
+    <div class="col-md-2 d-grid"><a asp-page="/Staff/Classes" class="btn btn-outline-dark">Classes</a></div>
+    <div class="col-md-3 d-grid"><a asp-page="/Staff/Sessions" class="btn btn-outline-secondary">Class Sessions</a></div>
 </div>
 
 <div class="card border-0 shadow-sm">
-    <div class="card-header bg-white fw-semibold">Recent Transactions</div>
+    <div class="card-header bg-white fw-semibold">Recent Invoices</div>
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-striped align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Invoice No</th>
-                        <th>Student</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
+                <thead class="table-light"><tr><th>Invoice No</th><th>Student Id</th><th>Amount</th><th>Status</th><th></th></tr></thead>
                 <tbody>
+                @foreach (var item in Model.RecentInvoices)
+                {
                     <tr>
-                        <td>INV-20260501-0001</td>
-                        <td>Nguyen Van A</td>
-                        <td>5,000,000</td>
-                        <td><span class="badge bg-success">Paid</span></td>
-                        <td><a asp-page="/Staff/ClassSelection" class="btn btn-sm btn-outline-primary">Select Class</a></td>
+                        <td>@item.InvoiceNo</td>
+                        <td>@item.StudentId</td>
+                        <td>@item.FinalAmount.ToString("N0")</td>
+                        <td>@(item.Status == 3 ? "Paid" : item.Status == 4 ? "Cancelled" : "Unpaid")</td>
+                        <td><a asp-page="/Staff/ClassSelection" asp-route-invoiceId="@item.Id" class="btn btn-sm btn-outline-primary">Select Class</a></td>
                     </tr>
+                }
                 </tbody>
             </table>
         </div>

@@ -1,0 +1,39 @@
+@page
+@model EnglishCenter.Web.Pages.Staff.SessionsModel
+@{
+    ViewData["Title"] = "Staff - Sessions";
+}
+
+<h2 class="mb-3">Vận hành Class Sessions</h2>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white fw-semibold">Tạo session</div>
+    <div class="card-body">
+        <form method="post" asp-page-handler="Create" class="row g-2">
+            <div class="col-md-3"><select class="form-select" asp-for="CreateInput.ClassId" asp-items="Model.Classes"></select></div>
+            <div class="col-md-1"><input class="form-control" asp-for="CreateInput.SessionNo" /></div>
+            <div class="col-md-2"><input class="form-control" type="date" asp-for="CreateInput.SessionDate" /></div>
+            <div class="col-md-2"><input class="form-control" type="time" asp-for="CreateInput.StartTime" /></div>
+            <div class="col-md-2"><input class="form-control" type="time" asp-for="CreateInput.EndTime" /></div>
+            <div class="col-md-1"><input class="form-control" asp-for="CreateInput.RoomId" placeholder="Room" /></div>
+            <div class="col-md-1"><button class="btn btn-primary w-100">Tạo</button></div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead><tr><th>Id</th><th>Class</th><th>No</th><th>Date</th><th>Time</th><th>Status</th></tr></thead>
+    <tbody>
+    @foreach (var x in Model.Items)
+    {
+        <tr>
+            <td>@x.Id</td>
+            <td>@x.ClassId</td>
+            <td>@x.SessionNo</td>
+            <td>@x.SessionDate</td>
+            <td>@x.StartTime - @x.EndTime</td>
+            <td>@(x.Status==1?"Planned":x.Status==2?"Completed":x.Status==3?"Cancelled":"Rescheduled")</td>
+        </tr>
+    }
+    </tbody>
+</table>

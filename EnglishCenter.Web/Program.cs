@@ -102,6 +102,22 @@ app.Use(async (context, next) =>
             return;
         }
     }
+
+    if (path.StartsWith("/Staff", StringComparison.OrdinalIgnoreCase))
+    {
+        if (!roles.Any())
+        {
+            context.Response.Redirect("/Account/Login");
+            return;
+        }
+
+        if (!hasRole("STAFF") && !hasRole("CENTER_ADMIN") && !hasRole("MANAGER") && !hasRole("ADMIN") && !hasRole("SUPER_ADMIN"))
+        {
+            context.Response.Redirect("/Account/Login");
+            return;
+        }
+    }
+
     if (path.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase))
     {
         if (!roles.Any())
@@ -116,7 +132,7 @@ app.Use(async (context, next) =>
             return;
         }
 
-        if (!hasRole("CENTER_ADMIN") && !hasRole("MANAGER") && !hasRole("ADMIN") && !hasRole("STAFF"))
+        if (!hasRole("CENTER_ADMIN") && !hasRole("MANAGER") && !hasRole("ADMIN"))
         {
             context.Response.Redirect("/Account/Login");
             return;
