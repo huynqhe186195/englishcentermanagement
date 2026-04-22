@@ -26,6 +26,9 @@ public class IndexModel : PageModel
     [BindProperty(SupportsGet = true)]
     public long? RoleUserId { get; set; }
 
+    [BindProperty(SupportsGet = true)]
+    public string? RoleCode { get; set; }
+
     public int PageSize { get; set; } = 10;
     public int TotalPages { get; set; }
     public int TotalRecords { get; set; }
@@ -34,6 +37,7 @@ public class IndexModel : PageModel
     public UserDetailDto? EditingUser { get; set; }
     public UserDetailDto? RoleTargetUser { get; set; }
     public List<UserRoleDto> CurrentRoles { get; set; } = new();
+    public Dictionary<long, string> UserRoleBadges { get; set; } = new();
 
     [BindProperty]
     public CreateUserRequestDto CreateInput { get; set; } = new()
@@ -225,6 +229,33 @@ public class IndexModel : PageModel
         Users = userPaged?.Items?.ToList() ?? new List<UserDto>();
         TotalPages = userPaged?.TotalPages ?? 1;
         TotalRecords = userPaged?.TotalRecords ?? 0;
+
+        if (Users.Any())
+        {
+            var roleTasks = Users.Select(async u =>
+            {
+                var roles = await _apiClient.GetAsync<List<UserRoleDto>>($"campus-admin/user-roles/{u.Id}") ?? new List<UserRoleDto>();
+                var roleCode = roles
+                    .Select(r => r.RoleCode)
+                    .FirstOrDefault(code => !string.IsNullOrWhiteSpace(code)) ?? "-";
+                return (u.Id, Roles: roles, RoleCode: roleCode);
+            });
+
+            var roleResults = await Task.WhenAll(roleTasks);
+            UserRoleBadges = roleResults.ToDictionary(x => x.Id, x => x.RoleCode);
+
+            if (!string.IsNullOrWhiteSpace(RoleCode))
+            {
+                Users = roleResults
+                    .Where(x => x.Roles.Any(r => string.Equals(r.RoleCode, RoleCode, StringComparison.OrdinalIgnoreCase)))
+                    .Select(x => Users.First(u => u.Id == x.Id))
+                    .ToList();
+
+                TotalRecords = Users.Count;
+                TotalPages = 1;
+                PageNumber = 1;
+            }
+        }
 
         if (EditId.HasValue && EditId.Value > 0)
         {

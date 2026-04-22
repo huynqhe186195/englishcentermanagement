@@ -19,8 +19,8 @@
     @if (isAdmin)
     {
         <li class="nav-item"><a class="nav-link text-white" asp-page="/Admin/Dashboard">Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link text-white" asp-page="/Admin/Students">Students</a></li>
-        <li class="nav-item"><a class="nav-link text-white" asp-page="/Admin/Teachers">Teachers</a></li>
+        <li class="nav-item"><a class="nav-link text-white" asp-page="/Admin/Users/Index" asp-route-RoleCode="STUDENT">Students</a></li>
+        <li class="nav-item"><a class="nav-link text-white" asp-page="/Admin/Users/Index" asp-route-RoleCode="TEACHER">Teachers</a></li>
         <li class="nav-item"><a class="nav-link text-white" asp-page="/Admin/Courses">Courses</a></li>
         <li class="nav-item"><a class="nav-link text-white" asp-page="/Admin/Classes">Classes</a></li>
         <li class="nav-item"><a class="nav-link text-white" asp-page="/Admin/Sessions">Sessions</a></li>

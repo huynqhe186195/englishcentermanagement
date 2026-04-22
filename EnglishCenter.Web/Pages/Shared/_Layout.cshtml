@@ -35,8 +35,8 @@
                             @if (!string.IsNullOrEmpty(Context.Session?.GetString("AccessToken")))
                             {
                                 <li class="nav-item"><a class="nav-link" asp-page="/Admin/Index">Admin</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-page="/Teacher/Index">Teacher</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-page="/Student/Index">Student</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-page="/Admin/Users/Index" asp-route-RoleCode="TEACHER">Teacher Mgmt</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-page="/Admin/Users/Index" asp-route-RoleCode="STUDENT">Student Mgmt</a></li>
                                 <li class="nav-item"><a class="nav-link" asp-page="/Classes/Index">Classes</a></li>
                                 <li class="nav-item"><a class="nav-link" asp-page="/Enrollments/Index">Enrollments</a></li>
                                 <li class="nav-item"><a class="nav-link" asp-page="/Account/Logout">Logout</a></li>
