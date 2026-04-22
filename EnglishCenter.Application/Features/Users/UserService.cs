@@ -339,6 +339,7 @@ public class UserService
             throw new NotFoundException("User not found.");
 
         _mapper.Map(request, entity);
+        entity.CampusId = entity.CampusId; // giữ campus cũ
         entity.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
