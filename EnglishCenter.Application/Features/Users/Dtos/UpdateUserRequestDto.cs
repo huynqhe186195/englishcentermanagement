@@ -7,4 +7,6 @@ public class UpdateUserRequestDto
     public string? PhoneNumber { get; set; }
     public string FullName { get; set; } = string.Empty;
     public int Status { get; set; }
+    public List<long>? RoleIds { get; set; }
+    public long? CampusId { get; set; }
 }

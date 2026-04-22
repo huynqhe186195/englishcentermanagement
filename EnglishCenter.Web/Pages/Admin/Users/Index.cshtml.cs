@@ -3,6 +3,7 @@ using EnglishCenter.Web.Models;
 using EnglishCenter.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace EnglishCenter.Web.Pages.Admin.Users;
 
@@ -39,6 +40,11 @@ public class IndexModel : PageModel
     public List<UserRoleDto> CurrentRoles { get; set; } = new();
     public Dictionary<long, string> UserRoleBadges { get; set; } = new();
 
+    public List<SelectListItem> RoleOptions { get; set; } = new();
+
+    [BindProperty]
+    public long? SelectedRoleId { get; set; }
+
     [BindProperty]
     public CreateUserRequestDto CreateInput { get; set; } = new()
     {
@@ -74,6 +80,8 @@ public class IndexModel : PageModel
             return RedirectToPage();
         }
 
+        await LoadRoleOptionsAsync();
+
         if (string.IsNullOrWhiteSpace(CreateInput.UserName)
             || string.IsNullOrWhiteSpace(CreateInput.PasswordHash)
             || string.IsNullOrWhiteSpace(CreateInput.FullName))
@@ -82,10 +90,17 @@ public class IndexModel : PageModel
             return RedirectToPage();
         }
 
+        if (!SelectedRoleId.HasValue || SelectedRoleId.Value <= 0)
+        {
+            TempData["ErrorMessage"] = "Role is required.";
+            return RedirectToPage();
+        }
+
         CreateInput.UserName = CreateInput.UserName.Trim();
         CreateInput.FullName = CreateInput.FullName.Trim();
         CreateInput.Email = string.IsNullOrWhiteSpace(CreateInput.Email) ? null : CreateInput.Email.Trim();
         CreateInput.PhoneNumber = string.IsNullOrWhiteSpace(CreateInput.PhoneNumber) ? null : CreateInput.PhoneNumber.Trim();
+        CreateInput.RoleIds = new List<long> { SelectedRoleId.Value };
 
         var ok = await _apiClient.PostAsync("campus-admin/users", new
         {
@@ -94,7 +109,8 @@ public class IndexModel : PageModel
             email = CreateInput.Email,
             phoneNumber = CreateInput.PhoneNumber,
             fullName = CreateInput.FullName,
-            status = CreateInput.Status
+            status = CreateInput.Status,
+            roleIds = CreateInput.RoleIds
         });
 
         TempData[ok ? "SuccessMessage" : "ErrorMessage"] = ok
@@ -224,6 +240,8 @@ public class IndexModel : PageModel
 
     private async Task LoadDataAsync()
     {
+        await LoadRoleOptionsAsync();
+
         var userPaged = await _apiClient.GetAsync<PagedResult<UserDto>>($"campus-admin/users?pageNumber={PageNumber}&pageSize={PageSize}");
 
         Users = userPaged?.Items?.ToList() ?? new List<UserDto>();
@@ -235,10 +253,18 @@ public class IndexModel : PageModel
             var roleTasks = Users.Select(async u =>
             {
                 var roles = await _apiClient.GetAsync<List<UserRoleDto>>($"campus-admin/user-roles/{u.Id}") ?? new List<UserRoleDto>();
+
                 var roleCode = roles
                     .Select(r => r.RoleCode)
-                    .FirstOrDefault(code => !string.IsNullOrWhiteSpace(code)) ?? "-";
-                return (u.Id, Roles: roles, RoleCode: roleCode);
+                    .Where(code => !string.IsNullOrWhiteSpace(code))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                var roleLabel = roleCode.Any()
+                    ? string.Join(", ", roleCode)
+                    : "-";
+
+                return (u.Id, Roles: roles, RoleCode: roleLabel);
             });
 
             var roleResults = await Task.WhenAll(roleTasks);
@@ -284,6 +310,23 @@ public class IndexModel : PageModel
             ReplaceInput.UserId = RoleUserId.Value;
             ReplaceRoleIdsText = string.Join(',', CurrentRoles.Select(x => x.RoleId));
         }
+    }
+
+    private async Task LoadRoleOptionsAsync()
+    {
+        var roles = await _apiClient.GetAsync<List<RoleDto>>("campus-admin/roles") ?? new List<RoleDto>();
+
+        RoleOptions = roles
+            .Where(r =>
+                !string.Equals(r.Name, "SUPER_ADMIN", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(r.Name, "CENTER_ADMIN", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(r.Name, "ADMIN", StringComparison.OrdinalIgnoreCase))
+            .Select(r => new SelectListItem
+            {
+                Value = r.Id.ToString(),
+                Text = r.Name
+            })
+            .ToList();
     }
 
     private bool EnsureCenterAdmin()

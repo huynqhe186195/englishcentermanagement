@@ -90,8 +90,8 @@ public class EnrollmentService
 
             // Warning mail: chi gui 1 lan dau tien
             if (absentRate > 10 &&
-                !_helperMethodEnrollments.HasAttendanceWarningSent(item.Enrollment.Note) &&
-                !string.IsNullOrWhiteSpace(item.Student.Email))
+                    !_helperMethodEnrollments.HasAttendanceWarningSent(item.Enrollment.Note) &&
+                    !string.IsNullOrWhiteSpace(item.Student.Email))
             {
                 var subject = $"[Attendance Warning] {@class.Name}";
                 var body = _helperMethodEnrollments.BuildAttendanceWarningEmailBody(
@@ -102,11 +102,20 @@ public class EnrollmentService
                     absentCount,
                     validSessionCount);
 
-                await _emailService.SendAsync(item.Student.Email!, subject, body);
+                try
+                {
+                    await _emailService.SendAsync(item.Student.Email!, subject, body);
 
-                item.Enrollment.Note = _helperMethodEnrollments.AppendAttendanceWarningMarker(item.Enrollment.Note);
-                item.Enrollment.UpdatedAt = DateTime.UtcNow;
-                warningEmailSentNow = true;
+                    item.Enrollment.Note = _helperMethodEnrollments.AppendAttendanceWarningMarker(item.Enrollment.Note);
+                    item.Enrollment.UpdatedAt = DateTime.UtcNow;
+                    warningEmailSentNow = true;
+                }
+                catch
+                {
+                    warningEmailSentNow = false;
+                    // Có thể log warning ở đây nếu bạn có ILogger
+                    // Không throw lại để tránh fail toàn bộ flow complete session
+                }
             }
 
             // Suspend neu > 20%
@@ -155,11 +164,11 @@ public class EnrollmentService
                 IsSuspended = isSuspended,
                 WarningEmailSentNow = warningEmailSentNow,
                 Message = isSuspended
-                    ? "Student exceeded 20% absence rate and has been suspended."
+                     ? "Student exceeded 20% absence rate and has been suspended."
                     : absentRate > 10
                         ? warningEmailSentNow
-                            ? "Student exceeded 10% absence rate and warning email was sent."
-                            : "Student exceeded 10% absence rate and warning email had already been sent before."
+                             ? "Student exceeded 10% absence rate and warning email was sent."
+                         : "Student exceeded 10% absence rate, but warning email could not be sent."
                         : "Attendance is within allowed threshold."
             });
         }

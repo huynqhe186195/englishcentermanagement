@@ -46,11 +46,6 @@ public class AttendanceService
             throw new BusinessException("Cannot mark attendance for a cancelled session.");
         }
 
-        if (session.Status == ClassSessionStatusConstants.Completed)
-        {
-            throw new BusinessException("Cannot modify attendance because the session is already completed.");
-        }
-
         var today = DateOnly.FromDateTime(DateTime.Today);
 
         if (today != session.SessionDate)

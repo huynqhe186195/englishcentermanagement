@@ -143,6 +143,12 @@ public class ClassSessionService
             throw new BusinessException("Cancelled session cannot be completed.");
         }
 
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        if (session.SessionDate != today)
+        {
+            throw new BusinessException("Only today's session can be completed.");
+        }
+
         session.Status = ClassSessionStatusConstants.Completed;
 
         if (!string.IsNullOrWhiteSpace(request.Note))
@@ -154,7 +160,15 @@ public class ClassSessionService
 
         await _context.SaveChangesAsync();
 
-        await _enrollmentService.EvaluateAttendancePolicyByClassAsync(session.ClassId);
+        try
+        {
+            await _enrollmentService.EvaluateAttendancePolicyByClassAsync(session.ClassId);
+        }
+        catch
+        {
+            // log warning nếu có logger
+            // không throw lại để tránh fail action complete session
+        }
     }
     // Cho phép giáo viên quản lý buổi học (chỉ những buổi học mà họ được phân công giảng dạy),
     private async Task ValidateTeacherCanManageSessionAsync(ClassSession session)
@@ -502,6 +516,46 @@ public class ClassSessionService
         }
 
         return createdSessions.Count;
+    }
+
+    public async Task ReopenAsync(long sessionId, CompleteClassSessionRequestDto request)
+    {
+        var session = await _context.ClassSessions
+            .FirstOrDefaultAsync(x => x.Id == sessionId);
+
+        if (session == null)
+        {
+            throw new NotFoundException("Class session not found.");
+        }
+
+        await ValidateTeacherCanManageSessionAsync(session);
+
+        if (session.Status == ClassSessionStatusConstants.Cancelled)
+        {
+            throw new BusinessException("Cancelled session cannot be reopened.");
+        }
+
+        if (session.Status != ClassSessionStatusConstants.Completed)
+        {
+            throw new BusinessException("Only completed sessions can be reopened.");
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        if (session.SessionDate != today)
+        {
+            throw new BusinessException("Only today's completed session can be reopened.");
+        }
+
+        session.Status = ClassSessionStatusConstants.Planned;
+
+        if (!string.IsNullOrWhiteSpace(request.Note))
+        {
+            session.Note = request.Note.Trim();
+        }
+
+        session.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
     }
 
     private static int ConvertToCustomDayOfWeek(DayOfWeek dayOfWeek)

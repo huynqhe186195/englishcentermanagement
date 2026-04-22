@@ -79,6 +79,16 @@ else
                     <option value="0">Inactive</option>
                 </select>
             </div>
+            <div class="col-md-4">
+                <label class="form-label">Role</label>
+                <select asp-for="SelectedRoleId" class="form-select" required>
+                    <option value="">-- Chọn role --</option>
+                    @foreach (var role in Model.RoleOptions)
+                    {
+                        <option value="@role.Value">@role.Text</option>
+                    }
+                </select>
+            </div>
             <div class="col-md-2 d-flex align-items-end">
                 <button type="submit" class="btn btn-primary w-100">Create</button>
             </div>
@@ -252,6 +262,7 @@ else
                         </div>
                     </form>
                 </div>
+
             </div>
         </section>
     }
