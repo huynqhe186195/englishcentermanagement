@@ -126,12 +126,34 @@ public class TeacherService
 
     public async Task<long> CreateAsync(CreateTeacherRequestDto request)
     {
-        var code = request.TeacherCode?.Trim() ?? string.Empty;
+        var fullName = request.FullName.Trim();
+        var requestedCode = request.TeacherCode?.Trim();
+        var code = string.IsNullOrWhiteSpace(requestedCode)
+            ? await GenerateTeacherCodeAsync(request.UserId)
+            : requestedCode;
         var exists = await _context.Teachers.AnyAsync(x => x.TeacherCode == code && !x.IsDeleted);
         if (exists) throw new BusinessException("TeacherCode already exists.");
 
+        if (request.UserId.HasValue && request.UserId.Value > 0)
+        {
+            var userExists = await _context.Users
+                .AnyAsync(x => x.Id == request.UserId.Value && !x.IsDeleted);
+            if (!userExists)
+            {
+                throw new BusinessException("User not found.");
+            }
+
+            var teacherProfileExists = await _context.Teachers
+                .AnyAsync(x => x.UserId == request.UserId.Value && !x.IsDeleted);
+            if (teacherProfileExists)
+            {
+                throw new BusinessException("User already has a teacher profile.");
+            }
+        }
+
         var entity = _mapper.Map<Teacher>(request);
         entity.TeacherCode = code;
+        entity.FullName = fullName;
         entity.CreatedAt = DateTime.UtcNow;
         entity.UpdatedAt = null;
         entity.IsDeleted = false;
@@ -139,6 +161,24 @@ public class TeacherService
         _context.Teachers.Add(entity);
         await _context.SaveChangesAsync();
         return entity.Id;
+    }
+
+    private async Task<string> GenerateTeacherCodeAsync(long? userId)
+    {
+        var baseCode = userId.HasValue && userId.Value > 0
+            ? $"TCH{userId.Value:D6}"
+            : $"TCH{DateTime.UtcNow:yyyyMMddHHmmss}";
+
+        var candidate = baseCode;
+        var suffix = 1;
+
+        while (await _context.Teachers.AnyAsync(x => x.TeacherCode == candidate && !x.IsDeleted))
+        {
+            candidate = $"{baseCode}-{suffix}";
+            suffix++;
+        }
+
+        return candidate;
     }
 
     public async Task<bool> UpdateAsync(long id, UpdateTeacherRequestDto request)

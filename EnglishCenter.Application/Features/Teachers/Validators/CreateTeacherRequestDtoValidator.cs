@@ -9,8 +9,8 @@ public class CreateTeacherRequestDtoValidator : AbstractValidator<CreateTeacherR
     {
         RuleFor(x => x.TeacherCode)
             .Cascade(CascadeMode.Stop)
-            .NotEmpty().WithMessage("TeacherCode is required.")
-            .MaximumLength(50).WithMessage("TeacherCode must not exceed 50 characters.");
+            .MaximumLength(50).When(x => !string.IsNullOrWhiteSpace(x.TeacherCode)).WithMessage("TeacherCode must not exceed 50 characters.")
+            .Must(code => code == null || !string.IsNullOrWhiteSpace(code)).WithMessage("TeacherCode cannot be whitespace.");
 
         RuleFor(x => x.FullName)
             .Cascade(CascadeMode.Stop)
