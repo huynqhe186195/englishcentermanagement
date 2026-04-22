@@ -72,7 +72,7 @@ public class ApiClient : IApiClient
     {
         var client = CreateClient();
         var resp = await client.GetAsync(url);
-        if (resp.StatusCode == HttpStatusCode.Unauthorized || resp.StatusCode == HttpStatusCode.Forbidden)
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
         {
             var ok = await TryRefreshTokenAsync();
             if (ok)
@@ -104,7 +104,7 @@ public class ApiClient : IApiClient
     {
         var client = CreateClient();
         var resp = await client.GetAsync(url);
-        if (resp.StatusCode == HttpStatusCode.Unauthorized || resp.StatusCode == HttpStatusCode.Forbidden)
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
         {
             var ok = await TryRefreshTokenAsync();
             if (ok)
@@ -149,7 +149,7 @@ public class ApiClient : IApiClient
     {
         var client = CreateClient();
         var resp = await client.PostAsJsonAsync(url, body);
-        if (resp.StatusCode == HttpStatusCode.Unauthorized || resp.StatusCode == HttpStatusCode.Forbidden)
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
         {
             var ok = await TryRefreshTokenAsync();
             if (ok)
@@ -187,7 +187,7 @@ public class ApiClient : IApiClient
         }
 
         var resp = await client.PostAsync(url, content);
-        if (resp.StatusCode == HttpStatusCode.Unauthorized || resp.StatusCode == HttpStatusCode.Forbidden)
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
         {
             var ok = await TryRefreshTokenAsync();
             if (ok)
@@ -215,7 +215,7 @@ public class ApiClient : IApiClient
     {
         var client = CreateClient();
         var resp = await client.PostAsJsonAsync(url, body);
-        if (resp.StatusCode == HttpStatusCode.Unauthorized || resp.StatusCode == HttpStatusCode.Forbidden)
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
         {
             var ok = await TryRefreshTokenAsync();
             if (ok)
@@ -231,7 +231,7 @@ public class ApiClient : IApiClient
     {
         var client = CreateClient();
         var resp = await client.PutAsJsonAsync(url, body);
-        if (resp.StatusCode == HttpStatusCode.Unauthorized || resp.StatusCode == HttpStatusCode.Forbidden)
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
         {
             var ok = await TryRefreshTokenAsync();
             if (ok)
@@ -259,7 +259,7 @@ public class ApiClient : IApiClient
     {
         var client = CreateClient();
         var resp = await client.PutAsJsonAsync(url, body);
-        if (resp.StatusCode == HttpStatusCode.Unauthorized || resp.StatusCode == HttpStatusCode.Forbidden)
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
         {
             var ok = await TryRefreshTokenAsync();
             if (ok)
@@ -275,7 +275,7 @@ public class ApiClient : IApiClient
     {
         var client = CreateClient();
         var resp = await client.DeleteAsync(url);
-        if (resp.StatusCode == HttpStatusCode.Unauthorized || resp.StatusCode == HttpStatusCode.Forbidden)
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
         {
             var ok = await TryRefreshTokenAsync();
             if (ok)

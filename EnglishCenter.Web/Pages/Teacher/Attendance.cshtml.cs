@@ -24,6 +24,8 @@ public class AttendanceModel : PageModel
     public List<TimetableItemDto> Sessions { get; set; } = new();
     public TimetableItemDto? SelectedSession { get; set; }
     public List<SessionAttendanceRosterItemDto> Roster { get; set; } = new();
+    public int ClassRosterCount { get; set; }
+    public int ActiveEnrollmentCount { get; set; }
     public bool CanEditAttendance { get; set; }
     public string? Message { get; set; }
 
@@ -95,6 +97,13 @@ public class AttendanceModel : PageModel
 
         SelectedSession = Sessions.FirstOrDefault(x => x.SessionId == SessionId.Value);
         Roster = await _apiClient.GetAsync<List<SessionAttendanceRosterItemDto>>($"attendance/session/{SessionId.Value}/roster") ?? new List<SessionAttendanceRosterItemDto>();
+
+        if (SelectedSession != null)
+        {
+            var classRoster = await _apiClient.GetAsync<List<ClassRosterItemDto>>($"classes/{SelectedSession.ClassId}/roster") ?? new List<ClassRosterItemDto>();
+            ClassRosterCount = classRoster.Count;
+            ActiveEnrollmentCount = classRoster.Count(x => x.EnrollmentStatus == 1);
+        }
 
         var sessionDate = DateOnly.MinValue;
         if (SelectedSession != null && DateOnly.TryParse(SelectedSession.SessionDate, out var parsedDate))
