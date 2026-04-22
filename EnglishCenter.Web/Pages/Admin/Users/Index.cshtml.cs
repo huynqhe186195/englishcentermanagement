@@ -44,6 +44,9 @@ public class IndexModel : PageModel
     public long? SelectedRoleId { get; set; }
 
     [BindProperty]
+    public long? CreateRoleId { get; set; }
+
+    [BindProperty]
     public CreateUserRequestDto CreateInput { get; set; } = new()
     {
         Status = 1
