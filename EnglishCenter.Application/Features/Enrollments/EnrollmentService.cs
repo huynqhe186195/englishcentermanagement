@@ -365,52 +365,57 @@ public class EnrollmentService
 
     public async Task<long> CreateAsync(CreateEnrollmentRequestDto request)
     {
-        // Business rules checks
-        var student = await _context.Students.FirstOrDefaultAsync(s => s.Id == request.StudentId && !s.IsDeleted);
-        if (student == null) throw new NotFoundException("Student not found.");
+        var student = await _context.Students
+            .FirstOrDefaultAsync(s => s.Id == request.StudentId && !s.IsDeleted);
 
-        var hasCompletedProfile =
-            !string.IsNullOrWhiteSpace(student.FullName)
-            && student.DateOfBirth.HasValue
-            && student.Gender.HasValue
-            && !string.IsNullOrWhiteSpace(student.Phone)
-            && !string.IsNullOrWhiteSpace(student.Email)
-            && !string.IsNullOrWhiteSpace(student.SchoolName)
-            && !string.IsNullOrWhiteSpace(student.EnglishLevel)
-            && student.Status == 1;
-
-        if (!hasCompletedProfile)
+        if (student == null)
         {
-            throw new BusinessException("Student profile must be completed before enrollment.");
+            throw new BusinessException("Student does not exist or has been deleted.");
         }
 
-        var cls = await _context.Classes.FirstOrDefaultAsync(c => c.Id == request.ClassId && !c.IsDeleted);
-        if (cls == null) throw new NotFoundException("Class not found.");
+        var cls = await _context.Classes
+            .FirstOrDefaultAsync(c => c.Id == request.ClassId && !c.IsDeleted);
 
-        var activeCount = await _context.Enrollments.CountAsync(x =>
-            x.ClassId == request.ClassId &&
-            !x.IsDeleted &&
-            x.Status == 1);
-
-        if (activeCount >= 10)
+        if (cls == null)
         {
-            throw new BusinessException("This class already has the maximum of 10 students.");
+            throw new BusinessException("Class does not exist or has been deleted.");
         }
 
-        // Check class open for registration (assume Status == 1 means open)
+        // assume Status == 1 means open for registration
         if (cls.Status != 1)
+        {
             throw new BusinessException("Class is not open for enrollment.");
+        }
 
-        // Check capacity
         var enrolledCount = await _context.Enrollments
             .CountAsync(e => e.ClassId == request.ClassId && !e.IsDeleted);
-        if (enrolledCount >= cls.MaxStudents)
-            throw new BusinessException("Class has reached maximum number of students.");
 
-        var entity = _mapper.Map<Enrollment>(request);
-        entity.CreatedAt = DateTime.UtcNow;
-        entity.UpdatedAt = null;
-        entity.IsDeleted = false;
+        if (enrolledCount >= cls.MaxStudents)
+        {
+            throw new BusinessException("Class is already full.");
+        }
+
+        var already = await _context.Enrollments
+            .AnyAsync(e => e.ClassId == request.ClassId
+                        && e.StudentId == request.StudentId
+                        && !e.IsDeleted);
+
+        if (already)
+        {
+            throw new BusinessException("Student is already enrolled in this class.");
+        }
+
+        var entity = new Enrollment
+        {
+            StudentId = request.StudentId,
+            ClassId = request.ClassId,
+            EnrollDate = request.EnrollDate,
+            Note = request.Note,
+            Status = request.Status,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = null,
+            IsDeleted = false
+        };
 
         _context.Enrollments.Add(entity);
         await _context.SaveChangesAsync();
