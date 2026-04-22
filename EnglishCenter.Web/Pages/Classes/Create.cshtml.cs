@@ -24,10 +24,6 @@ public class CreateModel : PageModel
 
     public string ErrorMessage { get; set; } = string.Empty;
 
-    public void OnGet()
-    {
-    }
-
     public async Task OnGetAsync()
     {
         // load lookup lists

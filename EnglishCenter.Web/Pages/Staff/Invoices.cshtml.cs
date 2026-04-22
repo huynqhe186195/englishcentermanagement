@@ -44,7 +44,7 @@ public class InvoicesModel : PageModel
         if (Status.HasValue) url += $"&Status={Status.Value}";
 
         var invoices = await _apiClient.GetAsync<PagedResult<InvoiceDto>>(url);
-        Items = invoices?.Items ?? new List<InvoiceDto>();
+        Items = (List<InvoiceDto>)(invoices?.Items ?? new List<InvoiceDto>());
 
         var students = await _apiClient.GetAsync<PagedResult<StudentSimpleDto>>("students?PageNumber=1&PageSize=1000");
         Students = students?.Items.Select(x => new SelectListItem(x.FullName, x.Id.ToString())).ToList() ?? new List<SelectListItem>();
