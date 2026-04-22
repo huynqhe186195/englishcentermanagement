@@ -94,6 +94,8 @@ public class LoginModel : PageModel
             // redirect based on role
             if (roles.Contains("SUPER_ADMIN", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/SuperAdmins/Dashboard");
             if (roles.Contains("CENTER_ADMIN", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Admin/Index");
+            if (roles.Contains("MANAGER", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Admin/Index");
+            if (roles.Contains("ADMIN", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Admin/Index");
             if (roles.Contains("TEACHER", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Teacher/Index");
             if (roles.Contains("STAFF", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Admin/Index");
             if (roles.Contains("PARENT", StringComparer.OrdinalIgnoreCase)) return RedirectToPage("/Student/Index");
