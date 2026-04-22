@@ -2,7 +2,8 @@
 
 public class CreateStudentRequestDto
 {
-    public string StudentCode { get; set; } = string.Empty;
+    public string? StudentCode { get; set; }
+    public long? UserId { get; set; }
     public string FullName { get; set; } = string.Empty;
     public DateOnly? DateOfBirth { get; set; }
     public int? Gender { get; set; }

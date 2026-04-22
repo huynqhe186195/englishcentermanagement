@@ -9,10 +9,9 @@ public class CreateStudentRequestDtoValidator : AbstractValidator<CreateStudentR
     {
         RuleFor(x => x.StudentCode)
             .Cascade(CascadeMode.Stop)
-            .NotEmpty().WithMessage("StudentCode is required.")
-            .Must(code => !string.IsNullOrWhiteSpace(code)).WithMessage("StudentCode is required.")
-            .MinimumLength(3).WithMessage("StudentCode must be at least 3 characters.")
-            .MaximumLength(50).WithMessage("StudentCode must not exceed 50 characters.");
+            .MinimumLength(3).When(x => !string.IsNullOrWhiteSpace(x.StudentCode)).WithMessage("StudentCode must be at least 3 characters.")
+            .MaximumLength(50).When(x => !string.IsNullOrWhiteSpace(x.StudentCode)).WithMessage("StudentCode must not exceed 50 characters.")
+            .Must(code => code == null || !string.IsNullOrWhiteSpace(code)).WithMessage("StudentCode cannot be whitespace.");
 
         RuleFor(x => x.FullName)
             .Cascade(CascadeMode.Stop)

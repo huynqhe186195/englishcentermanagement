@@ -363,8 +363,11 @@ public class StudentService
 
     public async Task<long> CreateAsync(CreateStudentRequestDto request)
     {
-        var studentCode = request.StudentCode.Trim();
         var fullName = request.FullName.Trim();
+        var requestedCode = request.StudentCode?.Trim();
+        var studentCode = string.IsNullOrWhiteSpace(requestedCode)
+            ? await GenerateStudentCodeAsync(request.UserId)
+            : requestedCode;
 
         var exists = await _context.Students
             .AnyAsync(x => x.StudentCode == studentCode && !x.IsDeleted);
@@ -372,6 +375,25 @@ public class StudentService
         if (exists)
         {
             throw new BusinessException("StudentCode already exists.");
+        }
+
+        if (request.UserId.HasValue && request.UserId.Value > 0)
+        {
+            var userExists = await _context.Users
+                .AnyAsync(x => x.Id == request.UserId.Value && !x.IsDeleted);
+
+            if (!userExists)
+            {
+                throw new BusinessException("User not found.");
+            }
+
+            var studentProfileExists = await _context.Students
+                .AnyAsync(x => x.UserId == request.UserId.Value && !x.IsDeleted);
+
+            if (studentProfileExists)
+            {
+                throw new BusinessException("User already has a student profile.");
+            }
         }
 
         var entity = _mapper.Map<Student>(request);
@@ -386,6 +408,24 @@ public class StudentService
         await _context.SaveChangesAsync();
 
         return entity.Id;
+    }
+
+    private async Task<string> GenerateStudentCodeAsync(long? userId)
+    {
+        var baseCode = userId.HasValue && userId.Value > 0
+            ? $"STU{userId.Value:D6}"
+            : $"STU{DateTime.UtcNow:yyyyMMddHHmmss}";
+
+        var candidate = baseCode;
+        var suffix = 1;
+
+        while (await _context.Students.AnyAsync(x => x.StudentCode == candidate && !x.IsDeleted))
+        {
+            candidate = $"{baseCode}-{suffix}";
+            suffix++;
+        }
+
+        return candidate;
     }
 
     public async Task<bool> UpdateAsync(long id, UpdateStudentRequestDto request)
