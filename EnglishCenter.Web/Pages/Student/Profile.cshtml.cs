@@ -55,7 +55,7 @@ public class ProfileModel : PageModel
             return Page();
         }
 
-        var (ok, message) = await SendApiAsync(HttpMethod.Put, $"students/{StudentId}", ProfileForm);
+        var (ok, message) = await SendApiAsync(HttpMethod.Put, "students/me/profile", ProfileForm);
         ProfileUpdated = ok;
         ProfileMessage = ok ? "Cập nhật thông tin thành công." : $"Cập nhật thông tin thất bại: {message}";
 

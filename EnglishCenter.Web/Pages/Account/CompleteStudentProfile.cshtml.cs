@@ -88,7 +88,7 @@ public class CompleteStudentProfileModel : PageModel
             return Page();
         }
 
-        var ok = await _apiClient.PutAsync($"students/{StudentId}", ProfileForm);
+        var ok = await _apiClient.PutAsync("students/me/profile", ProfileForm);
         if (!ok)
         {
             Message = "Cập nhật hồ sơ thất bại. Vui lòng kiểm tra lại thông tin.";

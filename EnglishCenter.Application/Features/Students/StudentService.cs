@@ -17,15 +17,18 @@ public class StudentService
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IEmailService _emailService;
+    private readonly ICurrentUserService _currentUserService;
 
     public StudentService(
     IApplicationDbContext context,
     IMapper mapper,
-    IEmailService emailService)
+    IEmailService emailService,
+    ICurrentUserService currentUserService)
     {
         _context = context;
         _mapper = mapper;
         _emailService = emailService;
+        _currentUserService = currentUserService;
     }
     // Helper methods to convert status codes to text
     private static string GetAttendanceStatusText(int status)
@@ -436,6 +439,30 @@ public class StudentService
         if (entity == null)
         {
             throw new NotFoundException("Student not found.");
+        }
+
+        _mapper.Map(request, entity);
+        entity.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> UpdateCurrentStudentProfileAsync(UpdateStudentRequestDto request)
+    {
+        if (!_currentUserService.UserId.HasValue)
+        {
+            throw new BusinessException("User is not authenticated.");
+        }
+
+        var userId = _currentUserService.UserId.Value;
+
+        var entity = await _context.Students
+            .FirstOrDefaultAsync(x => x.UserId == userId && !x.IsDeleted);
+
+        if (entity == null)
+        {
+            throw new NotFoundException("Student profile not found.");
         }
 
         _mapper.Map(request, entity);

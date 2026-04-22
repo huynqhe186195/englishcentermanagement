@@ -78,6 +78,14 @@ public class StudentsController : ControllerBase
         return Ok();
     }
 
+    [Authorize]
+    [HttpPut("me/profile")]
+    public async Task<IActionResult> UpdateMyProfile([FromBody] UpdateStudentRequestDto request)
+    {
+        await _studentService.UpdateCurrentStudentProfileAsync(request);
+        return Ok();
+    }
+
     [Authorize(Policy = PermissionConstants.Students.Delete)]
     [HttpDelete("{id:long}")]
     public async Task<IActionResult> Delete(long id)
