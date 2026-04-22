@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using EnglishCenter.Web.Services;
 using EnglishCenter.Web.Models;
@@ -39,7 +40,25 @@ public class IndexModel : PageModel
     public int TotalTeachers { get; set; }
     public int TotalEnrollments { get; set; }
 
+    public bool IsSuperAdmin { get; set; }
+    public bool IsCenterAdmin { get; set; }
+    public bool HasGlobalDashboardAccess { get; set; }
+
     public async Task OnGetAsync()
+    {
+        ResolveRoleFlags();
+
+        HasGlobalDashboardAccess = IsSuperAdmin;
+
+        if (HasGlobalDashboardAccess)
+        {
+            await LoadGlobalDashboardsAsync();
+        }
+
+        await LoadCountCardsAsync();
+    }
+
+    private async Task LoadGlobalDashboardsAsync()
     {
         var classesData = await _apiClient.GetAsync<PagedResult<ClassDashboardDto>>("academicDashboard/class-dashboard?PageNumber=1&PageSize=5");
         if (classesData != null) TopClasses = classesData.Items;
@@ -70,15 +89,42 @@ public class IndexModel : PageModel
             SelectedTeacherCampus = TeacherByCampus.OrderByDescending(x => x.TeacherCount).FirstOrDefault();
             SelectedRoomCampus = RoomByCampus.OrderByDescending(x => x.RoomCount).FirstOrDefault();
         }
+    }
 
-        // counts: call paged endpoints with PageSize=1 and read TotalRecords
+    private async Task LoadCountCardsAsync()
+    {
         var classesCount = await _apiClient.GetAsync<PagedResult<object>>("classes?PageNumber=1&PageSize=1");
         TotalClasses = classesCount?.TotalRecords ?? 0;
-        var studentsCount = await _apiClient.GetAsync<PagedResult<object>>("students?PageNumber=1&PageSize=1");
-        TotalStudents = studentsCount?.TotalRecords ?? 0;
+
+        if (IsSuperAdmin)
+        {
+            var studentsCount = await _apiClient.GetAsync<PagedResult<object>>("students?PageNumber=1&PageSize=1");
+            TotalStudents = studentsCount?.TotalRecords ?? 0;
+        }
+        else if (IsCenterAdmin)
+        {
+            var campusUsers = await _apiClient.GetAsync<PagedResult<UserDto>>("campus-admin/users?pageNumber=1&pageSize=1");
+            TotalStudents = campusUsers?.TotalRecords ?? 0;
+        }
+
         var teachersCount = await _apiClient.GetAsync<PagedResult<object>>("teachers?PageNumber=1&PageSize=1");
         TotalTeachers = teachersCount?.TotalRecords ?? 0;
+
         var enrollmentsCount = await _apiClient.GetAsync<PagedResult<object>>("enrollments?PageNumber=1&PageSize=1");
         TotalEnrollments = enrollmentsCount?.TotalRecords ?? 0;
+    }
+
+    private void ResolveRoleFlags()
+    {
+        var rawRoles = HttpContext.Session.GetString("Roles");
+        var roles = string.IsNullOrWhiteSpace(rawRoles)
+            ? new List<string>()
+            : JsonSerializer.Deserialize<List<string>>(rawRoles) ?? new List<string>();
+
+        IsSuperAdmin = roles.Contains("SUPER_ADMIN", StringComparer.OrdinalIgnoreCase);
+        IsCenterAdmin =
+            roles.Contains("CENTER_ADMIN", StringComparer.OrdinalIgnoreCase)
+            || roles.Contains("MANAGER", StringComparer.OrdinalIgnoreCase)
+            || roles.Contains("ADMIN", StringComparer.OrdinalIgnoreCase);
     }
 }
