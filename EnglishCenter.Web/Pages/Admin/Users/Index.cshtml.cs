@@ -3,7 +3,6 @@ using EnglishCenter.Web.Models;
 using EnglishCenter.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace EnglishCenter.Web.Pages.Admin.Users;
 
@@ -41,8 +40,6 @@ public class IndexModel : PageModel
     public Dictionary<long, string> UserRoleBadges { get; set; } = new();
     public List<RoleDto> AssignableRoles { get; set; } = new();
 
-    public List<SelectListItem> RoleOptions { get; set; } = new();
-
     [BindProperty]
     public long? SelectedRoleId { get; set; }
 
@@ -51,9 +48,6 @@ public class IndexModel : PageModel
     {
         Status = 1
     };
-
-    [BindProperty]
-    public long? CreateRoleId { get; set; }
 
     [BindProperty]
     public UpdateUserInput UpdateInput { get; set; } = new();
@@ -83,8 +77,6 @@ public class IndexModel : PageModel
         {
             return RedirectToPage();
         }
-
-        await LoadRoleOptionsAsync();
 
         if (string.IsNullOrWhiteSpace(CreateInput.UserName)
             || string.IsNullOrWhiteSpace(CreateInput.PasswordHash)
@@ -118,21 +110,6 @@ public class IndexModel : PageModel
         });
 
         var ok = created != null && created.Id > 0;
-
-        if (ok && CreateRoleId.HasValue && CreateRoleId.Value > 0)
-        {
-            var roleAssigned = await _apiClient.PostAsync("campus-admin/user-roles/assign", new
-            {
-                userId = created!.Id,
-                roleId = CreateRoleId.Value
-            });
-
-            if (!roleAssigned)
-            {
-                TempData["ErrorMessage"] = "Campus user created successfully nhưng gán role thất bại.";
-                return RedirectToPage();
-            }
-        }
 
         TempData[ok ? "SuccessMessage" : "ErrorMessage"] = ok
             ? "Campus user created successfully."
@@ -346,23 +323,6 @@ public class IndexModel : PageModel
         }
     }
 
-    private async Task LoadRoleOptionsAsync()
-    {
-        var roles = await _apiClient.GetAsync<List<RoleDto>>("campus-admin/roles") ?? new List<RoleDto>();
-
-        RoleOptions = roles
-            .Where(r =>
-                !string.Equals(r.Name, "SUPER_ADMIN", StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(r.Name, "CENTER_ADMIN", StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(r.Name, "ADMIN", StringComparison.OrdinalIgnoreCase))
-            .Select(r => new SelectListItem
-            {
-                Value = r.Id.ToString(),
-                Text = r.Name
-            })
-            .ToList();
-    }
-
     private bool EnsureCenterAdmin()
     {
         var rawRoles = HttpContext.Session.GetString("Roles");
@@ -390,8 +350,8 @@ public class IndexModel : PageModel
 
     private async Task LoadAssignableRolesAsync()
     {
-        var rolePaged = await _apiClient.GetAsync<PagedResult<RoleDto>>("roles?pageNumber=1&pageSize=200");
-        var roles = rolePaged?.Items?.ToList() ?? new List<RoleDto>();
+        var roles = await _apiClient.GetAsync<List<RoleDto>>("campus-admin/user-roles")
+            ?? new List<RoleDto>();
 
         AssignableRoles = roles
             .Where(x => CampusAdminAssignableRoleCodes.Any(code => string.Equals(code, x.Code, StringComparison.OrdinalIgnoreCase)))

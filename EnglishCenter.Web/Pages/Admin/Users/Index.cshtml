@@ -81,7 +81,7 @@ else
             </div>
             <div class="col-md-4">
                 <label class="form-label">Role</label>
-                <select asp-for="CreateRoleId" class="form-select">
+                <select asp-for="SelectedRoleId" class="form-select">
                     <option value="">-- Chọn role --</option>
                     @foreach (var role in Model.AssignableRoles)
                     {
