@@ -191,32 +191,45 @@ public class IndexModel : PageModel
     {
         AdminUsers = new List<AdminLookupVm>();
 
-        var rolePaged = await _apiClient.GetAsync<PagedResult<RoleDto>>("roles?pageNumber=1&pageSize=200");
-        var adminRole = rolePaged?.Items?.FirstOrDefault(x => string.Equals(x.Code, "ADMIN", StringComparison.OrdinalIgnoreCase));
-        if (adminRole == null)
-        {
-            return;
-        }
+        const int pageSize = 200;
+        var pageNumber = 1;
 
-        var userPaged = await _apiClient.GetAsync<PagedResult<UserDto>>("users?pageNumber=1&pageSize=200");
-        var users = userPaged?.Items ?? new List<UserDto>();
-        foreach (var user in users)
+        while (true)
         {
-            var roles = await _apiClient.GetAsync<List<UserRoleDto>>($"userroles/{user.Id}") ?? new List<UserRoleDto>();
-            var hasAdminRole = roles.Any(x => x.RoleId == adminRole.Id);
-            if (!hasAdminRole || user.Status != 1 || user.CampusId.HasValue)
+            var userPaged = await _apiClient.GetAsync<PagedResult<UserDto>>($"users?pageNumber={pageNumber}&pageSize={pageSize}");
+            var users = userPaged?.Items ?? new List<UserDto>();
+            if (!users.Any())
             {
-                continue;
+                break;
             }
 
-            if (user.Id > 0)
+            foreach (var user in users)
             {
+                var hasAdminRole = (user.RoleNames ?? new List<string>())
+                    .Any(role => string.Equals(role, "ADMIN", StringComparison.OrdinalIgnoreCase));
+
+                if (!hasAdminRole || user.Status != 1 || user.CampusId.HasValue || user.Id <= 0)
+                {
+                    continue;
+                }
+
                 AdminUsers.Add(new AdminLookupVm
                 {
                     Id = user.Id,
                     Label = $"{user.FullName} ({user.UserName})"
                 });
             }
+
+            if (userPaged == null || pageNumber >= userPaged.TotalPages)
+            {
+                break;
+            }
+
+            pageNumber++;
         }
+
+        AdminUsers = AdminUsers
+            .OrderBy(x => x.Label)
+            .ToList();
     }
 }
