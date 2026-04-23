@@ -9,6 +9,8 @@ public class UserDto
     public string? PhoneNumber { get; set; }
     public string FullName { get; set; } = string.Empty;
     public int Status { get; set; }
+    public List<string> RoleNames { get; set; } = new();
+    public string? RoleDisplay { get; set; }
 }
 
 public class UserDetailDto
