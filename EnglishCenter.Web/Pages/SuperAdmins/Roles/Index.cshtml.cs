@@ -34,18 +34,22 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostSaveAsync()
     {
-        await LoadAsync();
         if (!RoleId.HasValue || RoleId.Value <= 0)
         {
             SaveSuccess = false;
             SaveMessage = "Role không hợp lệ.";
+            await LoadAsync();
             return Page();
         }
+
+        var requestedPermissionIds = SelectedPermissionIds
+            .Distinct()
+            .ToList();
 
         var ok = await _apiClient.PutAsync("rolepermissions/replace", new ReplaceRolePermissionsRequestDto
         {
             RoleId = RoleId.Value,
-            PermissionIds = SelectedPermissionIds.Distinct().ToList()
+            PermissionIds = requestedPermissionIds
         });
 
         SaveSuccess = ok;
